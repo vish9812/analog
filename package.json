@@ -23,6 +23,7 @@
     "@suid/material": "^0.14.2",
     "ag-grid-community": "30.1.0",
     "ag-grid-solid": "30.1.0",
+    "pretty-bytes": "^6.1.1",
     "solid-js": "^1.7.12"
   }
 }

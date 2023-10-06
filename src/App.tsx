@@ -1,5 +1,5 @@
 import "ag-grid-community/styles/ag-grid.min.css";
-import "ag-grid-community/styles/ag-theme-material.min.css";
+import "ag-grid-community/styles/ag-theme-alpine.min.css";
 
 import { type Component, Show } from "solid-js";
 import Normalizer from "./normalizer";

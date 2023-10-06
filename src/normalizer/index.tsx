@@ -1,8 +1,21 @@
-import { Button, CircularProgress, Grid, Stack, styled } from "@suid/material";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Stack,
+  styled,
+} from "@suid/material";
 import useViewModel from "./useViewModel";
 import FileUploadIcon from "@suid/icons-material/FileUpload";
 import MemoryIcon from "@suid/icons-material/Memory";
-import { Show } from "solid-js";
+import InsertDriveFileIcon from "@suid/icons-material/InsertDriveFile";
+import { For, Show } from "solid-js";
+import prettyBytes from "pretty-bytes";
 
 const HiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -18,6 +31,8 @@ const HiddenInput = styled("input")({
 
 function Normalizer() {
   const {
+    processors,
+    newFileDisabled,
     analyzeDisabled,
     processingFile,
     handleAnalyzeClick,
@@ -34,6 +49,7 @@ function Normalizer() {
           alignItems="center"
         >
           <Button
+            disabled={newFileDisabled()}
             sx={{ margin: 2 }}
             component="label"
             variant="contained"
@@ -42,6 +58,7 @@ function Normalizer() {
             open file
             <HiddenInput
               type="file"
+              multiple={false}
               onChange={(e) => handleFileUpload(e.target.files!)}
             />
           </Button>
@@ -61,6 +78,29 @@ function Normalizer() {
           </Button>
         </Stack>
       </Grid>
+      <Show when={!!processors().length}>
+        <Grid item xs={3}>
+          <List subheader="Files">
+            <For each={processors()}>
+              {(processor) => {
+                return (
+                  <ListItem disablePadding>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <InsertDriveFileIcon />
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={processor.fileInfo.name}
+                        secondary={prettyBytes(processor.fileInfo.size)}
+                      />
+                    </ListItemButton>
+                  </ListItem>
+                );
+              }}
+            </For>
+          </List>
+        </Grid>
+      </Show>
     </Grid>
   );
 }

@@ -1,8 +1,9 @@
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import LogsProcessor, { GroupedMsg } from "../../models/logsProcessor";
+import { GroupedMsg } from "../../models/processor";
 import { SelectionChangedEvent } from "ag-grid-community";
 import { type AgGridSolidRef } from "ag-grid-solid";
+import comparer from "../../models/comparer";
 
 interface FiltersProps {
   onFiltersChange: (filters: FiltersData) => void;
@@ -20,19 +21,32 @@ function defaultFilters(): FiltersData {
   return { startTime: "", endTime: "", regex: "", msgs: [], errorsOnly: false };
 }
 
+const errorFilterFn = (prev: GroupedMsg[]) => prev.filter((m) => m.hasErrors);
+
 function useViewModel(props: FiltersProps) {
   const [filters, setFilters] = createStore(defaultFilters());
-
-  const [topMsgs, setTopMsgs] = createSignal(LogsProcessor.instance.topMsgs);
+  const [topMsgs, setTopMsgs] = createSignal(comparer.last().topLogs);
+  const [addedMsgs, setAddedMsgs] = createSignal(comparer.added);
+  const [removedMsgs, setRemovedMsgs] = createSignal(comparer.removed);
 
   function handleFiltersChange() {
     props.onFiltersChange(filters);
   }
 
-  function handleResetClick(gridRef: AgGridSolidRef) {
+  function handleResetClick(
+    topMsgsGridRef: AgGridSolidRef,
+    addedMsgsGridRef: AgGridSolidRef,
+    removedMsgsGridRef: AgGridSolidRef
+  ) {
     setFilters(defaultFilters());
     handleErrorsOnlyChange(null, false);
-    gridRef.api.deselectAll();
+    topMsgsGridRef.api.deselectAll();
+    if (addedMsgs().length > 0) {
+      addedMsgsGridRef.api.deselectAll();
+    }
+    if (removedMsgs().length > 0) {
+      removedMsgsGridRef && removedMsgsGridRef.api.deselectAll();
+    }
   }
 
   function handleSelectionChanged(e: SelectionChangedEvent<GroupedMsg>) {
@@ -47,9 +61,13 @@ function useViewModel(props: FiltersProps) {
     setFilters("errorsOnly", on);
 
     if (on) {
-      setTopMsgs((prev) => prev.filter((m) => m.hasErrors));
+      setTopMsgs(errorFilterFn);
+      setAddedMsgs(errorFilterFn);
+      setRemovedMsgs(errorFilterFn);
     } else {
-      setTopMsgs(LogsProcessor.instance.topMsgs);
+      setTopMsgs(comparer.last().topLogs);
+      setAddedMsgs(comparer.added);
+      setRemovedMsgs(comparer.removed);
     }
 
     handleFiltersChange();
@@ -58,6 +76,8 @@ function useViewModel(props: FiltersProps) {
   return {
     filters,
     topMsgs,
+    addedMsgs,
+    removedMsgs,
     setFilters,
     handleFiltersChange,
     handleSelectionChanged,

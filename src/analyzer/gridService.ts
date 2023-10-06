@@ -1,5 +1,5 @@
 import { ColDef } from "ag-grid-community";
-import { JSONLog, JSONLogs } from "../models/logsProcessor";
+import { JSONLog, JSONLogs } from "../models/processor";
 
 class GridService {
   readonly defaultColDef: ColDef = {

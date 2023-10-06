@@ -20,9 +20,9 @@ dependencies:
   ag-grid-solid:
     specifier: 30.1.0
     version: 30.1.0(ag-grid-community@30.1.0)(solid-js@1.7.12)
-  solid-element:
-    specifier: ^1.7.1
-    version: 1.7.1(solid-js@1.7.12)
+  pretty-bytes:
+    specifier: ^6.1.1
+    version: 6.1.1
   solid-js:
     specifier: ^1.7.12
     version: 1.7.12
@@ -1020,10 +1020,6 @@ packages:
     resolution: {integrity: sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==}
     dev: true
 
-  /component-register@0.8.3:
-    resolution: {integrity: sha512-/0u8ov0WPWi2FL78rgB9aFOcfY8pJT4jP/l9NTOukGNLVQ6hk35sEJE1RkEnNQU3yk48Qr7HlDQjRQKEVfgeWg==}
-    dev: false
-
   /convert-source-map@1.9.0:
     resolution: {integrity: sha512-ASFBup0Mz1uyiIjANan1jzLQami9z1PoYSZCiiYW2FczPbenXc45FZdBZLzOT+r6+iciuEModtmCti+hjaAk0A==}
     dev: true
@@ -1197,6 +1193,11 @@ packages:
       source-map-js: 1.0.2
     dev: true
 
+  /pretty-bytes@6.1.1:
+    resolution: {integrity: sha512-mQUvGU6aUFQ+rNvTIAcZuWGRT9a6f6Yrg9bHs4ImKF+HZCEK+plBvnAZYSIQztknZF2qnzNtr6F8s0+IuptdlQ==}
+    engines: {node: ^14.13.1 || >=16.0.0}
+    dev: false
+
   /rollup@3.29.2:
     resolution: {integrity: sha512-CJouHoZ27v6siztc21eEQGo0kIcE5D1gVPA571ez0mMYb25LGYGKnVNXpEj5MGlepmDWGXNjDB5q7uNiPHC11A==}
     engines: {node: '>=14.18.0', npm: '>=8.0.0'}
@@ -1236,15 +1237,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /solid-element@1.7.1(solid-js@1.7.12):
-    resolution: {integrity: sha512-VtG3kg3HRUkq6QN4iyZKX1qmXYCEHMO3yH1DfakifaO+ncxHa56jU8SLtEgD55zR230pXQyPTWaEDDS0hTlmpg==}
-    peerDependencies:
-      solid-js: ^1.7.6
-    dependencies:
-      component-register: 0.8.3
-      solid-js: 1.7.12
-    dev: false
 
   /solid-js@1.7.12:
     resolution: {integrity: sha512-QoyoOUKu14iLoGxjxWFIU8+/1kLT4edQ7mZESFPonsEXZ//VJtPKD8Ud1aTKzotj+MNWmSs9YzK6TdY+fO9Eww==}
