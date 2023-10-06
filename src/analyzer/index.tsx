@@ -1,5 +1,12 @@
 import AgGridSolid from "ag-grid-solid";
-import { Grid, Stack, Button, Divider, Typography } from "@suid/material";
+import {
+  Grid,
+  Stack,
+  Button,
+  Divider,
+  Typography,
+  TextField,
+} from "@suid/material";
 import useViewModel from "./useViewModel";
 import DataDialog from "../components/dataDialog";
 import Filters from "../components/filters";
@@ -15,6 +22,7 @@ function Analyzer() {
     viewData,
     selectedCellData,
     closeDialog,
+    downloadSubset,
   } = useViewModel();
 
   return (
@@ -34,19 +42,28 @@ function Analyzer() {
       <Grid item xs={12}>
         <Filters onFiltersChange={handleFiltersChange}></Filters>
       </Grid>
-      <Grid item xs={12}>
-        <Typography variant="h4" margin={2}>
-          All Logs
-          {rows().length ? " : " + rows().length.toLocaleString() : ""}
-        </Typography>
-        <div style={{ height: "550px" }} class="ag-theme-alpine">
-          <AgGridSolid
-            defaultColDef={gridService.defaultColDef}
-            rowData={rows()}
-            columnDefs={cols()}
-            onCellDoubleClicked={handleCellDoubleClick}
-          />
-        </div>
+      <Grid item xs={12} container spacing={2}>
+        <Grid item xs={2}>
+          <Typography variant="h4" margin={2}>
+            All Logs
+            {rows().length ? " : " + rows().length.toLocaleString() : ""}
+          </Typography>
+        </Grid>
+        <Grid item xs={10}>
+          <Button sx={{ margin: 2 }} variant="text" onClick={downloadSubset}>
+            Download the subset
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <div style={{ height: "550px" }} class="ag-theme-alpine">
+            <AgGridSolid
+              defaultColDef={gridService.defaultColDef}
+              rowData={rows()}
+              columnDefs={cols()}
+              onCellDoubleClicked={handleCellDoubleClick}
+            />
+          </div>
+        </Grid>
       </Grid>
       <Grid item xs={12}>
         <DataDialog

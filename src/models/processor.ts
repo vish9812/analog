@@ -7,18 +7,6 @@ interface GroupedMsg {
   hasErrors: boolean;
 }
 
-const maxMsgLen = 25;
-
-const logKeys = {
-  fullData: "fullData",
-  msg: "msg",
-  level: "level",
-  error: "error",
-} as const;
-const levels = {
-  error: "error",
-} as const;
-
 class Processor {
   fileInfo = {
     name: "",
@@ -29,7 +17,19 @@ class Processor {
   topLogs: GroupedMsg[] = [];
   topLogsMap = new Map<string, GroupedMsg>();
 
-  static sortComparerFn = (a: GroupedMsg, b: GroupedMsg) => b.count - a.count;
+  static readonly sortComparerFn = (a: GroupedMsg, b: GroupedMsg) =>
+    b.count - a.count;
+  private static readonly msgCutOffLen = 25;
+  static readonly logKeys = {
+    fullData: "fullData",
+    timestamp: "timestamp",
+    msg: "msg",
+    level: "level",
+    error: "error",
+  };
+  private static readonly levels = {
+    error: "error",
+  };
 
   async init(file: File) {
     this.initFileInfo(file);
@@ -49,7 +49,10 @@ class Processor {
   }
 
   static isErrorLog(log: JSONLog): boolean {
-    return log[logKeys.level] === levels.error || !!log[logKeys.error];
+    return (
+      log[Processor.logKeys.level] === Processor.levels.error ||
+      !!log[Processor.logKeys.error]
+    );
   }
 
   private initFileInfo(file: File) {
@@ -60,7 +63,10 @@ class Processor {
   }
 
   private initTopLogsMap(log: JSONLog) {
-    const cutOffMsg = log[logKeys.msg].substring(0, maxMsgLen);
+    const cutOffMsg = log[Processor.logKeys.msg].substring(
+      0,
+      Processor.msgCutOffLen
+    );
 
     if (!this.topLogsMap.has(cutOffMsg)) {
       this.topLogsMap.set(cutOffMsg, {
@@ -80,7 +86,7 @@ class Processor {
   private addLog(line: string): JSONLog | null {
     try {
       const log = JSON.parse(line) as JSONLog;
-      log[logKeys.fullData] = line;
+      log[Processor.logKeys.fullData] = line;
       this.logs.push(log);
       return log;
     } catch (err) {

@@ -1,4 +1,3 @@
-import usePage, { Pages } from "../hooks/usePage";
 import LogsProcessor, { JSONLog } from "../models/processor";
 import GridService from "./gridService";
 import { CellDoubleClickedEvent } from "ag-grid-community";
@@ -6,21 +5,20 @@ import { createSignal } from "solid-js";
 import { FiltersData } from "../components/filters/useViewModel";
 import comparer from "../models/comparer";
 import stringsUtils from "../utils/strings";
+import filesUtils from "../utils/files";
+import Processor from "../models/processor";
 
 function useViewModel() {
-  const { setPage } = usePage();
-
   const [rows, setRows] = createSignal(
     GridService.getRows(comparer.last().logs)
   );
-
   const [cols, setCols] = createSignal(GridService.getCols());
 
   const [viewData, setViewData] = createSignal(false);
   const [selectedCellData, setSelectedCellData] = createSignal("");
 
   function handleNormalizeClick() {
-    setPage(Pages.normalizer);
+    location.reload();
   }
 
   function handleCellDoubleClick(e: CellDoubleClickedEvent<JSONLog, string>) {
@@ -38,23 +36,35 @@ function useViewModel() {
         let keep = true;
 
         if (keep && filtersData.startTime) {
-          keep = r["timestamp"] >= filtersData.startTime;
+          keep = r[Processor.logKeys.timestamp] >= filtersData.startTime;
         }
         if (keep && filtersData.endTime) {
-          keep = r["timestamp"] <= filtersData.endTime;
+          keep = r[Processor.logKeys.timestamp] <= filtersData.endTime;
         }
         if (keep && filtersData.errorsOnly) {
           keep = LogsProcessor.isErrorLog(r);
         }
         if (keep && filtersData.regex) {
-          keep = stringsUtils.regexMatch(r["fullData"], filtersData.regex);
+          keep = stringsUtils.regexMatch(
+            r[Processor.logKeys.fullData],
+            filtersData.regex
+          );
         }
         if (keep && filtersData.msgs.length) {
-          keep = filtersData.msgs.some((msg) => r["msg"].startsWith(msg));
+          keep = filtersData.msgs.some((msg) =>
+            r[Processor.logKeys.msg].startsWith(msg)
+          );
         }
 
         return keep;
       })
+    );
+  }
+
+  function downloadSubset() {
+    filesUtils.downloadNewFile(
+      "filtered-logs.log",
+      rows().map((m) => m[Processor.logKeys.fullData])
     );
   }
 
@@ -67,6 +77,7 @@ function useViewModel() {
     viewData,
     selectedCellData,
     closeDialog,
+    downloadSubset,
   };
 }
 
