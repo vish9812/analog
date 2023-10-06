@@ -17,10 +17,6 @@ function useViewModel() {
   const [viewData, setViewData] = createSignal(false);
   const [selectedCellData, setSelectedCellData] = createSignal("");
 
-  function handleNormalizeClick() {
-    location.reload();
-  }
-
   function handleCellDoubleClick(e: CellDoubleClickedEvent<JSONLog, string>) {
     setSelectedCellData(e.value!);
     setViewData(true);
@@ -32,32 +28,34 @@ function useViewModel() {
 
   function handleFiltersChange(filtersData: FiltersData) {
     setRows(() =>
-      GridService.getRows(comparer.last().logs).filter((r) => {
-        let keep = true;
+      GridService.getRows(
+        comparer.last().logs.filter((r) => {
+          let keep = true;
 
-        if (keep && filtersData.startTime) {
-          keep = r[Processor.logKeys.timestamp] >= filtersData.startTime;
-        }
-        if (keep && filtersData.endTime) {
-          keep = r[Processor.logKeys.timestamp] <= filtersData.endTime;
-        }
-        if (keep && filtersData.errorsOnly) {
-          keep = LogsProcessor.isErrorLog(r);
-        }
-        if (keep && filtersData.regex) {
-          keep = stringsUtils.regexMatch(
-            r[Processor.logKeys.fullData],
-            filtersData.regex
-          );
-        }
-        if (keep && filtersData.msgs.length) {
-          keep = filtersData.msgs.some((msg) =>
-            r[Processor.logKeys.msg].startsWith(msg)
-          );
-        }
+          if (keep && filtersData.startTime) {
+            keep = r[Processor.logKeys.timestamp] >= filtersData.startTime;
+          }
+          if (keep && filtersData.endTime) {
+            keep = r[Processor.logKeys.timestamp] <= filtersData.endTime;
+          }
+          if (keep && filtersData.errorsOnly) {
+            keep = LogsProcessor.isErrorLog(r);
+          }
+          if (keep && filtersData.regex) {
+            keep = stringsUtils.regexMatch(
+              r[Processor.logKeys.fullData],
+              filtersData.regex
+            );
+          }
+          if (keep && filtersData.msgs.length) {
+            keep = filtersData.msgs.some((msg) =>
+              r[Processor.logKeys.msg].startsWith(msg)
+            );
+          }
 
-        return keep;
-      })
+          return keep;
+        })
+      )
     );
   }
 
@@ -69,7 +67,6 @@ function useViewModel() {
   }
 
   return {
-    handleNormalizeClick,
     handleCellDoubleClick,
     handleFiltersChange,
     rows,

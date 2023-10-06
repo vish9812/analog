@@ -40,6 +40,12 @@ function Filters(props: FiltersProps) {
       : undefined;
   }
 
+  function handleEnterKey(e: KeyboardEvent) {
+    if (e.key === "Enter") {
+      handleFiltersChange();
+    }
+  }
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
@@ -48,16 +54,19 @@ function Filters(props: FiltersProps) {
             label="Start Time"
             value={filters.startTime}
             onChange={(_, val) => setFilters("startTime", val)}
+            onKeyDown={handleEnterKey}
           />
           <TextField
             label="End Time"
             value={filters.endTime}
             onChange={(_, val) => setFilters("endTime", val)}
+            onKeyDown={handleEnterKey}
           />
           <TextField
             label="Regex Search"
             value={filters.regex}
             onChange={(_, val) => setFilters("regex", val)}
+            onKeyDown={handleEnterKey}
           />
         </Stack>
       </Grid>

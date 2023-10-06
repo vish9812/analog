@@ -1,12 +1,5 @@
 import AgGridSolid from "ag-grid-solid";
-import {
-  Grid,
-  Stack,
-  Button,
-  Divider,
-  Typography,
-  TextField,
-} from "@suid/material";
+import { Grid, Button, Typography } from "@suid/material";
 import useViewModel from "./useViewModel";
 import DataDialog from "../components/dataDialog";
 import Filters from "../components/filters";
@@ -14,7 +7,6 @@ import gridService from "./gridService";
 
 function Analyzer() {
   const {
-    handleNormalizeClick,
     handleCellDoubleClick,
     handleFiltersChange,
     rows,
@@ -27,29 +19,17 @@ function Analyzer() {
 
   return (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Stack direction="row" spacing={2} justifyContent="center">
-          <Button
-            sx={{ margin: 2 }}
-            variant="contained"
-            onClick={handleNormalizeClick}
-          >
-            New File
-          </Button>
-        </Stack>
-        <Divider></Divider>
-      </Grid>
-      <Grid item xs={12}>
+      <Grid item xs={12} margin={2}>
         <Filters onFiltersChange={handleFiltersChange}></Filters>
       </Grid>
       <Grid item xs={12} container spacing={2}>
-        <Grid item xs={2}>
+        <Grid item xs={3}>
           <Typography variant="h4" margin={2}>
             All Logs
             {rows().length ? " : " + rows().length.toLocaleString() : ""}
           </Typography>
         </Grid>
-        <Grid item xs={10}>
+        <Grid item xs={9}>
           <Button sx={{ margin: 2 }} variant="text" onClick={downloadSubset}>
             Download the subset
           </Button>
