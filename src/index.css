@@ -11,3 +11,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.app-select.solid-select-container{
+  z-index: 10;
+  background-color: white;
+}

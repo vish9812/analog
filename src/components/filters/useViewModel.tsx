@@ -18,7 +18,13 @@ interface FiltersData {
 }
 
 function defaultFilters(): FiltersData {
-  return { startTime: "", endTime: "", regex: "", msgs: [], errorsOnly: false };
+  return {
+    startTime: "",
+    endTime: "",
+    regex: "",
+    msgs: [],
+    errorsOnly: false,
+  };
 }
 
 const errorFilterFn = (prev: GroupedMsg[]) => prev.filter((m) => m.hasErrors);

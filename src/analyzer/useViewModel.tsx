@@ -1,5 +1,4 @@
 import LogsProcessor, { JSONLog } from "../models/processor";
-import GridService from "./gridService";
 import { CellDoubleClickedEvent } from "ag-grid-community";
 import { createSignal } from "solid-js";
 import { FiltersData } from "../components/filters/useViewModel";
@@ -7,12 +6,14 @@ import comparer from "../models/comparer";
 import stringsUtils from "../utils/strings";
 import filesUtils from "../utils/files";
 import Processor from "../models/processor";
+import gridService from "./gridService";
 
 function useViewModel() {
   const [rows, setRows] = createSignal(
-    GridService.getRows(comparer.last().logs)
+    gridService.getRows(comparer.last().logs)
   );
-  const [cols, setCols] = createSignal(GridService.getCols());
+  const [initialCols, setInitialCols] = createSignal(gridService.defaultCols());
+  const [cols, setCols] = createSignal(gridService.defaultCols());
 
   const [viewData, setViewData] = createSignal(false);
   const [selectedCellData, setSelectedCellData] = createSignal("");
@@ -26,30 +27,39 @@ function useViewModel() {
     setViewData(false);
   }
 
+  function handleColsChange(cols: string[] | string) {
+    console.log(cols);
+    const gridCols = (typeof cols === "string" ? cols.split(",") : cols).map(
+      (c) => gridService.getCol(c)
+    );
+    setCols(gridCols);
+  }
+
   function handleFiltersChange(filtersData: FiltersData) {
     setRows(() =>
-      GridService.getRows(
-        comparer.last().logs.filter((r) => {
+      gridService.getRows(
+        comparer.last().logs.filter((log) => {
           let keep = true;
 
           if (keep && filtersData.startTime) {
-            keep = r[Processor.logKeys.timestamp] >= filtersData.startTime;
+            keep = log[Processor.logKeys.timestamp] >= filtersData.startTime;
           }
           if (keep && filtersData.endTime) {
-            keep = r[Processor.logKeys.timestamp] <= filtersData.endTime;
+            keep = log[Processor.logKeys.timestamp] <= filtersData.endTime;
           }
           if (keep && filtersData.errorsOnly) {
-            keep = LogsProcessor.isErrorLog(r);
+            keep = LogsProcessor.isErrorLog(log);
           }
           if (keep && filtersData.regex) {
             keep = stringsUtils.regexMatch(
-              r[Processor.logKeys.fullData],
+              log[Processor.logKeys.fullData],
               filtersData.regex
             );
           }
+
           if (keep && filtersData.msgs.length) {
             keep = filtersData.msgs.some((msg) =>
-              r[Processor.logKeys.msg].startsWith(msg)
+              log[Processor.logKeys.msg].startsWith(msg)
             );
           }
 
@@ -69,12 +79,15 @@ function useViewModel() {
   return {
     handleCellDoubleClick,
     handleFiltersChange,
+    handleColsChange,
     rows,
     cols,
     viewData,
     selectedCellData,
     closeDialog,
     downloadSubset,
+    initialCols,
+    setInitialCols,
   };
 }
 

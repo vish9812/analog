@@ -1,3 +1,5 @@
+import objectsUtils from "../utils/objects";
+
 type JSONLog = Record<string, string>;
 type JSONLogs = JSONLog[];
 
@@ -16,9 +18,11 @@ class Processor {
   logs: JSONLogs = [];
   topLogs: GroupedMsg[] = [];
   topLogsMap = new Map<string, GroupedMsg>();
+  keys: string[] = [];
 
   static readonly sortComparerFn = (a: GroupedMsg, b: GroupedMsg) =>
     b.count - a.count;
+
   private static readonly msgCutOffLen = 25;
   static readonly logKeys = {
     fullData: "fullData",
@@ -34,6 +38,7 @@ class Processor {
   async init(file: File) {
     this.initFileInfo(file);
 
+    const keysSet = new Set<string>();
     for (const line of await Processor.getLines(file)) {
       const log = this.addLog(line);
       if (log == null) {
@@ -41,9 +46,11 @@ class Processor {
       }
 
       this.initTopLogsMap(log);
+      Processor.initKeysSet(log, keysSet);
     }
 
     this.topLogs = [...this.topLogsMap.values()].sort(Processor.sortComparerFn);
+    this.keys = [...keysSet].sort();
 
     return this;
   }
@@ -60,6 +67,10 @@ class Processor {
       name: file.name,
       size: file.size,
     };
+  }
+
+  private static initKeysSet(log: JSONLog, keysSet: Set<string>) {
+    objectsUtils.getNestedKeys(log).forEach((k) => keysSet.add(k));
   }
 
   private initTopLogsMap(log: JSONLog) {

@@ -14,6 +14,9 @@ dependencies:
   '@suid/material':
     specifier: ^0.14.2
     version: 0.14.2(solid-js@1.7.12)
+  '@thisbeyond/solid-select':
+    specifier: ^0.14.0
+    version: 0.14.0(solid-js@1.7.12)
   ag-grid-community:
     specifier: 30.1.0
     version: 30.1.0
@@ -904,6 +907,14 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /@thisbeyond/solid-select@0.14.0(solid-js@1.7.12):
+    resolution: {integrity: sha512-ecq4U3Vnc/nJbU84ARuPg2scNuYt994ljF5AmBlzuZW87x43mWiGJ5hEWufIJJMpDT6CcnCIx/xbrdDkaDEHQw==}
+    peerDependencies:
+      solid-js: ^1.5
+    dependencies:
+      solid-js: 1.7.12
+    dev: false
 
   /@types/babel__core@7.20.2:
     resolution: {integrity: sha512-pNpr1T1xLUc2l3xJKuPtsEky3ybxN3m4fJkknfIpTCTfIZCDW57oAg+EfCgIIp2rvCe0Wn++/FfodDS4YXxBwA==}
