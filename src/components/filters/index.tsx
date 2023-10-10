@@ -78,13 +78,7 @@ function Filters(props: FiltersProps) {
           <Divider orientation="vertical" flexItem></Divider>
           <Button
             variant="outlined"
-            onClick={() =>
-              handleResetClick(
-                topMsgsGridRef,
-                addedMsgsGridRef,
-                removedMsgsGridRef
-              )
-            }
+            onClick={() => handleResetClick(topMsgsGridRef, addedMsgsGridRef)}
           >
             Reset
           </Button>
@@ -111,6 +105,7 @@ function Filters(props: FiltersProps) {
           <div style={{ height: "350px" }} class="ag-theme-alpine">
             <AgGridSolid
               ref={topMsgsGridRef}
+              enableCellTextSelection={true}
               rowData={topMsgs()}
               columnDefs={[
                 {
@@ -140,6 +135,7 @@ function Filters(props: FiltersProps) {
               <div style={{ height: "350px" }} class="ag-theme-alpine">
                 <AgGridSolid
                   ref={addedMsgsGridRef}
+                  enableCellTextSelection={true}
                   rowData={addedMsgs()}
                   columnDefs={[
                     {
@@ -167,19 +163,17 @@ function Filters(props: FiltersProps) {
               <div style={{ height: "350px" }} class="ag-theme-alpine">
                 <AgGridSolid
                   ref={removedMsgs}
+                  enableCellTextSelection={true}
                   rowData={removedMsgs()}
                   columnDefs={[
                     {
                       field: "msg",
                       flex: 2,
-                      checkboxSelection: true,
                       filter: "agTextColumnFilter",
                     },
                     { field: "count", flex: 1, sortable: true },
                   ]}
-                  rowSelection="multiple"
                   suppressRowClickSelection={true}
-                  onSelectionChanged={handleSelectionChanged}
                   getRowStyle={getRowStyle}
                 />
               </div>

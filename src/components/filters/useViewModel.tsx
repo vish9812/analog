@@ -41,17 +41,13 @@ function useViewModel(props: FiltersProps) {
 
   function handleResetClick(
     topMsgsGridRef: AgGridSolidRef,
-    addedMsgsGridRef: AgGridSolidRef,
-    removedMsgsGridRef: AgGridSolidRef
+    addedMsgsGridRef: AgGridSolidRef
   ) {
     setFilters(defaultFilters());
     handleErrorsOnlyChange(null, false);
     topMsgsGridRef.api.deselectAll();
     if (addedMsgs().length > 0) {
       addedMsgsGridRef.api.deselectAll();
-    }
-    if (removedMsgs().length > 0) {
-      removedMsgsGridRef && removedMsgsGridRef.api.deselectAll();
     }
   }
 
