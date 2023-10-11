@@ -18,7 +18,6 @@ import comparer from "../../models/comparer";
 function Filters(props: FiltersProps) {
   let topMsgsGridRef = {} as AgGridSolidRef;
   let addedMsgsGridRef = {} as AgGridSolidRef;
-  let removedMsgsGridRef = {} as AgGridSolidRef;
 
   let {
     filters,

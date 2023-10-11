@@ -25,6 +25,7 @@ class Processor {
 
   private static readonly msgCutOffLen = 25;
   static readonly logKeys = {
+    id: "id",
     fullData: "fullData",
     timestamp: "timestamp",
     msg: "msg",
@@ -39,11 +40,14 @@ class Processor {
     this.initFileInfo(file);
 
     const keysSet = new Set<string>();
+    let count = 1;
     for (const line of await Processor.getLines(file)) {
       const log = this.addLog(line);
       if (log == null) {
         continue;
       }
+
+      log[Processor.logKeys.id] = (count++).toString();
 
       this.initTopLogsMap(log);
       Processor.initKeysSet(log, keysSet);

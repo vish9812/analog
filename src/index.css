@@ -15,4 +15,9 @@ code {
 .app-select.solid-select-container{
   z-index: 10;
   background-color: white;
+  border: 2px solid lightgray;
+    border-radius: 4px;
+}
+.app-select.solid-select-container:focus-within {
+  border-color: #1976d2;
 }
