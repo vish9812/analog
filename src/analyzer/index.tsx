@@ -1,10 +1,8 @@
 import AgGridSolid, { type AgGridSolidRef } from "ag-grid-solid";
 import { Grid, Button, Typography, Divider } from "@suid/material";
 import useViewModel from "./useViewModel";
-import DataDialog from "../components/dataDialog";
 import Filters from "../components/filters";
 import gridService from "./gridService";
-import { Show } from "solid-js";
 import comparer from "../models/comparer";
 import { Select, createOptions } from "@thisbeyond/solid-select";
 
@@ -12,14 +10,10 @@ function Analyzer() {
   let gridRef = {} as AgGridSolidRef;
 
   const {
-    handleCellDoubleClick,
     handleFiltersChange,
     handleColsChange,
     rows,
     cols,
-    dialogOpened,
-    selectedCellData,
-    closeDialog,
     downloadSubset,
     initialCols,
     setInitialCols,
@@ -97,20 +91,12 @@ function Analyzer() {
               defaultColDef={gridService.defaultColDef}
               rowData={rows()}
               columnDefs={cols()}
-              onCellDoubleClicked={handleCellDoubleClick}
               getRowId={(params) => params.data.id}
+              enableCellTextSelection={true}
+              // ensureDomOrder={true}
             />
           </div>
         </Grid>
-      </Grid>
-      <Grid item xs={12}>
-        <Show when={dialogOpened()}>
-          <DataDialog
-            data={selectedCellData()}
-            open={dialogOpened()}
-            onClose={closeDialog}
-          ></DataDialog>
-        </Show>
       </Grid>
     </Grid>
   );

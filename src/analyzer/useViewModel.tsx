@@ -1,5 +1,4 @@
-import Processor, { JSONLog, JSONLogs } from "../models/processor";
-import { CellDoubleClickedEvent } from "ag-grid-community";
+import Processor, { JSONLogs } from "../models/processor";
 import { createSignal } from "solid-js";
 import { FiltersData } from "../components/filters/useViewModel";
 import comparer from "../models/comparer";
@@ -21,18 +20,6 @@ function useViewModel() {
   const [rows, setRows] = createSignal(comparer.last().logs);
   const [initialCols, setInitialCols] = createSignal(gridService.defaultCols());
   const [cols, setCols] = createSignal(gridService.defaultCols());
-
-  const [dialogOpened, setDialogOpened] = createSignal(false);
-  const [selectedCellData, setSelectedCellData] = createSignal("");
-
-  function handleCellDoubleClick(e: CellDoubleClickedEvent<JSONLog, string>) {
-    setSelectedCellData(e.value!);
-    setDialogOpened(true);
-  }
-
-  function closeDialog() {
-    setDialogOpened(false);
-  }
 
   function handleColsChange(cols: string[]) {
     const gridCols = cols.map((c) => gridService.getCol(c));
@@ -124,14 +111,10 @@ function useViewModel() {
   }
 
   return {
-    handleCellDoubleClick,
     handleFiltersChange,
     handleColsChange,
     rows,
     cols,
-    dialogOpened,
-    selectedCellData,
-    closeDialog,
     downloadSubset,
     initialCols,
     setInitialCols,

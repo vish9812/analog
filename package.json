@@ -24,7 +24,6 @@
     "vitest": "^0.34.6"
   },
   "dependencies": {
-    "@alenaksu/json-viewer": "^2.0.1",
     "@suid/icons-material": "^0.6.9",
     "@suid/material": "^0.14.2",
     "@thisbeyond/solid-select": "^0.14.0",

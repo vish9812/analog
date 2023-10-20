@@ -35,7 +35,7 @@ function Filters(props: FiltersProps) {
     params: RowClassParams<GroupedMsg>
   ): RowStyle | undefined {
     return params.data?.hasErrors
-      ? { background: "red", color: "white" }
+      ? { background: "#C43616", color: "white" }
       : undefined;
   }
 

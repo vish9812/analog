@@ -1,4 +1,6 @@
 import { type ColDef } from "ag-grid-community";
+import JSONCellRenderer from "../components/jsonCellRenderer";
+import Processor from "../models/processor";
 
 const defaultColDef: ColDef = {
   resizable: true,
@@ -8,10 +10,12 @@ const defaultColDef: ColDef = {
 
 function defaultCols(): ColDef[] {
   return [
-    { field: "msg", minWidth: 500 },
-    { field: "fullData", flex: 1, filter: "agTextColumnFilter" },
+    {
+      field: Processor.logKeys.fullData,
+      cellRenderer: JSONCellRenderer,
+      flex: 2,
+    },
     { field: "timestamp", width: 270, sortable: true },
-    { field: "level", width: 100 },
   ];
 }
 
@@ -23,7 +27,7 @@ function getCol(field: string): ColDef {
 
   return {
     field: field,
-    flex: 1,
+    flex: 0.75,
     cellRenderer: (params: any) => {
       const val =
         typeof params.value === "object"

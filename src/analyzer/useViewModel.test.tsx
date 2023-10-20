@@ -36,33 +36,6 @@ describe("useViewModel", () => {
       expect(vm.initialCols(), "initialCols").toEqual(
         gridService.defaultCols()
       );
-      expect(vm.dialogOpened(), "dialogOpened").toEqual(false);
-      expect(vm.selectedCellData(), "selectedCellData").toEqual("");
-
-      dispose();
-    });
-  });
-
-  test("handleCellDoubleClick", () => {
-    createRoot((dispose) => {
-      const vm = useViewModel();
-      const event = {
-        value: "some data",
-      };
-      vm.handleCellDoubleClick(event as any);
-
-      expect(vm.selectedCellData(), "selectedCellData").toEqual(event.value);
-      expect(vm.dialogOpened(), "dialogOpened").toEqual(true);
-
-      dispose();
-    });
-  });
-
-  test("closeDialog", () => {
-    createRoot((dispose) => {
-      const vm = useViewModel();
-      vm.closeDialog();
-      expect(vm.dialogOpened(), "dialogOpened").toEqual(false);
 
       dispose();
     });

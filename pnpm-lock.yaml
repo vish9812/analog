@@ -5,9 +5,6 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@alenaksu/json-viewer':
-    specifier: ^2.0.1
-    version: 2.0.1
   '@suid/icons-material':
     specifier: ^0.6.9
     version: 0.6.9(solid-js@1.7.12)
@@ -60,12 +57,6 @@ devDependencies:
     version: 0.34.6(jsdom@22.1.0)
 
 packages:
-
-  /@alenaksu/json-viewer@2.0.1:
-    resolution: {integrity: sha512-M6rN1bcuSGfar6ND9fFASBkez0UcWOUxMiwm2i9jlPBrpjOHOz0/utMgZhfrsgfyFPZ1H1gzfU8auJkYO1mq/g==}
-    dependencies:
-      lit: 2.8.0
-    dev: false
 
   /@ampproject/remapping@2.2.1:
     resolution: {integrity: sha512-lFMjJTrFL3j7L9yBxwYfCq2k6qqwHyzuUl/XBnif78PWTJYyL/dfowQHWE3sp6U6ZzqWiiIZnpTMO96zhkjwtg==}
@@ -646,16 +637,6 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@lit-labs/ssr-dom-shim@1.1.1:
-    resolution: {integrity: sha512-kXOeFbfCm4fFf2A3WwVEeQj55tMZa8c8/f9AKHMobQMkzNUfUj+antR3fRPaZJawsa1aZiP/Da3ndpZrwEe4rQ==}
-    dev: false
-
-  /@lit/reactive-element@1.6.3:
-    resolution: {integrity: sha512-QuTgnG52Poic7uM1AN5yJ09QMe0O28e10XzSvWDz02TJiiKee4stsiownEIadWm8nYzyDAyT+gKzUoZmiWQtsQ==}
-    dependencies:
-      '@lit-labs/ssr-dom-shim': 1.1.1
-    dev: false
-
   /@nothing-but/utils@0.3.2:
     resolution: {integrity: sha512-y7ynAt3lVjvXF7+xVVezGnq4pJliX/ducCa9/AV6iB03M1JUcV0iq/9qK6h+4ieFPXhTAX2a/VuBNgksjnUQZw==}
     dev: true
@@ -1046,10 +1027,6 @@ packages:
     dependencies:
       undici-types: 5.25.3
     dev: true
-
-  /@types/trusted-types@2.0.4:
-    resolution: {integrity: sha512-IDaobHimLQhjwsQ/NMwRVfa/yL7L/wriQPMhw1ZJall0KX6E1oxk29XMDeilW5qTIg5aoiqf5Udy8U/51aNoQQ==}
-    dev: false
 
   /@vitest/coverage-v8@0.34.6(vitest@0.34.6):
     resolution: {integrity: sha512-fivy/OK2d/EsJFoEoxHFEnNGTg+MmdZBAVK9Ka4qhXR2K3J0DS08vcGVwzDtXSuUMabLv4KtPcpSKkcMXFDViw==}
@@ -1892,28 +1869,6 @@ packages:
   /jsonc-parser@3.2.0:
     resolution: {integrity: sha512-gfFQZrcTc8CnKXp6Y4/CBT3fTc0OVuDofpre4aEeEpSBPV5X5v4+Vmx+8snU7RLPrNHPKSgLxGo9YuQzz20o+w==}
     dev: true
-
-  /lit-element@3.3.3:
-    resolution: {integrity: sha512-XbeRxmTHubXENkV4h8RIPyr8lXc+Ff28rkcQzw3G6up2xg5E8Zu1IgOWIwBLEQsu3cOVFqdYwiVi0hv0SlpqUA==}
-    dependencies:
-      '@lit-labs/ssr-dom-shim': 1.1.1
-      '@lit/reactive-element': 1.6.3
-      lit-html: 2.8.0
-    dev: false
-
-  /lit-html@2.8.0:
-    resolution: {integrity: sha512-o9t+MQM3P4y7M7yNzqAyjp7z+mQGa4NS4CxiyLqFPyFWyc4O+nodLrkrxSaCTrla6M5YOLaT3RpbbqjszB5g3Q==}
-    dependencies:
-      '@types/trusted-types': 2.0.4
-    dev: false
-
-  /lit@2.8.0:
-    resolution: {integrity: sha512-4Sc3OFX9QHOJaHbmTMk28SYgVxLN3ePDjg7hofEft2zWlehFL3LiAuapWc4U/kYwMYJSh2hTCPZ6/LIC7ii0MA==}
-    dependencies:
-      '@lit/reactive-element': 1.6.3
-      lit-element: 3.3.3
-      lit-html: 2.8.0
-    dev: false
 
   /local-pkg@0.4.3:
     resolution: {integrity: sha512-SFppqq5p42fe2qcZQqqEOiVRXl+WCP1MdT6k7BDEW1j++sp5fIY+/fdRQitvKgB5BrBcmrs5m/L0v2FrU5MY1g==}
