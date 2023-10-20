@@ -14,8 +14,18 @@ function getNestedKeys(obj: Record<string, any>): string[] {
   return keys;
 }
 
+function isJSON(text: string): boolean {
+  try {
+    JSON.parse(text);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 const objectsUtils = {
   getNestedKeys,
+  isJSON,
 };
 
 export default objectsUtils;

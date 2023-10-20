@@ -1,21 +1,27 @@
 {
-  "name": "analog-web",
+  "name": "analog",
   "private": true,
   "version": "0.0.1",
   "description": "",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "start": "vite",
+    "test": "vitest --silent",
+    "coverage": "vitest run --coverage --silent",
     "build": "vite build && cp analog.sh dist",
     "preview": "vite preview"
   },
   "license": "MIT",
   "devDependencies": {
+    "@solidjs/testing-library": "^0.8.4",
     "@suid/vite-plugin": "^0.1.4",
+    "@vitest/coverage-v8": "^0.34.6",
+    "jsdom": "^22.1.0",
     "solid-devtools": "^0.27.7",
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
-    "vite-plugin-solid": "^2.7.0"
+    "vite-plugin-solid": "^2.7.0",
+    "vitest": "^0.34.6"
   },
   "dependencies": {
     "@alenaksu/json-viewer": "^2.0.1",

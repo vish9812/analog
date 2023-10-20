@@ -6,9 +6,9 @@ const Pages = {
 } as const;
 
 type Keys = keyof typeof Pages;
-type Values = (typeof Pages)[Keys];
+type PagesValues = (typeof Pages)[Keys];
 
-const [page, setPage] = createSignal<Values>(Pages.normalizer);
+const [page, setPage] = createSignal<PagesValues>(Pages.normalizer);
 
 const usePage = () => ({
   page,
@@ -17,3 +17,4 @@ const usePage = () => ({
 
 export default usePage;
 export { Pages };
+export type { PagesValues };

@@ -1,3 +1,4 @@
+import "@thisbeyond/solid-select/style.css";
 import "ag-grid-community/styles/ag-grid.min.css";
 import "ag-grid-community/styles/ag-theme-alpine.min.css";
 

@@ -2,14 +2,16 @@ import { type ColDef } from "ag-grid-community";
 
 const defaultColDef: ColDef = {
   resizable: true,
+  wrapText: true,
+  autoHeight: true,
 } as const;
 
 function defaultCols(): ColDef[] {
   return [
+    { field: "msg", minWidth: 500 },
+    { field: "fullData", flex: 1, filter: "agTextColumnFilter" },
     { field: "timestamp", width: 270, sortable: true },
     { field: "level", width: 100 },
-    { field: "msg", flex: 1 },
-    { field: "fullData", flex: 1, filter: "agTextColumnFilter" },
   ];
 }
 

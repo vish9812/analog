@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import { GroupedMsg } from "../../models/processor";
+import type { GroupedMsg } from "../../models/processor";
 import { SelectionChangedEvent } from "ag-grid-community";
 import { type AgGridSolidRef } from "ag-grid-solid";
 import comparer from "../../models/comparer";
@@ -31,7 +31,7 @@ const errorFilterFn = (prev: GroupedMsg[]) => prev.filter((m) => m.hasErrors);
 
 function useViewModel(props: FiltersProps) {
   const [filters, setFilters] = createStore(defaultFilters());
-  const [topMsgs, setTopMsgs] = createSignal(comparer.last().topLogs);
+  const [topLogs, setTopLogs] = createSignal(comparer.last().topLogs);
   const [addedMsgs, setAddedMsgs] = createSignal(comparer.added);
   const [removedMsgs, setRemovedMsgs] = createSignal(comparer.removed);
 
@@ -44,14 +44,14 @@ function useViewModel(props: FiltersProps) {
     addedMsgsGridRef: AgGridSolidRef
   ) {
     setFilters(defaultFilters());
-    handleErrorsOnlyChange(null, false);
+    handleErrorsOnlyChange(false);
     topMsgsGridRef.api.deselectAll();
     if (addedMsgs().length > 0) {
       addedMsgsGridRef.api.deselectAll();
     }
   }
 
-  function handleSelectionChanged(e: SelectionChangedEvent<GroupedMsg>) {
+  function handleLogsSelectionChanged(e: SelectionChangedEvent<GroupedMsg>) {
     setFilters(
       "msgs",
       e.api.getSelectedRows().map((n) => n.msg)
@@ -59,15 +59,15 @@ function useViewModel(props: FiltersProps) {
     handleFiltersChange();
   }
 
-  function handleErrorsOnlyChange(_: any, on: boolean) {
-    setFilters("errorsOnly", on);
+  function handleErrorsOnlyChange(checked: boolean) {
+    setFilters("errorsOnly", checked);
 
-    if (on) {
-      setTopMsgs(errorFilterFn);
+    if (checked) {
+      setTopLogs(errorFilterFn);
       setAddedMsgs(errorFilterFn);
       setRemovedMsgs(errorFilterFn);
     } else {
-      setTopMsgs(comparer.last().topLogs);
+      setTopLogs(comparer.last().topLogs);
       setAddedMsgs(comparer.added);
       setRemovedMsgs(comparer.removed);
     }
@@ -77,12 +77,12 @@ function useViewModel(props: FiltersProps) {
 
   return {
     filters,
-    topMsgs,
+    topLogs,
     addedMsgs,
     removedMsgs,
     setFilters,
     handleFiltersChange,
-    handleSelectionChanged,
+    handleLogsSelectionChanged,
     handleErrorsOnlyChange,
     handleResetClick,
   };

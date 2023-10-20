@@ -1,11 +1,10 @@
-import LogsProcessor, { JSONLog, JSONLogs } from "../models/processor";
+import Processor, { JSONLog, JSONLogs } from "../models/processor";
 import { CellDoubleClickedEvent } from "ag-grid-community";
 import { createSignal } from "solid-js";
 import { FiltersData } from "../components/filters/useViewModel";
 import comparer from "../models/comparer";
 import stringsUtils from "../utils/strings";
 import filesUtils from "../utils/files";
-import Processor from "../models/processor";
 import gridService from "./gridService";
 import timesUtils from "../utils/times";
 import { AgGridSolidRef } from "ag-grid-solid";
@@ -23,16 +22,16 @@ function useViewModel() {
   const [initialCols, setInitialCols] = createSignal(gridService.defaultCols());
   const [cols, setCols] = createSignal(gridService.defaultCols());
 
-  const [viewData, setViewData] = createSignal(false);
+  const [dialogOpened, setDialogOpened] = createSignal(false);
   const [selectedCellData, setSelectedCellData] = createSignal("");
 
   function handleCellDoubleClick(e: CellDoubleClickedEvent<JSONLog, string>) {
     setSelectedCellData(e.value!);
-    setViewData(true);
+    setDialogOpened(true);
   }
 
   function closeDialog() {
-    setViewData(false);
+    setDialogOpened(false);
   }
 
   function handleColsChange(cols: string[]) {
@@ -42,6 +41,7 @@ function useViewModel() {
 
   function handleFiltersChange(filtersData: FiltersData) {
     let prevTime: Date;
+    zeroJump = "";
     prevJumps = [];
     nextJumps = [];
 
@@ -55,7 +55,7 @@ function useViewModel() {
         keep = log[Processor.logKeys.timestamp] <= filtersData.endTime;
       }
       if (keep && filtersData.errorsOnly) {
-        keep = LogsProcessor.isErrorLog(log);
+        keep = Processor.isErrorLog(log);
       }
       if (keep && filtersData.regex) {
         keep = stringsUtils.regexMatch(
@@ -90,7 +90,7 @@ function useViewModel() {
 
     setRows(() => filteredLogs);
 
-    // Convert this queue to stack to avoid shift/unshift operations
+    // "Reverse" converts the queue(nextJumps) to stack to avoid unshift/shift O(n) ops and instead use push/pop O(1) ops.
     nextJumps.reverse();
     setTimeJumps(() => ({
       nextDisabled: nextJumps.length === 0,
@@ -107,22 +107,20 @@ function useViewModel() {
 
   function handleTimeJump(gridRef: AgGridSolidRef, next: boolean) {
     let jumpID: string = "";
-    if (next && nextJumps.length) {
+    if (next) {
       jumpID = nextJumps.pop()!;
       prevJumps.push(jumpID);
-    } else if (!next && prevJumps.length) {
+    } else {
       const currID = prevJumps.pop()!;
       jumpID = prevJumps.at(-1) || zeroJump;
       nextJumps.push(currID);
     }
 
-    if (jumpID) {
-      gridRef.api.ensureNodeVisible(gridRef.api.getRowNode(jumpID), "top");
-      setTimeJumps(() => ({
-        nextDisabled: nextJumps.length === 0,
-        prevDisabled: prevJumps.length === 0,
-      }));
-    }
+    gridRef.api.ensureNodeVisible(gridRef.api.getRowNode(jumpID), "middle");
+    setTimeJumps(() => ({
+      nextDisabled: nextJumps.length === 0,
+      prevDisabled: prevJumps.length === 0,
+    }));
   }
 
   return {
@@ -131,7 +129,7 @@ function useViewModel() {
     handleColsChange,
     rows,
     cols,
-    viewData,
+    dialogOpened,
     selectedCellData,
     closeDialog,
     downloadSubset,

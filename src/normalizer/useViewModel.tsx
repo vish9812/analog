@@ -1,24 +1,23 @@
-import { createSignal } from "solid-js";
-import usePage, { Pages } from "../hooks/usePage";
-import Processor from "../models/processor";
+import { Setter, createSignal } from "solid-js";
+import { Pages, type PagesValues } from "../hooks/usePage";
+import type Processor from "../models/processor";
 import comparer from "../models/comparer";
 
 function useViewModel() {
-  const { setPage } = usePage();
   const [analyzeDisabled, setAnalyzeDisabled] = createSignal(true);
   const [processingFile, setProcessingFile] = createSignal(false);
   const [processors, setProcessors] = createSignal<Processor[]>([]);
   const newFileDisabled = () => processors().length > 1;
 
-  const handleAnalyzeClick = () => {
+  const handleAnalyzeClick = (setPage: Setter<PagesValues>) => {
     setPage(Pages.analyzer);
   };
 
-  const handleFileUpload = async (files: FileList) => {
+  const handleFileUpload = async (files: FileList, processor: Processor) => {
     setProcessingFile(true);
     setAnalyzeDisabled(true);
 
-    const processor = await new Processor().init(files[0]);
+    await processor.init(files[0]);
     comparer.addProcessor(processor);
     setProcessors((prev) => [...prev, processor]);
 

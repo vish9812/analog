@@ -23,7 +23,7 @@ class Processor {
   static readonly sortComparerFn = (a: GroupedMsg, b: GroupedMsg) =>
     b.count - a.count;
 
-  private static readonly msgCutOffLen = 25;
+  private static readonly msgCutOffLen = 80;
   static readonly logKeys = {
     id: "id",
     fullData: "fullData",
@@ -42,7 +42,7 @@ class Processor {
     const keysSet = new Set<string>();
     let count = 1;
     for (const line of await Processor.getLines(file)) {
-      const log = this.addLog(line);
+      const log = this.addLog(line.trim());
       if (log == null) {
         continue;
       }
@@ -55,8 +55,6 @@ class Processor {
 
     this.topLogs = [...this.topLogsMap.values()].sort(Processor.sortComparerFn);
     this.keys = [...keysSet].sort();
-
-    return this;
   }
 
   static isErrorLog(log: JSONLog): boolean {
@@ -112,7 +110,7 @@ class Processor {
   }
 
   private static async getLines(file: File): Promise<string[]> {
-    return (await file.text()).split(/\r?\n/).filter((l) => !!l);
+    return (await file.text()).split(/\r?\n/);
   }
 }
 

@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 import solidPlugin from "vite-plugin-solid";
 import devtools from "solid-devtools/vite";
 import suidPlugin from "@suid/vite-plugin";
@@ -18,5 +18,14 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
+  },
+  test: {
+    environment: "jsdom",
+    globals: true,
+    testTransformMode: { web: ["/.[jt]sx?$/"] },
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html"],
+    },
   },
 });

@@ -16,6 +16,8 @@ import MemoryIcon from "@suid/icons-material/Memory";
 import InsertDriveFileIcon from "@suid/icons-material/InsertDriveFile";
 import { For, Show } from "solid-js";
 import prettyBytes from "pretty-bytes";
+import Processor from "../models/processor";
+import usePage from "../hooks/usePage";
 
 const HiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -30,6 +32,8 @@ const HiddenInput = styled("input")({
 });
 
 function Normalizer() {
+  const { setPage } = usePage();
+
   const {
     processors,
     newFileDisabled,
@@ -59,7 +63,9 @@ function Normalizer() {
             <HiddenInput
               type="file"
               multiple={false}
-              onChange={(e) => handleFileUpload(e.target.files!)}
+              onChange={(e) =>
+                handleFileUpload(e.target.files!, new Processor())
+              }
             />
           </Button>
           <Show when={processingFile()}>
@@ -70,7 +76,7 @@ function Normalizer() {
             component="label"
             startIcon={<MemoryIcon />}
             variant="contained"
-            onClick={handleAnalyzeClick}
+            onClick={() => handleAnalyzeClick(setPage)}
             color="success"
             disabled={analyzeDisabled()}
           >

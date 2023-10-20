@@ -1,6 +1,5 @@
-import "@thisbeyond/solid-select/style.css";
 import AgGridSolid, { type AgGridSolidRef } from "ag-grid-solid";
-import { Grid, Button, Typography, Divider, Stack } from "@suid/material";
+import { Grid, Button, Typography, Divider } from "@suid/material";
 import useViewModel from "./useViewModel";
 import DataDialog from "../components/dataDialog";
 import Filters from "../components/filters";
@@ -18,7 +17,7 @@ function Analyzer() {
     handleColsChange,
     rows,
     cols,
-    viewData,
+    dialogOpened,
     selectedCellData,
     closeDialog,
     downloadSubset,
@@ -105,10 +104,10 @@ function Analyzer() {
         </Grid>
       </Grid>
       <Grid item xs={12}>
-        <Show when={viewData()}>
+        <Show when={dialogOpened()}>
           <DataDialog
             data={selectedCellData()}
-            open={viewData()}
+            open={dialogOpened()}
             onClose={closeDialog}
           ></DataDialog>
         </Show>

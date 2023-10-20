@@ -21,12 +21,12 @@ function Filters(props: FiltersProps) {
 
   let {
     filters,
-    topMsgs,
+    topLogs,
     addedMsgs,
     removedMsgs,
     setFilters,
     handleFiltersChange,
-    handleSelectionChanged,
+    handleLogsSelectionChanged,
     handleErrorsOnlyChange,
     handleResetClick,
   } = useViewModel(props);
@@ -87,7 +87,7 @@ function Filters(props: FiltersProps) {
             control={
               <Switch
                 checked={filters.errorsOnly}
-                onChange={handleErrorsOnlyChange}
+                onChange={(_, checked) => handleErrorsOnlyChange(checked)}
               />
             }
             label="Errors Only"
@@ -99,13 +99,13 @@ function Filters(props: FiltersProps) {
         <Grid item xs={4}>
           <Typography variant="h4" margin={2}>
             Top Logs
-            {topMsgs().length ? " : " + topMsgs().length.toLocaleString() : ""}
+            {topLogs().length ? " : " + topLogs().length.toLocaleString() : ""}
           </Typography>
           <div style={{ height: "350px" }} class="ag-theme-alpine">
             <AgGridSolid
               ref={topMsgsGridRef}
               enableCellTextSelection={true}
-              rowData={topMsgs()}
+              rowData={topLogs()}
               columnDefs={[
                 {
                   field: "msg",
@@ -113,11 +113,11 @@ function Filters(props: FiltersProps) {
                   checkboxSelection: true,
                   filter: "agTextColumnFilter",
                 },
-                { field: "count", flex: 1, sortable: true },
+                { field: "count", flex: 0.5, sortable: true },
               ]}
               rowSelection="multiple"
               suppressRowClickSelection={true}
-              onSelectionChanged={handleSelectionChanged}
+              onSelectionChanged={handleLogsSelectionChanged}
               getRowStyle={getRowStyle}
             />
           </div>
@@ -147,7 +147,7 @@ function Filters(props: FiltersProps) {
                   ]}
                   rowSelection="multiple"
                   suppressRowClickSelection={true}
-                  onSelectionChanged={handleSelectionChanged}
+                  onSelectionChanged={handleLogsSelectionChanged}
                   getRowStyle={getRowStyle}
                 />
               </div>

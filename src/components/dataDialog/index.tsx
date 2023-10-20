@@ -9,45 +9,19 @@ import {
   Typography,
 } from "@suid/material";
 import CloseIcon from "@suid/icons-material/Close";
-import { Show, createSignal } from "solid-js";
+import { Show } from "solid-js";
 import { type JsonViewer } from "@alenaksu/json-viewer/dist/JsonViewer";
-
-interface Props {
-  open: boolean;
-  data: string;
-  onClose: () => void;
-}
+import useViewModel, { Props } from "./useViewModel";
+import objectsUtils from "../../utils/objects";
 
 function DataDialog(props: Props) {
-  let jsonViewer = {} as JsonViewer;
+  let jsonViewerRef = {} as JsonViewer;
 
-  const data = () =>
-    typeof props.data === "object" ? JSON.stringify(props.data) : props.data;
-
-  let isJSON = () => {
-    try {
-      JSON.parse(data());
-      return true;
-    } catch (err) {
-      return false;
-    }
-  };
-
-  const [expanded, setExpanded] = createSignal(false);
-
-  function handleExpandToggle() {
-    if (expanded()) {
-      jsonViewer.collapseAll();
-    } else {
-      jsonViewer.expandAll();
-    }
-
-    setExpanded((prev) => !prev);
-  }
+  const { expanded, handleExpandToggle, data } = useViewModel(props);
 
   return (
     <Dialog
-      fullScreen={isJSON()}
+      fullScreen={objectsUtils.isJSON(data())}
       open={props.open}
       onClose={props.onClose}
       style={{ padding: "10px 50px" }}
@@ -60,17 +34,17 @@ function DataDialog(props: Props) {
             </IconButton>
           </Stack>
         </Grid>
-        <Show when={isJSON()}>
+        <Show when={objectsUtils.isJSON(data())}>
           <Grid item xs={12}>
             <Typography variant="h6">JSON Data</Typography>
             <Stack direction="row" spacing={2} justifyContent="center">
-              <Button onClick={handleExpandToggle}>
+              <Button onClick={() => handleExpandToggle(jsonViewerRef)}>
                 {expanded() ? "Collapse" : "Expand"} All
               </Button>
             </Stack>
           </Grid>
           <Grid item xs={12}>
-            <json-viewer ref={jsonViewer}>{data()}</json-viewer>
+            <json-viewer ref={jsonViewerRef}>{data()}</json-viewer>
           </Grid>
         </Show>
         <Grid item xs={12}>
