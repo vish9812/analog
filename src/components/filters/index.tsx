@@ -34,9 +34,7 @@ function Filters(props: FiltersProps) {
   function getRowStyle(
     params: RowClassParams<GroupedMsg>
   ): RowStyle | undefined {
-    return params.data?.hasErrors
-      ? { background: "#C43616", color: "white" }
-      : undefined;
+    return params.data?.hasErrors ? { background: "#FFBFBF" } : undefined;
   }
 
   function handleEnterKey(e: KeyboardEvent) {

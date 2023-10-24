@@ -5,6 +5,8 @@ import Filters from "../components/filters";
 import gridService from "./gridService";
 import comparer from "../models/comparer";
 import { Select, createOptions } from "@thisbeyond/solid-select";
+import type { RowStyle, RowClassParams } from "ag-grid-community";
+import Processor, { type JSONLog } from "../models/processor";
 
 function Analyzer() {
   let gridRef = {} as AgGridSolidRef;
@@ -20,6 +22,12 @@ function Analyzer() {
     timeJumps,
     handleTimeJump,
   } = useViewModel();
+
+  function getRowStyle(params: RowClassParams<JSONLog>): RowStyle | undefined {
+    return params.data && Processor.isErrorLog(params.data)
+      ? { background: "#FFBFBF" }
+      : undefined;
+  }
 
   return (
     <Grid container spacing={2}>
@@ -92,6 +100,7 @@ function Analyzer() {
               rowData={rows()}
               columnDefs={cols()}
               getRowId={(params) => params.data.id}
+              getRowStyle={getRowStyle}
               enableCellTextSelection={true}
               // ensureDomOrder={true}
             />
