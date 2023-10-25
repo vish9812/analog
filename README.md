@@ -1,34 +1,52 @@
-## Usage
+# Analog
 
-Those templates dependencies are maintained via [pnpm](https://pnpm.io) via `pnpm up -Lri`.
+Analog is a powerful tool designed for analyzing and visualizing log files. It provides several features to help you efficiently work with your log data. Whether you need to identify common patterns, compare logs from different versions of your application, or filter logs based on various criteria, this app has you covered.
 
-This is the reason you see a `pnpm-lock.yaml`. That being said, any package manager will work. This file can be safely be removed once you clone a template.
+## Features
 
-```bash
-$ npm install # or pnpm install or yarn install
-```
+- **Top Logs**: Quickly identify and analyze the most frequently occurring log entries.
 
-### Learn more on the [Solid Website](https://solidjs.com) and come chat with us on our [Discord](https://discord.com/invite/solidjs)
+- **Filter Logs**:
 
-## Available Scripts
+  - **Filter by Timestamp**: Specify a start and end timestamp to narrow down your log analysis.
+  - **Regex Search**: Perform regular expression searches to find specific log entries.
+  - **Top Logs**: Select entries in the Top Logs to view all the related logs together.
+  - **Errors Only**: Isolate and focus on error log entries.
 
-In the project directory, you can run:
+- **Log File Comparison**:
+  - **Compare Two Log Files**: Compare two log files and see newly added or removed log entries.
+- **Create and Download a Filtered Subset**: Define filtering criteria to extract a specific subset of logs. You can also compare two subsets of a single log file to track changes.
 
-### `npm run dev` or `npm start`
+- **Time Jumps**: Navigate through log data in subsets repeating after every few minutes.
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- **See Data for Specific Fields/Keys**: Easily access and view log entries based on specific fields.
 
-The page will reload if you make edits.<br>
+- **Highlighted JSON Syntax**: Log entries with JSON data are automatically highlighted for improved readability.
 
-### `npm run build`
+- **Highlighted Errors**: Errors in log entries are highlighted, making them stand out for quick identification.
 
-Builds the app for production to the `dist` folder.<br>
-It correctly bundles Solid in production mode and optimizes the build for the best performance.
+## Prerequisite
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+- Ensure you have Python 3 installed on your system.
 
-## Deployment
+## Getting Started
 
-You can deploy the `dist` folder to any static host provider (netlify, surge, now, etc.)
+Follow these steps to run the app:
+
+1. Download the app from the [Releases Page](https://github.com/vish9812/analog/releases).
+
+2. Unzip the downloaded file to your desired location.
+
+3. Open a terminal and navigate to the app's directory.
+
+4. Execute the `analog.sh` script to start the app:
+
+5. Open your web browser and visit the following URL:
+
+You are now ready to use the Analog and take advantage of its powerful log analysis features.
+
+Enjoy analyzing your log data!
+
+## License
+
+This app is released under the [MIT License](https://github.com/vish9812/analog/blob/main/LICENSE).
