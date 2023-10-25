@@ -25,9 +25,11 @@ Analog is a powerful tool designed for analyzing and visualizing log files. It p
 
 - **Highlighted Errors**: Errors in log entries are highlighted, making them stand out for quick identification.
 
-## Prerequisite
+## Things to remember
 
-- Ensure you have Python 3 installed on your system.
+- Currently supports only `json` logs.
+- Ensure you have Python 3 installed on your system to simply run via executing the `analog.sh`.
+- Or you can use any server of your preference to run the `index.html`
 
 ## Getting Started
 
@@ -41,7 +43,7 @@ Follow these steps to run the app:
 
 4. Execute the `analog.sh` script to start the app:
 
-5. Open your web browser and visit the following URL:
+5. Open your web browser and visit the following URL: `localhost:20002`
 
 You are now ready to use the Analog and take advantage of its powerful log analysis features.
 
