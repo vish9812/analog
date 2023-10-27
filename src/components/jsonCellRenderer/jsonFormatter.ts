@@ -35,16 +35,16 @@ const escapeHtml = (html: string) =>
   );
 
 function format(
-  object: string | object,
+  obj: string | object,
   colorOptions: ColorsOptions = {}
 ): string {
-  if (typeof object !== "string") {
-    object = JSON.stringify(object, null, 2) || typeof object;
+  if (typeof obj === "object") {
+    obj = JSON.stringify(obj, null, 2) || typeof obj;
   }
 
   let colors = Object.assign({}, DEFAULT_COLORS, colorOptions);
-  object = object.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
-  return object.replace(
+  obj = obj.replace(/&/g, "&").replace(/</g, "<").replace(/>/g, ">");
+  return obj.replace(
     /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+]?\d+)?)/g,
     (match) => {
       let color = colors.numberColor;

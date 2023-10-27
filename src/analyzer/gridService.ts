@@ -1,4 +1,4 @@
-import { type ColDef } from "ag-grid-community";
+import type { ICellRendererParams, ColDef } from "ag-grid-community";
 import JSONCellRenderer from "../components/jsonCellRenderer";
 import Processor from "../models/processor";
 
@@ -28,10 +28,10 @@ function getCol(field: string): ColDef {
   return {
     field: field,
     flex: 0.75,
-    cellRenderer: (params: any) => {
+    cellRenderer: (params: ICellRendererParams<any, any, any>) => {
       const val =
         typeof params.value === "object"
-          ? JSON.stringify(params.value)
+          ? JSONCellRenderer(params)
           : params.value;
       return val;
     },
