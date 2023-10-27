@@ -1,11 +1,12 @@
 import objectsUtils from "../utils/objects";
+import stringsUtils from "../utils/strings";
 
 type JSONLog = Record<string, string>;
 type JSONLogs = JSONLog[];
 
 interface GroupedMsg {
   msg: string;
-  count: number;
+  logs: JSONLogs;
   hasErrors: boolean;
 }
 
@@ -21,7 +22,7 @@ class Processor {
   keys: string[] = [];
 
   static readonly sortComparerFn = (a: GroupedMsg, b: GroupedMsg) =>
-    b.count - a.count;
+    b.logs.length - a.logs.length;
 
   private static readonly msgCutOffLen = 80;
   static readonly logKeys = {
@@ -76,21 +77,22 @@ class Processor {
   }
 
   private initTopLogsMap(log: JSONLog) {
-    const cutOffMsg = log[Processor.logKeys.msg].substring(
-      0,
-      Processor.msgCutOffLen
-    );
+    const msg = log[Processor.logKeys.msg];
+    const cleanMsg = stringsUtils
+      .cleanText(msg)
+      .substring(0, Processor.msgCutOffLen)
+      .trim();
 
-    if (!this.topLogsMap.has(cutOffMsg)) {
-      this.topLogsMap.set(cutOffMsg, {
-        count: 0,
+    if (!this.topLogsMap.has(cleanMsg)) {
+      this.topLogsMap.set(cleanMsg, {
+        msg: cleanMsg,
         hasErrors: false,
-        msg: cutOffMsg,
+        logs: [],
       });
     }
 
-    const topLog = this.topLogsMap.get(cutOffMsg)!;
-    topLog.count++;
+    const topLog = this.topLogsMap.get(cleanMsg)!;
+    topLog.logs.push(log);
     if (!topLog.hasErrors && Processor.isErrorLog(log)) {
       topLog.hasErrors = true;
     }

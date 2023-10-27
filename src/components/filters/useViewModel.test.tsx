@@ -1,22 +1,24 @@
 import { createRoot } from "solid-js";
-import useViewModel, { FiltersProps } from "./useViewModel";
+import useViewModel from "./useViewModel";
+import type { FiltersData, FiltersProps } from "./useViewModel";
 import comparer from "../../models/comparer";
 import Processor from "../../models/processor";
+import type { GroupedMsg } from "../../models/processor";
 
 describe("useViewModel", () => {
-  const topLogs = [
+  const topLogs: GroupedMsg[] = [
     {
-      count: 3,
+      logs: [{}, {}, {}],
       hasErrors: false,
       msg: "grp1",
     },
     {
-      count: 1,
+      logs: [{}],
       hasErrors: true,
       msg: "grp2",
     },
     {
-      count: 2,
+      logs: [{}, {}],
       hasErrors: true,
       msg: "grp3",
     },
@@ -25,22 +27,22 @@ describe("useViewModel", () => {
   comparer.removed = [topLogs[0], topLogs[2]];
   comparer.added = [
     {
-      count: 5,
+      logs: [{}, {}, {}, {}, {}],
       hasErrors: false,
       msg: "grp11",
     },
     {
-      count: 2,
+      logs: [{}, {}],
       hasErrors: true,
       msg: "grp22",
     },
   ];
 
-  const defaultFilters = {
+  const defaultFilters: FiltersData = {
     startTime: "",
     endTime: "",
     regex: "",
-    msgs: [],
+    logs: [],
     errorsOnly: false,
   };
 
@@ -76,7 +78,7 @@ describe("useViewModel", () => {
   test("handleFiltersChange", () => {
     createRoot((dispose) => {
       const vm = useViewModel(props);
-      vm.setFilters("msgs", ["some log"]);
+      vm.setFilters("logs", [{}]);
       vm.handleFiltersChange();
       expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
         vm.filters
@@ -101,7 +103,7 @@ describe("useViewModel", () => {
         startTime: "some start time",
         endTime: "some end time",
         regex: "some regex",
-        msgs: ["log1", "log2"],
+        logs: [{}, {}],
         errorsOnly: true,
       }));
       expect(vm.filters.regex, "regex").toEqual("some regex");
@@ -123,8 +125,8 @@ describe("useViewModel", () => {
 
   test("handleLogsSelectionChanged", () => {
     createRoot((dispose) => {
-      const rows = [{ msg: "log1" }, { msg: "log2" }];
-      const msgs = rows.map((r) => r.msg);
+      const rows = [{ logs: [{}, {}] }, { logs: [{}] }];
+      const logs = rows.flatMap((r) => r.logs);
       const selectionEvent = {
         api: {
           getSelectedRows: () => rows,
@@ -134,10 +136,10 @@ describe("useViewModel", () => {
       const vm = useViewModel(props);
       vm.handleLogsSelectionChanged(selectionEvent as any);
 
-      expect(vm.filters.msgs, "filters.msgs").toEqual(msgs);
+      expect(vm.filters.logs, "filters.msgs").toEqual(logs);
       expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith({
         ...defaultFilters,
-        msgs,
+        logs,
       });
 
       dispose();

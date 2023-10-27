@@ -10,7 +10,7 @@ import {
 } from "@suid/material";
 import useViewModel, { type FiltersProps } from "./useViewModel";
 import AgGridSolid, { type AgGridSolidRef } from "ag-grid-solid";
-import type { RowClassParams, RowStyle } from "ag-grid-community";
+import type { GridOptions } from "ag-grid-community";
 import { GroupedMsg } from "../../models/processor";
 import { Show } from "solid-js";
 import comparer from "../../models/comparer";
@@ -31,11 +31,48 @@ function Filters(props: FiltersProps) {
     handleResetClick,
   } = useViewModel(props);
 
-  function getRowStyle(
-    params: RowClassParams<GroupedMsg>
-  ): RowStyle | undefined {
-    return params.data?.hasErrors ? { background: "#FFBFBF" } : undefined;
-  }
+  const commonGridOptions: GridOptions<GroupedMsg> = {
+    enableCellTextSelection: true,
+    columnDefs: [
+      {
+        field: "msg",
+        flex: 2,
+        checkboxSelection: true,
+        filter: "agTextColumnFilter",
+      },
+      {
+        headerName: "count",
+        flex: 0.5,
+        sortable: true,
+        valueGetter: (params) => params.data?.logs.length,
+      },
+    ],
+    rowSelection: "multiple",
+    suppressRowClickSelection: true,
+    onSelectionChanged: handleLogsSelectionChanged,
+    getRowStyle: (params) =>
+      params.data?.hasErrors ? { background: "#FFBFBF" } : undefined,
+  };
+
+  const topLogsGridOptions: GridOptions<GroupedMsg> = {
+    ...commonGridOptions,
+    rowData: topLogs(),
+  };
+
+  const addedLogsGridOptions: GridOptions<GroupedMsg> = {
+    ...commonGridOptions,
+    rowData: addedMsgs(),
+  };
+
+  const removedLogsGridOptions: GridOptions<GroupedMsg> = {
+    ...commonGridOptions,
+    rowData: removedMsgs(),
+    columnDefs: [
+      { ...commonGridOptions.columnDefs![0], checkboxSelection: undefined },
+      { ...commonGridOptions.columnDefs![1] },
+    ],
+    rowSelection: undefined,
+  };
 
   function handleEnterKey(e: KeyboardEvent) {
     if (e.key === "Enter") {
@@ -100,24 +137,7 @@ function Filters(props: FiltersProps) {
             {topLogs().length ? " : " + topLogs().length.toLocaleString() : ""}
           </Typography>
           <div style={{ height: "350px" }} class="ag-theme-alpine">
-            <AgGridSolid
-              ref={topMsgsGridRef}
-              enableCellTextSelection={true}
-              rowData={topLogs()}
-              columnDefs={[
-                {
-                  field: "msg",
-                  flex: 2,
-                  checkboxSelection: true,
-                  filter: "agTextColumnFilter",
-                },
-                { field: "count", flex: 0.5, sortable: true },
-              ]}
-              rowSelection="multiple"
-              suppressRowClickSelection={true}
-              onSelectionChanged={handleLogsSelectionChanged}
-              getRowStyle={getRowStyle}
-            />
+            <AgGridSolid ref={topMsgsGridRef} {...topLogsGridOptions} />
           </div>
         </Grid>
         <Show when={comparer.isOn()}>
@@ -130,24 +150,7 @@ function Filters(props: FiltersProps) {
                   : ""}
               </Typography>
               <div style={{ height: "350px" }} class="ag-theme-alpine">
-                <AgGridSolid
-                  ref={addedMsgsGridRef}
-                  enableCellTextSelection={true}
-                  rowData={addedMsgs()}
-                  columnDefs={[
-                    {
-                      field: "msg",
-                      flex: 2,
-                      checkboxSelection: true,
-                      filter: "agTextColumnFilter",
-                    },
-                    { field: "count", flex: 1, sortable: true },
-                  ]}
-                  rowSelection="multiple"
-                  suppressRowClickSelection={true}
-                  onSelectionChanged={handleLogsSelectionChanged}
-                  getRowStyle={getRowStyle}
-                />
+                <AgGridSolid ref={addedMsgsGridRef} {...addedLogsGridOptions} />
               </div>
             </Grid>
             <Grid item xs={6}>
@@ -158,21 +161,7 @@ function Filters(props: FiltersProps) {
                   : ""}
               </Typography>
               <div style={{ height: "350px" }} class="ag-theme-alpine">
-                <AgGridSolid
-                  ref={removedMsgs}
-                  enableCellTextSelection={true}
-                  rowData={removedMsgs()}
-                  columnDefs={[
-                    {
-                      field: "msg",
-                      flex: 2,
-                      filter: "agTextColumnFilter",
-                    },
-                    { field: "count", flex: 1, sortable: true },
-                  ]}
-                  suppressRowClickSelection={true}
-                  getRowStyle={getRowStyle}
-                />
+                <AgGridSolid {...removedLogsGridOptions} />
               </div>
             </Grid>
           </Grid>

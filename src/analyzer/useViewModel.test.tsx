@@ -110,7 +110,7 @@ describe("useViewModel", () => {
         startTime: "2023-10-20T01:00:00.000Z",
         endTime: "2023-10-20T11:00:00.000Z",
         errorsOnly: true,
-        msgs: ["msg", "test"],
+        logs: [comparer.last().logs[0], comparer.last().logs[1]],
         regex: "^tes.*our$",
       };
 
@@ -161,7 +161,7 @@ describe("useViewModel", () => {
         .mockReturnValueOnce(30);
 
       filters = {
-        msgs: [],
+        logs: [],
       } as any;
     });
 

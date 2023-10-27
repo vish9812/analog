@@ -12,9 +12,9 @@ describe("addProcessor", () => {
 
   const processor1 = new Processor();
   processor1.topLogsMap = new Map<string, GroupedMsg>([
-    ["grp1", { count: 2, hasErrors: false, msg: "grp1" }],
-    ["grp2", { count: 6, hasErrors: false, msg: "grp2" }],
-    ["grp3", { count: 4, hasErrors: false, msg: "grp3" }],
+    ["grp1", { logs: [], hasErrors: false, msg: "grp1" }],
+    ["grp2", { logs: [], hasErrors: false, msg: "grp2" }],
+    ["grp3", { logs: [], hasErrors: false, msg: "grp3" }],
   ]);
 
   test("1st processor", () => {
@@ -29,9 +29,9 @@ describe("addProcessor", () => {
 
   const processor2 = new Processor();
   processor2.topLogsMap = new Map<string, GroupedMsg>([
-    ["grp11", { count: 7, hasErrors: false, msg: "grp11" }],
+    ["grp11", { logs: [], hasErrors: false, msg: "grp11" }],
     ["grp2", processor1.topLogsMap.get("grp2")!],
-    ["grp44", { count: 3, hasErrors: false, msg: "grp44" }],
+    ["grp44", { logs: [], hasErrors: false, msg: "grp44" }],
     ["grp3", processor1.topLogsMap.get("grp3")!],
   ]);
 

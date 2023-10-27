@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import type { GroupedMsg } from "../../models/processor";
+import type { GroupedMsg, JSONLogs } from "../../models/processor";
 import { SelectionChangedEvent } from "ag-grid-community";
 import { type AgGridSolidRef } from "ag-grid-solid";
 import comparer from "../../models/comparer";
@@ -13,7 +13,7 @@ interface FiltersData {
   startTime: string;
   endTime: string;
   regex: string;
-  msgs: string[];
+  logs: JSONLogs;
   errorsOnly: boolean;
 }
 
@@ -22,7 +22,7 @@ function defaultFilters(): FiltersData {
     startTime: "",
     endTime: "",
     regex: "",
-    msgs: [],
+    logs: [],
     errorsOnly: false,
   };
 }
@@ -53,8 +53,8 @@ function useViewModel(props: FiltersProps) {
 
   function handleLogsSelectionChanged(e: SelectionChangedEvent<GroupedMsg>) {
     setFilters(
-      "msgs",
-      e.api.getSelectedRows().map((n) => n.msg)
+      "logs",
+      e.api.getSelectedRows().flatMap((n) => n.logs)
     );
     handleFiltersChange();
   }

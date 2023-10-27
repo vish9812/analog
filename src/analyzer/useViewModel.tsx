@@ -32,7 +32,11 @@ function useViewModel() {
     prevJumps = [];
     nextJumps = [];
 
-    const filteredLogs: JSONLogs = comparer.last().logs.filter((log) => {
+    let filteredLogs: JSONLogs = filtersData.logs.length
+      ? filtersData.logs
+      : comparer.last().logs;
+
+    filteredLogs = filteredLogs.filter((log) => {
       let keep = true;
 
       if (keep && filtersData.startTime) {
@@ -48,12 +52,6 @@ function useViewModel() {
         keep = stringsUtils.regexMatch(
           log[Processor.logKeys.fullData],
           filtersData.regex
-        );
-      }
-
-      if (keep && filtersData.msgs.length) {
-        keep = filtersData.msgs.some((msg) =>
-          log[Processor.logKeys.msg].startsWith(msg)
         );
       }
 

@@ -1,3 +1,4 @@
+import stringsUtils from "../utils/strings";
 import Processor, { type GroupedMsg } from "./processor";
 
 describe("isErrorLog", () => {
@@ -37,6 +38,8 @@ describe("isErrorLog", () => {
 });
 
 describe("init", () => {
+  const cutOffLen = Processor["msgCutOffLen"];
+
   it("init", async () => {
     const log1 = {
       [Processor.logKeys.error]: "some error",
@@ -52,7 +55,7 @@ describe("init", () => {
     const log2String = getJSONString(log2);
     const log3 = {
       [Processor.logKeys.level]: "info",
-      [Processor.logKeys.msg]: "msg".repeat(20) + "group 1",
+      [Processor.logKeys.msg]: "abc ".repeat(cutOffLen) + "group 1",
       parentKey1: {
         childKey1: 11,
         childKey2: 12,
@@ -61,18 +64,18 @@ describe("init", () => {
     const log3String = getJSONString(log3);
     const log4 = {
       [Processor.logKeys.level]: "error",
-      [Processor.logKeys.msg]: "msg".repeat(20) + "group 1",
+      [Processor.logKeys.msg]: "abc ".repeat(cutOffLen) + "group 1",
       parentKey1: "k1",
     };
     const log4String = getJSONString(log4);
     const log5 = {
       [Processor.logKeys.level]: "info",
-      [Processor.logKeys.msg]: "abc".repeat(20) + "group 2",
+      [Processor.logKeys.msg]: "qwe ".repeat(cutOffLen) + "group 2",
     };
     const log5String = getJSONString(log5);
     const log6 = {
       [Processor.logKeys.level]: "info",
-      [Processor.logKeys.msg]: "abc".repeat(20) + "group 2",
+      [Processor.logKeys.msg]: "qwe ".repeat(cutOffLen) + "group 2",
     };
     const log6String = getJSONString(log6);
 
@@ -116,27 +119,56 @@ describe("init", () => {
     expect(processor.logs, "logs").toEqual(expectedLogs);
 
     function getCutOffMsg(log: any) {
-      return log[Processor.logKeys.msg].substring(0, Processor["msgCutOffLen"]);
+      return stringsUtils
+        .cleanText(log[Processor.logKeys.msg])
+        .substring(0, cutOffLen)
+        .trim();
     }
     const expectedTopLogsMap = new Map<string, GroupedMsg>([
       [
         getCutOffMsg(log1),
-        { msg: getCutOffMsg(log1), count: 1, hasErrors: true },
+        {
+          msg: getCutOffMsg(log1),
+          logs: [expectedLogs[0]] as any,
+          hasErrors: true,
+        },
       ],
       [
         getCutOffMsg(log2),
-        { msg: getCutOffMsg(log2), count: 1, hasErrors: true },
+        {
+          msg: getCutOffMsg(log2),
+          logs: [expectedLogs[1]] as any,
+          hasErrors: true,
+        },
       ],
       [
         getCutOffMsg(log3),
-        { msg: getCutOffMsg(log3), count: 2, hasErrors: true },
+        {
+          msg: getCutOffMsg(log3),
+          logs: [expectedLogs[2], expectedLogs[3]] as any,
+          hasErrors: true,
+        },
       ],
       [
         getCutOffMsg(log5),
-        { msg: getCutOffMsg(log5), count: 2, hasErrors: false },
+        {
+          msg: getCutOffMsg(log5),
+          logs: [expectedLogs[4], expectedLogs[5]] as any,
+          hasErrors: false,
+        },
       ],
     ]);
-    expect(processor.topLogsMap, "topLogsMap").toEqual(expectedTopLogsMap);
+    expect(processor.topLogsMap.size, "topLogsMap.size").toEqual(
+      expectedTopLogsMap.size
+    );
+
+    for (const [k, v] of expectedTopLogsMap) {
+      const topLog = processor.topLogsMap.get(k);
+      expect(topLog, "topLog").toBeTruthy();
+      expect(topLog?.hasErrors, "topLogsMap.hasErrors").toEqual(v.hasErrors);
+      expect(topLog?.logs, "topLogsMap.logs").toEqual(v.logs);
+    }
+
     expect(processor.topLogs, "topLogs").toEqual(
       [...expectedTopLogsMap.values()].sort(Processor.sortComparerFn)
     );

@@ -7,6 +7,7 @@
     "preinstall": "npx only-allow pnpm",
     "start": "vite",
     "test": "vitest --silent",
+    "test-logs": "vitest",
     "coverage": "vitest run --coverage --silent",
     "build": "vite build && cp analog.sh dist",
     "preview": "vite preview"

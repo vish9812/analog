@@ -15,7 +15,13 @@ function defaultCols(): ColDef[] {
       cellRenderer: JSONCellRenderer,
       flex: 2,
     },
-    { field: "timestamp", width: 270, sortable: true },
+    {
+      field: "timestamp",
+      width: 270,
+      sortable: true,
+      sort: "asc",
+      sortingOrder: ["asc", "desc"],
+    },
   ];
 }
 
