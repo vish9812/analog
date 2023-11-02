@@ -9,10 +9,17 @@ interface FiltersProps {
   onFiltersChange: (filters: FiltersData) => void;
 }
 
+interface SearchTerm {
+  and: boolean;
+  contains: boolean;
+  value: string;
+}
+
 interface FiltersData {
   startTime: string;
   endTime: string;
   regex: string;
+  terms: SearchTerm[];
   logs: JSONLogs;
   errorsOnly: boolean;
 }
@@ -22,6 +29,13 @@ function defaultFilters(): FiltersData {
     startTime: "",
     endTime: "",
     regex: "",
+    terms: [
+      {
+        and: true,
+        contains: true,
+        value: "",
+      },
+    ],
     logs: [],
     errorsOnly: false,
   };
@@ -75,6 +89,19 @@ function useViewModel(props: FiltersProps) {
     handleFiltersChange();
   }
 
+  function handleNewSearchTerm(isAddition: boolean) {
+    if (isAddition) {
+      setFilters("terms", filters.terms.length, {
+        and: true,
+        contains: true,
+        value: "",
+      });
+      return;
+    }
+
+    setFilters("terms", filters.terms.slice(0, -1));
+  }
+
   return {
     filters,
     topLogs,
@@ -85,8 +112,9 @@ function useViewModel(props: FiltersProps) {
     handleLogsSelectionChanged,
     handleErrorsOnlyChange,
     handleResetClick,
+    handleNewSearchTerm,
   };
 }
 
 export default useViewModel;
-export type { FiltersData, FiltersProps };
+export type { SearchTerm, FiltersData, FiltersProps };

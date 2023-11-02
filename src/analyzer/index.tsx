@@ -93,7 +93,7 @@ function Analyzer() {
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <div style={{ height: "550px" }} class="ag-theme-alpine">
+          <div style={{ height: "750px" }} class="ag-theme-alpine">
             <AgGridSolid
               ref={gridRef}
               defaultColDef={gridService.defaultColDef}
@@ -102,7 +102,6 @@ function Analyzer() {
               getRowId={(params) => params.data.id}
               getRowStyle={getRowStyle}
               enableCellTextSelection={true}
-              // ensureDomOrder={true}
             />
           </div>
         </Grid>

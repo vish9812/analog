@@ -92,6 +92,18 @@ describe("useViewModel", () => {
           [Processor.logKeys.msg]: "test one two four",
         },
         {
+          [Processor.logKeys.id]: "23",
+          [Processor.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
+          [Processor.logKeys.fullData]: "test one two contains check four",
+          [Processor.logKeys.msg]: "test one two contains check four",
+        },
+        {
+          [Processor.logKeys.id]: "24",
+          [Processor.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
+          [Processor.logKeys.fullData]: "test one two ands check four",
+          [Processor.logKeys.msg]: "test one two ands check four",
+        },
+        {
           [Processor.logKeys.id]: "30",
           [Processor.logKeys.timestamp]: "2023-10-20T12:00:00.000Z",
           [Processor.logKeys.fullData]: "msg four five six",
@@ -102,6 +114,8 @@ describe("useViewModel", () => {
       vi.spyOn(Processor, "isErrorLog")
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(true)
+        .mockReturnValueOnce(true)
+        .mockReturnValueOnce(true)
         .mockReturnValueOnce(false);
 
       vi.spyOn(timesUtils, "diffMinutes").mockReturnValue(100);
@@ -110,14 +124,39 @@ describe("useViewModel", () => {
         startTime: "2023-10-20T01:00:00.000Z",
         endTime: "2023-10-20T11:00:00.000Z",
         errorsOnly: true,
-        logs: [comparer.last().logs[0], comparer.last().logs[1]],
+        logs: [
+          comparer.last().logs[1],
+          comparer.last().logs[2],
+          comparer.last().logs[3],
+          comparer.last().logs[4],
+        ],
         regex: "^tes.*our$",
+        terms: [
+          {
+            and: true,
+            contains: true,
+            value: "ands",
+          },
+          {
+            and: true,
+            contains: false,
+            value: "msg",
+          },
+          {
+            and: false,
+            contains: true,
+            value: "check",
+          },
+        ],
       };
 
       const vm = useViewModel();
       vm.handleFiltersChange(filters);
 
-      expect(vm.rows(), "rows").toEqual([comparer.last().logs[1]]);
+      expect(vm.rows(), "rows").toEqual([
+        comparer.last().logs[2],
+        comparer.last().logs[3],
+      ]);
       expect(vm.timeJumps().prevDisabled, "prevDisabled").toEqual(true);
       expect(vm.timeJumps().nextDisabled, "nextDisabled").toEqual(false);
 
@@ -133,22 +172,27 @@ describe("useViewModel", () => {
         {
           [Processor.logKeys.id]: "1",
           [Processor.logKeys.timestamp]: "2023-10-20T08:00:00.000Z",
+          [Processor.logKeys.fullData]: "json string 1",
         },
         {
           [Processor.logKeys.id]: "2",
           [Processor.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
+          [Processor.logKeys.fullData]: "json string 2",
         },
         {
           [Processor.logKeys.id]: "3",
           [Processor.logKeys.timestamp]: "2023-10-20T12:00:00.000Z",
+          [Processor.logKeys.fullData]: "json string 3",
         },
         {
           [Processor.logKeys.id]: "4",
           [Processor.logKeys.timestamp]: "2023-10-20T14:00:00.000Z",
+          [Processor.logKeys.fullData]: "json string 4",
         },
         {
           [Processor.logKeys.id]: "5",
           [Processor.logKeys.timestamp]: "2023-10-20T16:00:00.000Z",
+          [Processor.logKeys.fullData]: "json string 5",
         },
       ];
       vi.spyOn(comparer, "last").mockReturnValue(processor);

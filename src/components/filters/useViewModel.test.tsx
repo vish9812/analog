@@ -42,6 +42,13 @@ describe("useViewModel", () => {
     startTime: "",
     endTime: "",
     regex: "",
+    terms: [
+      {
+        and: true,
+        contains: true,
+        value: "",
+      },
+    ],
     logs: [],
     errorsOnly: false,
   };
@@ -186,6 +193,28 @@ describe("useViewModel", () => {
 
         dispose();
       });
+    });
+  });
+
+  test("handleNewSearchTerm", () => {
+    createRoot((dispose) => {
+      const vm = useViewModel(props);
+      const original = [...vm.filters.terms];
+
+      vm.handleNewSearchTerm(true);
+      expect(vm.filters.terms, "term added").toEqual([
+        ...original,
+        {
+          and: true,
+          contains: true,
+          value: "",
+        },
+      ]);
+
+      vm.handleNewSearchTerm(false);
+      expect(vm.filters.terms, "term removed").toEqual(original);
+
+      dispose();
     });
   });
 });

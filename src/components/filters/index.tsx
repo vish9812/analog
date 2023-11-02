@@ -8,12 +8,26 @@ import {
   TextField,
   Typography,
 } from "@suid/material";
-import useViewModel, { type FiltersProps } from "./useViewModel";
+import useViewModel, {
+  type SearchTerm,
+  type FiltersProps,
+} from "./useViewModel";
 import AgGridSolid, { type AgGridSolidRef } from "ag-grid-solid";
 import type { GridOptions } from "ag-grid-community";
 import { GroupedMsg } from "../../models/processor";
-import { Show } from "solid-js";
+import { type Accessor, For, Show } from "solid-js";
 import comparer from "../../models/comparer";
+import { Select } from "@thisbeyond/solid-select";
+import { IconButton } from "@suid/material";
+import AddIcon from "@suid/icons-material/Add";
+import RemoveIcon from "@suid/icons-material/Remove";
+
+const texts = {
+  and: "AND",
+  or: "OR",
+  contains: "Contains",
+  notContains: "Not Contains",
+};
 
 function Filters(props: FiltersProps) {
   let topMsgsGridRef = {} as AgGridSolidRef;
@@ -29,6 +43,7 @@ function Filters(props: FiltersProps) {
     handleLogsSelectionChanged,
     handleErrorsOnlyChange,
     handleResetClick,
+    handleNewSearchTerm,
   } = useViewModel(props);
 
   const commonGridOptions: GridOptions<GroupedMsg> = {
@@ -72,12 +87,40 @@ function Filters(props: FiltersProps) {
       { ...commonGridOptions.columnDefs![1] },
     ],
     rowSelection: undefined,
+    onSelectionChanged: undefined,
   };
 
   function handleEnterKey(e: KeyboardEvent) {
     if (e.key === "Enter") {
       handleFiltersChange();
     }
+  }
+
+  function getSimpleSearchHTML(term: SearchTerm, i: Accessor<number>) {
+    return (
+      <>
+        <Select
+          class="app-select"
+          options={[texts.and, texts.or]}
+          initialValue={term.and ? texts.and : texts.or}
+          onChange={(val) => setFilters("terms", i(), "and", val === texts.and)}
+        />
+        <Select
+          class="app-select"
+          options={[texts.contains, texts.notContains]}
+          initialValue={term.contains ? texts.contains : texts.notContains}
+          onChange={(val) =>
+            setFilters("terms", i(), "contains", val === texts.contains)
+          }
+        />
+        <TextField
+          label="value"
+          value={term.value}
+          onChange={(_, val) => setFilters("terms", i(), "value", val)}
+          onKeyDown={handleEnterKey}
+        />
+      </>
+    );
   }
 
   return (
@@ -102,6 +145,16 @@ function Filters(props: FiltersProps) {
             onChange={(_, val) => setFilters("regex", val)}
             onKeyDown={handleEnterKey}
           />
+          <For each={filters.terms}>{getSimpleSearchHTML}</For>
+          <IconButton color="primary" onClick={() => handleNewSearchTerm(true)}>
+            <AddIcon />
+          </IconButton>
+          <IconButton
+            color="warning"
+            onClick={() => handleNewSearchTerm(false)}
+          >
+            <RemoveIcon />
+          </IconButton>
         </Stack>
       </Grid>
       <Grid item xs={12}>

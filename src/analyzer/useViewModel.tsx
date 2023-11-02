@@ -1,6 +1,9 @@
 import Processor, { JSONLogs } from "../models/processor";
 import { createSignal } from "solid-js";
-import { FiltersData } from "../components/filters/useViewModel";
+import type {
+  FiltersData,
+  SearchTerm,
+} from "../components/filters/useViewModel";
 import comparer from "../models/comparer";
 import stringsUtils from "../utils/strings";
 import filesUtils from "../utils/files";
@@ -48,13 +51,41 @@ function useViewModel() {
       if (keep && filtersData.errorsOnly) {
         keep = Processor.isErrorLog(log);
       }
+
+      const fullData = log[Processor.logKeys.fullData].toLowerCase();
       if (keep && filtersData.regex) {
-        keep = stringsUtils.regexMatch(
-          log[Processor.logKeys.fullData],
-          filtersData.regex
-        );
+        keep = stringsUtils.regexMatch(fullData, filtersData.regex);
+      }
+      if (keep && filtersData.terms) {
+        const ands = filtersData.terms.filter((t) => t.and);
+        let currCondition = true;
+        const updateCurrCondition = (term: SearchTerm) => {
+          const val = term.value.trim();
+          if (val) {
+            currCondition = term.contains
+              ? fullData.includes(val)
+              : !fullData.includes(val);
+          }
+        };
+
+        for (const term of ands) {
+          if (!currCondition) break;
+          updateCurrCondition(term);
+        }
+
+        if (!currCondition) {
+          const ors = filtersData.terms.filter((t) => !t.and);
+
+          for (const term of ors) {
+            if (currCondition) break;
+            updateCurrCondition(term);
+          }
+        }
+
+        keep = currCondition;
       }
 
+      // Update time jumps
       if (keep) {
         const id = log[Processor.logKeys.id];
         const time = new Date(log[Processor.logKeys.timestamp]);
