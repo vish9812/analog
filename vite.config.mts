@@ -18,6 +18,7 @@ export default defineConfig({
   },
   build: {
     target: "esnext",
+    outDir: "analog",
   },
   test: {
     environment: "jsdom",
