@@ -1,5 +1,6 @@
 import type { ICellRendererParams, ColDef } from "ag-grid-community";
 import JSONCellRenderer from "../components/jsonCellRenderer";
+import FullDataCellRenderer from "../components/fullDataCellRenderer";
 import Processor from "../models/processor";
 
 const defaultColDef: ColDef = {
@@ -11,16 +12,20 @@ const defaultColDef: ColDef = {
 function defaultCols(): ColDef[] {
   return [
     {
-      field: Processor.logKeys.fullData,
-      cellRenderer: JSONCellRenderer,
-      flex: 2,
-    },
-    {
-      field: "timestamp",
-      width: 270,
+      field: Processor.logKeys.id,
+      width: 100,
       sortable: true,
       sort: "asc",
       sortingOrder: ["asc", "desc"],
+    },
+    {
+      field: Processor.logKeys.fullData,
+      cellRenderer: FullDataCellRenderer,
+      flex: 2,
+    },
+    {
+      field: Processor.logKeys.timestamp,
+      width: 270,
     },
   ];
 }
@@ -34,7 +39,7 @@ function getCol(field: string): ColDef {
   return {
     field: field,
     flex: 0.75,
-    cellRenderer: (params: ICellRendererParams<any, any, any>) => {
+    cellRenderer: (params: ICellRendererParams) => {
       const val =
         typeof params.value === "object"
           ? JSONCellRenderer(params)

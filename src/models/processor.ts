@@ -41,14 +41,14 @@ class Processor {
     this.initFileInfo(file);
 
     const keysSet = new Set<string>();
-    let count = 1;
+    let count = 0;
     for (const line of await Processor.getLines(file)) {
       const log = this.addLog(line.trim());
       if (log == null) {
         continue;
       }
 
-      log[Processor.logKeys.id] = (count++).toString();
+      log[Processor.logKeys.id] = count++ as any;
 
       this.initTopLogsMap(log);
       Processor.initKeysSet(log, keysSet);
@@ -113,6 +113,55 @@ class Processor {
 
   private static async getLines(file: File): Promise<string[]> {
     return (await file.text()).split(/\r?\n/);
+
+    // Sample Test JSON Lines
+    // return Promise.resolve([
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "msg a",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "test b",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "msg c",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "test d",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "msg e",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "test f",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "msg g",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "test h",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    //   JSON.stringify({
+    //     [this.logKeys.level]: "info",
+    //     [this.logKeys.msg]: "msg i",
+    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //   }),
+    // ]);
   }
 }
 

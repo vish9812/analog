@@ -10,6 +10,7 @@ import filesUtils from "../utils/files";
 import gridService from "./gridService";
 import timesUtils from "../utils/times";
 import { AgGridSolidRef } from "ag-grid-solid";
+import type { GridApi } from "ag-grid-community";
 
 let zeroJump: string;
 let prevJumps: string[] = [];
@@ -139,6 +140,22 @@ function useViewModel() {
     }));
   }
 
+  function handleContextClick(gridApi: GridApi, logID: number) {
+    const contextLogs: JSONLogs = [];
+    const limit = 5;
+    const currIdx = logID;
+    const firstIdx = Math.max(currIdx - limit, 0);
+    const lastIdx = Math.min(currIdx + limit, comparer.last().logs.length - 1);
+
+    for (let i = firstIdx; i <= lastIdx; i++) {
+      if (!gridApi.getRowNode(i.toString())) {
+        contextLogs.push(comparer.last().logs[i]);
+      }
+    }
+
+    setRows((pre) => [...pre, ...contextLogs]);
+  }
+
   return {
     handleFiltersChange,
     handleColsChange,
@@ -149,6 +166,7 @@ function useViewModel() {
     setInitialCols,
     timeJumps,
     handleTimeJump,
+    handleContextClick,
   };
 }
 

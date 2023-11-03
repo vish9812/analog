@@ -320,4 +320,107 @@ describe("useViewModel", () => {
       });
     });
   });
+
+  test("handleContextClick", () => {
+    createRoot((dispose) => {
+      comparer.last().logs = [
+        {
+          [Processor.logKeys.id]: "0",
+          [Processor.logKeys.fullData]: "msg a",
+        },
+        {
+          [Processor.logKeys.id]: "1",
+          [Processor.logKeys.fullData]: "test b",
+        },
+        {
+          [Processor.logKeys.id]: "2",
+          [Processor.logKeys.fullData]: "msg c",
+        },
+        {
+          [Processor.logKeys.id]: "3",
+          [Processor.logKeys.fullData]: "test d",
+        },
+        {
+          [Processor.logKeys.id]: "4",
+          [Processor.logKeys.fullData]: "msg e",
+        },
+        {
+          [Processor.logKeys.id]: "5",
+          [Processor.logKeys.fullData]: "test f",
+        },
+        {
+          [Processor.logKeys.id]: "6",
+          [Processor.logKeys.fullData]: "msg g",
+        },
+        {
+          [Processor.logKeys.id]: "7",
+          [Processor.logKeys.fullData]: "test h",
+        },
+        {
+          [Processor.logKeys.id]: "8",
+          [Processor.logKeys.fullData]: "msg i",
+        },
+      ];
+
+      const vm = useViewModel();
+      const filtersData: FiltersData = {
+        regex: "test",
+        logs: [],
+      } as any;
+      vm.handleFiltersChange(filtersData);
+      expect(vm.rows(), "rows: test filtered").toEqual([
+        comparer.last().logs[1],
+        comparer.last().logs[3],
+        comparer.last().logs[5],
+        comparer.last().logs[7],
+      ]);
+
+      const gridApi = {
+        getRowNode: (i: number): boolean =>
+          vm.rows().includes(comparer.last().logs[i]),
+      };
+
+      vm.handleContextClick(gridApi as any, 1);
+
+      expect(vm.rows(), "rows: logID 1").toEqual([
+        comparer.last().logs[1],
+        comparer.last().logs[3],
+        comparer.last().logs[5],
+        comparer.last().logs[7],
+        comparer.last().logs[0],
+        comparer.last().logs[2],
+        comparer.last().logs[4],
+        comparer.last().logs[6],
+      ]);
+
+      vm.handleContextClick(gridApi as any, 1);
+
+      expect(vm.rows(), "rows: logID 1 again: no change").toEqual([
+        comparer.last().logs[1],
+        comparer.last().logs[3],
+        comparer.last().logs[5],
+        comparer.last().logs[7],
+        comparer.last().logs[0],
+        comparer.last().logs[2],
+        comparer.last().logs[4],
+        comparer.last().logs[6],
+      ]);
+
+      vm.handleContextClick(gridApi as any, 7);
+
+      expect(vm.rows(), "rows: logID 7").toEqual([
+        comparer.last().logs[1],
+        comparer.last().logs[3],
+        comparer.last().logs[5],
+        comparer.last().logs[7],
+        comparer.last().logs[0],
+        comparer.last().logs[2],
+        comparer.last().logs[4],
+        comparer.last().logs[6],
+        comparer.last().logs[8],
+      ]);
+
+      dispose();
+    });
+  });
 });

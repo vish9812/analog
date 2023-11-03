@@ -41,19 +41,19 @@ describe("init", () => {
   const cutOffLen = Processor["msgCutOffLen"];
 
   it("init", async () => {
-    const log1 = {
+    const log0 = {
       [Processor.logKeys.error]: "some error",
       [Processor.logKeys.msg]: "has errors",
       parentKey1: "k1",
     };
-    const log1String = getJSONString(log1);
-    const log2 = {
+    const log0String = getJSONString(log0);
+    const log1 = {
       [Processor.logKeys.level]: "error",
       [Processor.logKeys.msg]: "dbg msg",
       parentKey1: "k1",
     };
-    const log2String = getJSONString(log2);
-    const log3 = {
+    const log1String = getJSONString(log1);
+    const log2 = {
       [Processor.logKeys.level]: "info",
       [Processor.logKeys.msg]: "abc ".repeat(cutOffLen) + "group 1",
       parentKey1: {
@@ -61,11 +61,16 @@ describe("init", () => {
         childKey2: 12,
       },
     };
-    const log3String = getJSONString(log3);
-    const log4 = {
+    const log2String = getJSONString(log2);
+    const log3 = {
       [Processor.logKeys.level]: "error",
       [Processor.logKeys.msg]: "abc ".repeat(cutOffLen) + "group 1",
       parentKey1: "k1",
+    };
+    const log3String = getJSONString(log3);
+    const log4 = {
+      [Processor.logKeys.level]: "info",
+      [Processor.logKeys.msg]: "qwe ".repeat(cutOffLen) + "group 2",
     };
     const log4String = getJSONString(log4);
     const log5 = {
@@ -73,11 +78,6 @@ describe("init", () => {
       [Processor.logKeys.msg]: "qwe ".repeat(cutOffLen) + "group 2",
     };
     const log5String = getJSONString(log5);
-    const log6 = {
-      [Processor.logKeys.level]: "info",
-      [Processor.logKeys.msg]: "qwe ".repeat(cutOffLen) + "group 2",
-    };
-    const log6String = getJSONString(log6);
 
     function getJSONString(obj: any) {
       return JSON.stringify(obj);
@@ -89,15 +89,15 @@ describe("init", () => {
       text: () =>
         Promise.resolve(
           `
+        ${log0String}
         ${log1String}
-        ${log2String}
         "non-json log"
-        ${log3String}
+        ${log2String}
   
-        ${log4String}
+        ${log3String}
         
+        ${log4String}
         ${log5String}
-        ${log6String}
       `
         ),
     };
@@ -109,12 +109,12 @@ describe("init", () => {
     expect(processor.fileInfo.size, "file size").toEqual(file.size);
 
     const expectedLogs = [
-      { ...log1, id: "1", [Processor.logKeys.fullData]: log1String },
-      { ...log2, id: "2", [Processor.logKeys.fullData]: log2String },
-      { ...log3, id: "3", [Processor.logKeys.fullData]: log3String },
-      { ...log4, id: "4", [Processor.logKeys.fullData]: log4String },
-      { ...log5, id: "5", [Processor.logKeys.fullData]: log5String },
-      { ...log6, id: "6", [Processor.logKeys.fullData]: log6String },
+      { ...log0, id: 0, [Processor.logKeys.fullData]: log0String },
+      { ...log1, id: 1, [Processor.logKeys.fullData]: log1String },
+      { ...log2, id: 2, [Processor.logKeys.fullData]: log2String },
+      { ...log3, id: 3, [Processor.logKeys.fullData]: log3String },
+      { ...log4, id: 4, [Processor.logKeys.fullData]: log4String },
+      { ...log5, id: 5, [Processor.logKeys.fullData]: log5String },
     ];
     expect(processor.logs, "logs").toEqual(expectedLogs);
 
@@ -126,10 +126,18 @@ describe("init", () => {
     }
     const expectedTopLogsMap = new Map<string, GroupedMsg>([
       [
+        getCutOffMsg(log0),
+        {
+          msg: getCutOffMsg(log0),
+          logs: [expectedLogs[0]] as any,
+          hasErrors: true,
+        },
+      ],
+      [
         getCutOffMsg(log1),
         {
           msg: getCutOffMsg(log1),
-          logs: [expectedLogs[0]] as any,
+          logs: [expectedLogs[1]] as any,
           hasErrors: true,
         },
       ],
@@ -137,22 +145,14 @@ describe("init", () => {
         getCutOffMsg(log2),
         {
           msg: getCutOffMsg(log2),
-          logs: [expectedLogs[1]] as any,
-          hasErrors: true,
-        },
-      ],
-      [
-        getCutOffMsg(log3),
-        {
-          msg: getCutOffMsg(log3),
           logs: [expectedLogs[2], expectedLogs[3]] as any,
           hasErrors: true,
         },
       ],
       [
-        getCutOffMsg(log5),
+        getCutOffMsg(log4),
         {
-          msg: getCutOffMsg(log5),
+          msg: getCutOffMsg(log4),
           logs: [expectedLogs[4], expectedLogs[5]] as any,
           hasErrors: false,
         },

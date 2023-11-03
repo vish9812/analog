@@ -5,7 +5,7 @@ import Filters from "../components/filters";
 import gridService from "./gridService";
 import comparer from "../models/comparer";
 import { Select, createOptions } from "@thisbeyond/solid-select";
-import type { RowStyle, RowClassParams } from "ag-grid-community";
+import type { GridOptions } from "ag-grid-community";
 import Processor, { type JSONLog } from "../models/processor";
 
 function Analyzer() {
@@ -21,13 +21,24 @@ function Analyzer() {
     setInitialCols,
     timeJumps,
     handleTimeJump,
+    handleContextClick,
   } = useViewModel();
 
-  function getRowStyle(params: RowClassParams<JSONLog>): RowStyle | undefined {
-    return params.data && Processor.isErrorLog(params.data)
-      ? { background: "#FFBFBF" }
-      : undefined;
-  }
+  const gridOptions = (): GridOptions<JSONLog> => ({
+    enableCellTextSelection: true,
+    suppressMaintainUnsortedOrder: true,
+    defaultColDef: gridService.defaultColDef,
+    context: {
+      handleContextClick,
+    },
+    rowData: rows(),
+    columnDefs: cols(),
+    getRowId: (params) => params.data.id,
+    getRowStyle: (params) =>
+      params.data && Processor.isErrorLog(params.data)
+        ? { background: "#FFBFBF" }
+        : undefined,
+  });
 
   return (
     <Grid container spacing={2}>
@@ -93,16 +104,8 @@ function Analyzer() {
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <div style={{ height: "750px" }} class="ag-theme-alpine">
-            <AgGridSolid
-              ref={gridRef}
-              defaultColDef={gridService.defaultColDef}
-              rowData={rows()}
-              columnDefs={cols()}
-              getRowId={(params) => params.data.id}
-              getRowStyle={getRowStyle}
-              enableCellTextSelection={true}
-            />
+          <div style={{ height: "900px" }} class="ag-theme-alpine">
+            <AgGridSolid ref={gridRef} {...gridOptions()} />
           </div>
         </Grid>
       </Grid>
