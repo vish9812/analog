@@ -8,19 +8,16 @@ import {
   TextField,
   Typography,
 } from "@suid/material";
-import useViewModel, {
-  type SearchTerm,
-  type FiltersProps,
-} from "./useViewModel";
-import AgGridSolid, { type AgGridSolidRef } from "ag-grid-solid";
-import type { GridOptions } from "ag-grid-community";
-import { GroupedMsg } from "../../models/processor";
-import { type Accessor, For, Show } from "solid-js";
-import comparer from "../../models/comparer";
+import useViewModel, { SearchTerm, FiltersProps } from "./useViewModel";
+import AgGridSolid, { AgGridSolidRef } from "ag-grid-solid";
+import { GridOptions } from "ag-grid-community";
+import { Accessor, For, Show } from "solid-js";
 import { Select } from "@thisbeyond/solid-select";
 import { IconButton } from "@suid/material";
 import AddIcon from "@suid/icons-material/Add";
 import RemoveIcon from "@suid/icons-material/Remove";
+import comparer from "@al/services/comparer";
+import { GroupedMsg } from "@al/models/logData";
 
 const texts = {
   and: "AND",

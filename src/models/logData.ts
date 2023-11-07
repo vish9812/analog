@@ -1,5 +1,5 @@
-import objectsUtils from "../utils/objects";
-import stringsUtils from "../utils/strings";
+import objectsUtils from "@al/utils/objects";
+import stringsUtils from "@al/utils/strings";
 
 type JSONLog = Record<string, string>;
 type JSONLogs = JSONLog[];
@@ -10,7 +10,7 @@ interface GroupedMsg {
   hasErrors: boolean;
 }
 
-class Processor {
+class LogData {
   fileInfo = {
     name: "",
     size: 0,
@@ -42,26 +42,26 @@ class Processor {
 
     const keysSet = new Set<string>();
     let count = 0;
-    for (const line of await Processor.getLines(file)) {
+    for (const line of await LogData.getLines(file)) {
       const log = this.addLog(line.trim());
       if (log == null) {
         continue;
       }
 
-      log[Processor.logKeys.id] = count++ as any;
+      log[LogData.logKeys.id] = count++ as any;
 
       this.initTopLogsMap(log);
-      Processor.initKeysSet(log, keysSet);
+      LogData.initKeysSet(log, keysSet);
     }
 
-    this.topLogs = [...this.topLogsMap.values()].sort(Processor.sortComparerFn);
+    this.topLogs = [...this.topLogsMap.values()].sort(LogData.sortComparerFn);
     this.keys = [...keysSet].sort();
   }
 
   static isErrorLog(log: JSONLog): boolean {
     return (
-      log[Processor.logKeys.level] === Processor.levels.error ||
-      !!log[Processor.logKeys.error]
+      log[LogData.logKeys.level] === LogData.levels.error ||
+      !!log[LogData.logKeys.error]
     );
   }
 
@@ -77,10 +77,10 @@ class Processor {
   }
 
   private initTopLogsMap(log: JSONLog) {
-    const msg = log[Processor.logKeys.msg];
+    const msg = log[LogData.logKeys.msg];
     const cleanMsg = stringsUtils
       .cleanText(msg)
-      .substring(0, Processor.msgCutOffLen)
+      .substring(0, LogData.msgCutOffLen)
       .trim();
 
     if (!this.topLogsMap.has(cleanMsg)) {
@@ -93,7 +93,7 @@ class Processor {
 
     const topLog = this.topLogsMap.get(cleanMsg)!;
     topLog.logs.push(log);
-    if (!topLog.hasErrors && Processor.isErrorLog(log)) {
+    if (!topLog.hasErrors && LogData.isErrorLog(log)) {
       topLog.hasErrors = true;
     }
   }
@@ -101,7 +101,7 @@ class Processor {
   private addLog(line: string): JSONLog | null {
     try {
       const log = JSON.parse(line) as JSONLog;
-      log[Processor.logKeys.fullData] = line;
+      log[LogData.logKeys.fullData] = line;
       this.logs.push(log);
       return log;
     } catch (err) {
@@ -165,5 +165,5 @@ class Processor {
   }
 }
 
-export default Processor;
+export default LogData;
 export type { JSONLog, JSONLogs, GroupedMsg };

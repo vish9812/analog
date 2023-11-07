@@ -1,6 +1,6 @@
-import type { ICellRendererParams } from "ag-grid-community";
-import JSONCellRenderer from "../jsonCellRenderer";
+import { ICellRendererParams } from "ag-grid-community";
 import { Button } from "@suid/material";
+import JSONCellRenderer from "../jsonCellRenderer";
 
 function FullDataCellRenderer(props: ICellRendererParams) {
   return (

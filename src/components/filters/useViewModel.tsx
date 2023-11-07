@@ -1,9 +1,9 @@
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import type { GroupedMsg, JSONLogs } from "../../models/processor";
 import { SelectionChangedEvent } from "ag-grid-community";
-import { type AgGridSolidRef } from "ag-grid-solid";
-import comparer from "../../models/comparer";
+import { AgGridSolidRef } from "ag-grid-solid";
+import comparer from "@al/services/comparer";
+import { JSONLogs, GroupedMsg } from "@al/models/logData";
 
 interface FiltersProps {
   onFiltersChange: (filters: FiltersData) => void;

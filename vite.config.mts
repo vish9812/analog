@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 import solidPlugin from "vite-plugin-solid";
 import devtools from "solid-devtools/vite";
 import suidPlugin from "@suid/vite-plugin";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
   plugins: [
@@ -12,6 +13,7 @@ export default defineConfig({
     devtools({ autoname: true }),
     solidPlugin(),
     suidPlugin(),
+    tsconfigPaths(),
   ],
   server: {
     port: 3000,

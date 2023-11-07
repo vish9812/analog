@@ -1,14 +1,14 @@
 import { createSignal } from "solid-js";
 
 const Pages = {
-  normalizer: "normalizer",
-  analyzer: "analyzer",
+  normalize: "normalize",
+  analyze: "analyze",
 } as const;
 
 type Keys = keyof typeof Pages;
 type PagesValues = (typeof Pages)[Keys];
 
-const [page, setPage] = createSignal<PagesValues>(Pages.normalizer);
+const [page, setPage] = createSignal<PagesValues>(Pages.normalize);
 
 const usePage = () => ({
   page,

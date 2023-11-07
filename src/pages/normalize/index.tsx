@@ -16,8 +16,8 @@ import MemoryIcon from "@suid/icons-material/Memory";
 import InsertDriveFileIcon from "@suid/icons-material/InsertDriveFile";
 import { For, Show } from "solid-js";
 import prettyBytes from "pretty-bytes";
-import Processor from "../models/processor";
-import usePage from "../hooks/usePage";
+import LogData from "@al/models/logData";
+import usePage from "../usePage";
 
 const HiddenInput = styled("input")({
   clip: "rect(0 0 0 0)",
@@ -35,7 +35,7 @@ function Normalizer() {
   const { setPage } = usePage();
 
   const {
-    processors,
+    logDatas,
     newFileDisabled,
     analyzeDisabled,
     processingFile,
@@ -63,9 +63,7 @@ function Normalizer() {
             <HiddenInput
               type="file"
               multiple={false}
-              onChange={(e) =>
-                handleFileUpload(e.target.files!, new Processor())
-              }
+              onChange={(e) => handleFileUpload(e.target.files!, new LogData())}
             />
           </Button>
           <Show when={processingFile()}>
@@ -84,11 +82,11 @@ function Normalizer() {
           </Button>
         </Stack>
       </Grid>
-      <Show when={!!processors().length}>
+      <Show when={!!logDatas().length}>
         <Grid item xs={3}>
           <List subheader="Files">
-            <For each={processors()}>
-              {(processor) => {
+            <For each={logDatas()}>
+              {(logData) => {
                 return (
                   <ListItem disablePadding>
                     <ListItemButton>
@@ -96,8 +94,8 @@ function Normalizer() {
                         <InsertDriveFileIcon />
                       </ListItemIcon>
                       <ListItemText
-                        primary={processor.fileInfo.name}
-                        secondary={prettyBytes(processor.fileInfo.size)}
+                        primary={logData.fileInfo.name}
+                        secondary={prettyBytes(logData.fileInfo.size)}
                       />
                     </ListItemButton>
                   </ListItem>

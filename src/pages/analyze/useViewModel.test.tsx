@@ -1,20 +1,20 @@
 import { createRoot } from "solid-js";
 import useViewModel from "./useViewModel";
-import comparer from "../models/comparer";
-import Processor from "../models/processor";
 import gridService from "./gridService";
-import filesUtils from "../utils/files";
-import timesUtils from "../utils/times";
-import { FiltersData } from "../components/filters/useViewModel";
+import { FiltersData } from "@al/components/filters/useViewModel";
+import comparer from "@al/services/comparer";
+import LogData from "@al/models/logData";
+import filesUtils from "@al/utils/files";
+import timesUtils from "@al/utils/times";
 
 describe("useViewModel", () => {
   beforeEach(() => {
-    const processor = new Processor();
-    processor.logs = [
-      { [Processor.logKeys.fullData]: "json string 1" },
-      { [Processor.logKeys.fullData]: "json string 2" },
+    const logData = new LogData();
+    logData.logs = [
+      { [LogData.logKeys.fullData]: "json string 1" },
+      { [LogData.logKeys.fullData]: "json string 2" },
     ];
-    vi.spyOn(comparer, "last").mockReturnValue(processor);
+    vi.spyOn(comparer, "last").mockReturnValue(logData);
   });
 
   afterEach(() => {
@@ -67,8 +67,8 @@ describe("useViewModel", () => {
       expect(spyDownloadNewFile, "spyDownloadNewFile").toHaveBeenCalledWith(
         "filtered-logs.log",
         [
-          comparer.last().logs[0][Processor.logKeys.fullData],
-          comparer.last().logs[1][Processor.logKeys.fullData],
+          comparer.last().logs[0][LogData.logKeys.fullData],
+          comparer.last().logs[1][LogData.logKeys.fullData],
         ]
       );
 
@@ -80,38 +80,38 @@ describe("useViewModel", () => {
     createRoot((dispose) => {
       comparer.last().logs = [
         {
-          [Processor.logKeys.id]: "10",
-          [Processor.logKeys.timestamp]: "2023-10-20T08:00:00.000Z",
-          [Processor.logKeys.fullData]: "msg one two three",
-          [Processor.logKeys.msg]: "msg one two three",
+          [LogData.logKeys.id]: "10",
+          [LogData.logKeys.timestamp]: "2023-10-20T08:00:00.000Z",
+          [LogData.logKeys.fullData]: "msg one two three",
+          [LogData.logKeys.msg]: "msg one two three",
         },
         {
-          [Processor.logKeys.id]: "20",
-          [Processor.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
-          [Processor.logKeys.fullData]: "test one two four",
-          [Processor.logKeys.msg]: "test one two four",
+          [LogData.logKeys.id]: "20",
+          [LogData.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
+          [LogData.logKeys.fullData]: "test one two four",
+          [LogData.logKeys.msg]: "test one two four",
         },
         {
-          [Processor.logKeys.id]: "23",
-          [Processor.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
-          [Processor.logKeys.fullData]: "test one two contains check four",
-          [Processor.logKeys.msg]: "test one two contains check four",
+          [LogData.logKeys.id]: "23",
+          [LogData.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
+          [LogData.logKeys.fullData]: "test one two contains check four",
+          [LogData.logKeys.msg]: "test one two contains check four",
         },
         {
-          [Processor.logKeys.id]: "24",
-          [Processor.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
-          [Processor.logKeys.fullData]: "test one two ands check four",
-          [Processor.logKeys.msg]: "test one two ands check four",
+          [LogData.logKeys.id]: "24",
+          [LogData.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
+          [LogData.logKeys.fullData]: "test one two ands check four",
+          [LogData.logKeys.msg]: "test one two ands check four",
         },
         {
-          [Processor.logKeys.id]: "30",
-          [Processor.logKeys.timestamp]: "2023-10-20T12:00:00.000Z",
-          [Processor.logKeys.fullData]: "msg four five six",
-          [Processor.logKeys.msg]: "msg four five six",
+          [LogData.logKeys.id]: "30",
+          [LogData.logKeys.timestamp]: "2023-10-20T12:00:00.000Z",
+          [LogData.logKeys.fullData]: "msg four five six",
+          [LogData.logKeys.msg]: "msg four five six",
         },
       ];
 
-      vi.spyOn(Processor, "isErrorLog")
+      vi.spyOn(LogData, "isErrorLog")
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(true)
@@ -167,35 +167,35 @@ describe("useViewModel", () => {
   describe("handleTimeJump", () => {
     let filters: FiltersData;
     beforeEach(() => {
-      const processor = new Processor();
-      processor.logs = [
+      const logData = new LogData();
+      logData.logs = [
         {
-          [Processor.logKeys.id]: "1",
-          [Processor.logKeys.timestamp]: "2023-10-20T08:00:00.000Z",
-          [Processor.logKeys.fullData]: "json string 1",
+          [LogData.logKeys.id]: "1",
+          [LogData.logKeys.timestamp]: "2023-10-20T08:00:00.000Z",
+          [LogData.logKeys.fullData]: "json string 1",
         },
         {
-          [Processor.logKeys.id]: "2",
-          [Processor.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
-          [Processor.logKeys.fullData]: "json string 2",
+          [LogData.logKeys.id]: "2",
+          [LogData.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
+          [LogData.logKeys.fullData]: "json string 2",
         },
         {
-          [Processor.logKeys.id]: "3",
-          [Processor.logKeys.timestamp]: "2023-10-20T12:00:00.000Z",
-          [Processor.logKeys.fullData]: "json string 3",
+          [LogData.logKeys.id]: "3",
+          [LogData.logKeys.timestamp]: "2023-10-20T12:00:00.000Z",
+          [LogData.logKeys.fullData]: "json string 3",
         },
         {
-          [Processor.logKeys.id]: "4",
-          [Processor.logKeys.timestamp]: "2023-10-20T14:00:00.000Z",
-          [Processor.logKeys.fullData]: "json string 4",
+          [LogData.logKeys.id]: "4",
+          [LogData.logKeys.timestamp]: "2023-10-20T14:00:00.000Z",
+          [LogData.logKeys.fullData]: "json string 4",
         },
         {
-          [Processor.logKeys.id]: "5",
-          [Processor.logKeys.timestamp]: "2023-10-20T16:00:00.000Z",
-          [Processor.logKeys.fullData]: "json string 5",
+          [LogData.logKeys.id]: "5",
+          [LogData.logKeys.timestamp]: "2023-10-20T16:00:00.000Z",
+          [LogData.logKeys.fullData]: "json string 5",
         },
       ];
-      vi.spyOn(comparer, "last").mockReturnValue(processor);
+      vi.spyOn(comparer, "last").mockReturnValue(logData);
 
       vi.spyOn(timesUtils, "diffMinutes")
         .mockReturnValueOnce(2)
@@ -325,40 +325,40 @@ describe("useViewModel", () => {
     createRoot((dispose) => {
       comparer.last().logs = [
         {
-          [Processor.logKeys.id]: "0",
-          [Processor.logKeys.fullData]: "msg a",
+          [LogData.logKeys.id]: "0",
+          [LogData.logKeys.fullData]: "msg a",
         },
         {
-          [Processor.logKeys.id]: "1",
-          [Processor.logKeys.fullData]: "test b",
+          [LogData.logKeys.id]: "1",
+          [LogData.logKeys.fullData]: "test b",
         },
         {
-          [Processor.logKeys.id]: "2",
-          [Processor.logKeys.fullData]: "msg c",
+          [LogData.logKeys.id]: "2",
+          [LogData.logKeys.fullData]: "msg c",
         },
         {
-          [Processor.logKeys.id]: "3",
-          [Processor.logKeys.fullData]: "test d",
+          [LogData.logKeys.id]: "3",
+          [LogData.logKeys.fullData]: "test d",
         },
         {
-          [Processor.logKeys.id]: "4",
-          [Processor.logKeys.fullData]: "msg e",
+          [LogData.logKeys.id]: "4",
+          [LogData.logKeys.fullData]: "msg e",
         },
         {
-          [Processor.logKeys.id]: "5",
-          [Processor.logKeys.fullData]: "test f",
+          [LogData.logKeys.id]: "5",
+          [LogData.logKeys.fullData]: "test f",
         },
         {
-          [Processor.logKeys.id]: "6",
-          [Processor.logKeys.fullData]: "msg g",
+          [LogData.logKeys.id]: "6",
+          [LogData.logKeys.fullData]: "msg g",
         },
         {
-          [Processor.logKeys.id]: "7",
-          [Processor.logKeys.fullData]: "test h",
+          [LogData.logKeys.id]: "7",
+          [LogData.logKeys.fullData]: "test h",
         },
         {
-          [Processor.logKeys.id]: "8",
-          [Processor.logKeys.fullData]: "msg i",
+          [LogData.logKeys.id]: "8",
+          [LogData.logKeys.fullData]: "msg i",
         },
       ];
 

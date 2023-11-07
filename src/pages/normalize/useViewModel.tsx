@@ -1,32 +1,32 @@
+import comparer from "@al/services/comparer";
+import LogData from "@al/models/logData";
 import { Setter, createSignal } from "solid-js";
-import { Pages, type PagesValues } from "../hooks/usePage";
-import type Processor from "../models/processor";
-import comparer from "../models/comparer";
+import { PagesValues, Pages } from "../usePage";
 
 function useViewModel() {
   const [analyzeDisabled, setAnalyzeDisabled] = createSignal(true);
   const [processingFile, setProcessingFile] = createSignal(false);
-  const [processors, setProcessors] = createSignal<Processor[]>([]);
-  const newFileDisabled = () => processors().length > 1;
+  const [logDatas, setLogDatas] = createSignal<LogData[]>([]);
+  const newFileDisabled = () => logDatas().length > 1;
 
   const handleAnalyzeClick = (setPage: Setter<PagesValues>) => {
-    setPage(Pages.analyzer);
+    setPage(Pages.analyze);
   };
 
-  const handleFileUpload = async (files: FileList, processor: Processor) => {
+  const handleFileUpload = async (files: FileList, logData: LogData) => {
     setProcessingFile(true);
     setAnalyzeDisabled(true);
 
-    await processor.init(files[0]);
-    comparer.addProcessor(processor);
-    setProcessors((prev) => [...prev, processor]);
+    await logData.init(files[0]);
+    comparer.addLogData(logData);
+    setLogDatas((prev) => [...prev, logData]);
 
     setAnalyzeDisabled(false);
     setProcessingFile(false);
   };
 
   return {
-    processors,
+    logDatas,
     newFileDisabled,
     analyzeDisabled,
     processingFile,

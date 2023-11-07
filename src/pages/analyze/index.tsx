@@ -1,12 +1,12 @@
-import AgGridSolid, { type AgGridSolidRef } from "ag-grid-solid";
+import AgGridSolid, { AgGridSolidRef } from "ag-grid-solid";
 import { Grid, Button, Typography, Divider } from "@suid/material";
 import useViewModel from "./useViewModel";
-import Filters from "../components/filters";
 import gridService from "./gridService";
-import comparer from "../models/comparer";
 import { Select, createOptions } from "@thisbeyond/solid-select";
-import type { GridOptions } from "ag-grid-community";
-import Processor, { type JSONLog } from "../models/processor";
+import { GridOptions } from "ag-grid-community";
+import Filters from "@al/components/filters";
+import comparer from "@al/services/comparer";
+import LogData, { JSONLog } from "@al/models/logData";
 
 function Analyzer() {
   let gridRef = {} as AgGridSolidRef;
@@ -35,7 +35,7 @@ function Analyzer() {
     columnDefs: cols(),
     getRowId: (params) => params.data.id,
     getRowStyle: (params) =>
-      params.data && Processor.isErrorLog(params.data)
+      params.data && LogData.isErrorLog(params.data)
         ? { background: "#FFBFBF" }
         : undefined,
   });

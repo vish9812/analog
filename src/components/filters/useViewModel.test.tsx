@@ -1,9 +1,8 @@
 import { createRoot } from "solid-js";
 import useViewModel from "./useViewModel";
-import type { FiltersData, FiltersProps } from "./useViewModel";
-import comparer from "../../models/comparer";
-import Processor from "../../models/processor";
-import type { GroupedMsg } from "../../models/processor";
+import { FiltersData, FiltersProps } from "./useViewModel";
+import comparer from "@al/services/comparer";
+import LogData, { GroupedMsg } from "@al/models/logData";
 
 describe("useViewModel", () => {
   const topLogs: GroupedMsg[] = [
@@ -60,9 +59,9 @@ describe("useViewModel", () => {
       onFiltersChange: vi.fn(),
     };
 
-    const lastProcessor = new Processor();
-    lastProcessor.topLogs = topLogs;
-    vi.spyOn(comparer, "last").mockReturnValue(lastProcessor);
+    const lastLogData = new LogData();
+    lastLogData.topLogs = topLogs;
+    vi.spyOn(comparer, "last").mockReturnValue(lastLogData);
   });
 
   afterEach(() => {

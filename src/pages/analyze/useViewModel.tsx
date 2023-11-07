@@ -1,16 +1,13 @@
-import Processor, { JSONLogs } from "../models/processor";
 import { createSignal } from "solid-js";
-import type {
-  FiltersData,
-  SearchTerm,
-} from "../components/filters/useViewModel";
-import comparer from "../models/comparer";
-import stringsUtils from "../utils/strings";
-import filesUtils from "../utils/files";
 import gridService from "./gridService";
-import timesUtils from "../utils/times";
 import { AgGridSolidRef } from "ag-grid-solid";
-import type { GridApi } from "ag-grid-community";
+import { GridApi } from "ag-grid-community";
+import { FiltersData, SearchTerm } from "@al/components/filters/useViewModel";
+import LogData, { JSONLogs } from "@al/models/logData";
+import filesUtils from "@al/utils/files";
+import stringsUtils from "@al/utils/strings";
+import timesUtils from "@al/utils/times";
+import comparer from "@al/services/comparer";
 
 let zeroJump: string;
 let prevJumps: string[] = [];
@@ -44,16 +41,16 @@ function useViewModel() {
       let keep = true;
 
       if (keep && filtersData.startTime) {
-        keep = log[Processor.logKeys.timestamp] >= filtersData.startTime;
+        keep = log[LogData.logKeys.timestamp] >= filtersData.startTime;
       }
       if (keep && filtersData.endTime) {
-        keep = log[Processor.logKeys.timestamp] <= filtersData.endTime;
+        keep = log[LogData.logKeys.timestamp] <= filtersData.endTime;
       }
       if (keep && filtersData.errorsOnly) {
-        keep = Processor.isErrorLog(log);
+        keep = LogData.isErrorLog(log);
       }
 
-      const fullData = log[Processor.logKeys.fullData].toLowerCase();
+      const fullData = log[LogData.logKeys.fullData].toLowerCase();
       if (keep && filtersData.regex) {
         keep = stringsUtils.regexMatch(fullData, filtersData.regex);
       }
@@ -88,8 +85,8 @@ function useViewModel() {
 
       // Update time jumps
       if (keep) {
-        const id = log[Processor.logKeys.id];
-        const time = new Date(log[Processor.logKeys.timestamp]);
+        const id = log[LogData.logKeys.id];
+        const time = new Date(log[LogData.logKeys.timestamp]);
         if (!zeroJump) {
           zeroJump = id;
           prevTime = time;
@@ -118,7 +115,7 @@ function useViewModel() {
   function downloadSubset() {
     filesUtils.downloadNewFile(
       "filtered-logs.log",
-      rows().map((m) => m[Processor.logKeys.fullData])
+      rows().map((m) => m[LogData.logKeys.fullData])
     );
   }
 
