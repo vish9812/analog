@@ -46,22 +46,22 @@ const errorFilterFn = (prev: GroupedMsg[]) => prev.filter((m) => m.hasErrors);
 function useViewModel(props: FiltersProps) {
   const [filters, setFilters] = createStore(defaultFilters());
   const [topLogs, setTopLogs] = createSignal(comparer.last().topLogs);
-  const [addedMsgs, setAddedMsgs] = createSignal(comparer.added);
-  const [removedMsgs, setRemovedMsgs] = createSignal(comparer.removed);
+  const [addedLogs, setAddedLogs] = createSignal(comparer.added);
+  const [removedLogs, setRemovedLogs] = createSignal(comparer.removed);
 
   function handleFiltersChange() {
     props.onFiltersChange(filters);
   }
 
   function handleResetClick(
-    topMsgsGridRef: AgGridSolidRef,
-    addedMsgsGridRef: AgGridSolidRef
+    topLogsGridRef: AgGridSolidRef,
+    addedLogsGridRef: AgGridSolidRef
   ) {
     setFilters(defaultFilters());
     handleErrorsOnlyChange(false);
-    topMsgsGridRef.api.deselectAll();
-    if (addedMsgs().length > 0) {
-      addedMsgsGridRef.api.deselectAll();
+    topLogsGridRef.api.deselectAll();
+    if (addedLogs().length > 0) {
+      addedLogsGridRef.api.deselectAll();
     }
   }
 
@@ -78,12 +78,12 @@ function useViewModel(props: FiltersProps) {
 
     if (checked) {
       setTopLogs(errorFilterFn);
-      setAddedMsgs(errorFilterFn);
-      setRemovedMsgs(errorFilterFn);
+      setAddedLogs(errorFilterFn);
+      setRemovedLogs(errorFilterFn);
     } else {
       setTopLogs(comparer.last().topLogs);
-      setAddedMsgs(comparer.added);
-      setRemovedMsgs(comparer.removed);
+      setAddedLogs(comparer.added);
+      setRemovedLogs(comparer.removed);
     }
 
     handleFiltersChange();
@@ -105,8 +105,8 @@ function useViewModel(props: FiltersProps) {
   return {
     filters,
     topLogs,
-    addedMsgs,
-    removedMsgs,
+    addedLogs: addedLogs,
+    removedLogs: removedLogs,
     setFilters,
     handleFiltersChange,
     handleLogsSelectionChanged,

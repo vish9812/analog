@@ -1,5 +1,5 @@
 import AgGridSolid, { AgGridSolidRef } from "ag-grid-solid";
-import { Grid, Button, Typography, Divider } from "@suid/material";
+import { Grid, Button, Divider } from "@suid/material";
 import useViewModel from "./useViewModel";
 import gridService from "./gridService";
 import { Select, createOptions } from "@thisbeyond/solid-select";
@@ -51,10 +51,10 @@ function Analyzer() {
       <Grid item xs={12} container spacing={2}>
         <Grid item xs={5} container spacing={2} sx={{ alignItems: "center" }}>
           <Grid item xs={6}>
-            <Typography variant="h4" margin={2}>
+            <h3>
               All Logs
               {rows().length ? " : " + rows().length.toLocaleString() : ""}
-            </Typography>
+            </h3>
           </Grid>
           <Grid item xs={6}>
             <Button

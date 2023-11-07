@@ -6,10 +6,9 @@ import {
   Stack,
   Switch,
   TextField,
-  Typography,
 } from "@suid/material";
 import useViewModel, { SearchTerm, FiltersProps } from "./useViewModel";
-import AgGridSolid, { AgGridSolidRef } from "ag-grid-solid";
+import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
 import { Accessor, For, Show } from "solid-js";
 import { Select } from "@thisbeyond/solid-select";
@@ -18,6 +17,7 @@ import AddIcon from "@suid/icons-material/Add";
 import RemoveIcon from "@suid/icons-material/Remove";
 import comparer from "@al/services/comparer";
 import { GroupedMsg } from "@al/models/logData";
+import GroupedMsgGrid from "../groupedMsgGrid";
 
 const texts = {
   and: "AND",
@@ -27,14 +27,15 @@ const texts = {
 };
 
 function Filters(props: FiltersProps) {
-  let topMsgsGridRef = {} as AgGridSolidRef;
-  let addedMsgsGridRef = {} as AgGridSolidRef;
+  let topLogsGridRef = {} as AgGridSolidRef;
+  let addedLogsGridRef = {} as AgGridSolidRef;
+  let removedLogsGridRef = {} as AgGridSolidRef;
 
   let {
     filters,
     topLogs,
-    addedMsgs,
-    removedMsgs,
+    addedLogs,
+    removedLogs,
     setFilters,
     handleFiltersChange,
     handleLogsSelectionChanged,
@@ -73,12 +74,12 @@ function Filters(props: FiltersProps) {
 
   const addedLogsGridOptions: GridOptions<GroupedMsg> = {
     ...commonGridOptions,
-    rowData: addedMsgs(),
+    rowData: addedLogs(),
   };
 
   const removedLogsGridOptions: GridOptions<GroupedMsg> = {
     ...commonGridOptions,
-    rowData: removedMsgs(),
+    rowData: removedLogs(),
     columnDefs: [
       { ...commonGridOptions.columnDefs![0], checkboxSelection: undefined },
       { ...commonGridOptions.columnDefs![1] },
@@ -162,7 +163,7 @@ function Filters(props: FiltersProps) {
           <Divider orientation="vertical" flexItem></Divider>
           <Button
             variant="outlined"
-            onClick={() => handleResetClick(topMsgsGridRef, addedMsgsGridRef)}
+            onClick={() => handleResetClick(topLogsGridRef, addedLogsGridRef)}
           >
             Reset
           </Button>
@@ -182,37 +183,27 @@ function Filters(props: FiltersProps) {
       </Grid>
       <Grid item xs={12} container spacing={2}>
         <Grid item xs={4}>
-          <Typography variant="h4" margin={2}>
-            Top Logs
-            {topLogs().length ? " : " + topLogs().length.toLocaleString() : ""}
-          </Typography>
-          <div style={{ height: "350px" }} class="ag-theme-alpine">
-            <AgGridSolid ref={topMsgsGridRef} {...topLogsGridOptions} />
-          </div>
+          <GroupedMsgGrid
+            ref={topLogsGridRef}
+            name="Top Logs"
+            options={topLogsGridOptions}
+          ></GroupedMsgGrid>
         </Grid>
         <Show when={comparer.isOn()}>
           <Grid item xs={8} container spacing={2}>
             <Grid item xs={6}>
-              <Typography variant="h4" margin={2}>
-                Added Logs
-                {addedMsgs().length
-                  ? " : " + addedMsgs().length.toLocaleString()
-                  : ""}
-              </Typography>
-              <div style={{ height: "350px" }} class="ag-theme-alpine">
-                <AgGridSolid ref={addedMsgsGridRef} {...addedLogsGridOptions} />
-              </div>
+              <GroupedMsgGrid
+                ref={addedLogsGridRef}
+                name="Added Logs"
+                options={addedLogsGridOptions}
+              ></GroupedMsgGrid>
             </Grid>
             <Grid item xs={6}>
-              <Typography variant="h4" margin={2}>
-                Removed Logs
-                {removedMsgs().length
-                  ? " : " + removedMsgs().length.toLocaleString()
-                  : ""}
-              </Typography>
-              <div style={{ height: "350px" }} class="ag-theme-alpine">
-                <AgGridSolid {...removedLogsGridOptions} />
-              </div>
+              <GroupedMsgGrid
+                ref={removedLogsGridRef}
+                name="Removed Logs"
+                options={removedLogsGridOptions}
+              ></GroupedMsgGrid>
             </Grid>
           </Grid>
         </Show>

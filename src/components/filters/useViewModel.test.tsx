@@ -72,8 +72,8 @@ describe("useViewModel", () => {
     createRoot((dispose) => {
       const vm = useViewModel(null as any);
 
-      expect(vm.addedMsgs(), "addedMsgs").toEqual(comparer.added);
-      expect(vm.removedMsgs(), "removedMsgs").toEqual(comparer.removed);
+      expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
+      expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
       expect(vm.topLogs(), "topLogs").toEqual(comparer.last().topLogs);
       expect(vm.filters, "filters").toEqual(defaultFilters);
 
@@ -101,8 +101,8 @@ describe("useViewModel", () => {
           deselectAll: vi.fn(),
         },
       });
-      const topMsgsGridRef = getGrid();
-      const addedMsgsGridRef = getGrid();
+      const topLogsGridRef = getGrid();
+      const addedLogsGridRef = getGrid();
 
       const vm = useViewModel(props);
       vm.setFilters(() => ({
@@ -114,17 +114,17 @@ describe("useViewModel", () => {
       }));
       expect(vm.filters.regex, "regex").toEqual("some regex");
 
-      vm.handleResetClick(topMsgsGridRef as any, addedMsgsGridRef as any);
+      vm.handleResetClick(topLogsGridRef as any, addedLogsGridRef as any);
 
       expect(vm.filters, "filters").toEqual(defaultFilters);
-      expect(vm.addedMsgs(), "addedMsgs").toEqual(comparer.added);
-      expect(vm.removedMsgs(), "removedMsgs").toEqual(comparer.removed);
+      expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
+      expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
       expect(vm.topLogs(), "topLogs").toEqual(comparer.last().topLogs);
       expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
         defaultFilters
       );
-      expect(topMsgsGridRef.api.deselectAll).toHaveBeenCalledOnce();
-      expect(addedMsgsGridRef.api.deselectAll).toHaveBeenCalledOnce();
+      expect(topLogsGridRef.api.deselectAll).toHaveBeenCalledOnce();
+      expect(addedLogsGridRef.api.deselectAll).toHaveBeenCalledOnce();
       dispose();
     });
   });
@@ -142,7 +142,7 @@ describe("useViewModel", () => {
       const vm = useViewModel(props);
       vm.handleLogsSelectionChanged(selectionEvent as any);
 
-      expect(vm.filters.logs, "filters.msgs").toEqual(logs);
+      expect(vm.filters.logs, "filters.logs").toEqual(logs);
       expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith({
         ...defaultFilters,
         logs,
@@ -164,8 +164,8 @@ describe("useViewModel", () => {
         const errRemovedTopLogs = [comparer.removed[1]];
 
         expect(vm.filters.errorsOnly, "errorsOnly").toEqual(checked);
-        expect(vm.addedMsgs(), "addedMsgs").toEqual(errAddedTopLogs);
-        expect(vm.removedMsgs(), "removedMsgs").toEqual(errRemovedTopLogs);
+        expect(vm.addedLogs(), "addedLogs").toEqual(errAddedTopLogs);
+        expect(vm.removedLogs(), "removedLogs").toEqual(errRemovedTopLogs);
         expect(vm.topLogs(), "topLogs").toEqual(errTopLogs);
         expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith({
           ...defaultFilters,
@@ -183,8 +183,8 @@ describe("useViewModel", () => {
         vm.handleErrorsOnlyChange(checked);
 
         expect(vm.filters.errorsOnly, "errorsOnly").toEqual(checked);
-        expect(vm.addedMsgs(), "addedMsgs").toEqual(comparer.added);
-        expect(vm.removedMsgs(), "removedMsgs").toEqual(comparer.removed);
+        expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
+        expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
         expect(vm.topLogs(), "topLogs").toEqual(comparer.last().topLogs);
         expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
           defaultFilters
