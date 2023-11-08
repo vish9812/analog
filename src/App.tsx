@@ -12,6 +12,7 @@ const App: Component = () => {
 
   return (
     <div style={{ padding: "10px 50px" }}>
+      <h1 style={{ display: "flex", "justify-content": "center" }}>Analog</h1>
       <Show when={page() === Pages.analyze} fallback={<Normalize></Normalize>}>
         <Analyze></Analyze>
       </Show>

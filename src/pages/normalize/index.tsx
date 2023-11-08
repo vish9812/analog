@@ -31,7 +31,7 @@ const HiddenInput = styled("input")({
   width: 1,
 });
 
-function Normalizer() {
+function Normalize() {
   const { setPage } = usePage();
 
   const {
@@ -109,4 +109,4 @@ function Normalizer() {
   );
 }
 
-export default Normalizer;
+export default Normalize;

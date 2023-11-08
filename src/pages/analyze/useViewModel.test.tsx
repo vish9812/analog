@@ -4,7 +4,6 @@ import gridService from "./gridService";
 import { FiltersData } from "@al/components/filters/useViewModel";
 import comparer from "@al/services/comparer";
 import LogData from "@al/models/logData";
-import filesUtils from "@al/utils/files";
 import timesUtils from "@al/utils/times";
 
 describe("useViewModel", () => {
@@ -49,27 +48,6 @@ describe("useViewModel", () => {
       expect(vm.cols().length, "cols.length").toEqual(2);
       cols.forEach((c, i) =>
         expect(vm.cols()[i].field, `cols()[${i}]`).toEqual(c)
-      );
-
-      dispose();
-    });
-  });
-
-  test("downloadSubset", () => {
-    createRoot((dispose) => {
-      const spyDownloadNewFile = vi
-        .spyOn(filesUtils, "downloadNewFile")
-        .mockImplementation(() => {});
-
-      const vm = useViewModel();
-      vm.downloadSubset();
-
-      expect(spyDownloadNewFile, "spyDownloadNewFile").toHaveBeenCalledWith(
-        "filtered-logs.log",
-        [
-          comparer.last().logs[0][LogData.logKeys.fullData],
-          comparer.last().logs[1][LogData.logKeys.fullData],
-        ]
       );
 
       dispose();

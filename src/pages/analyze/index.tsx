@@ -7,8 +7,9 @@ import { GridOptions } from "ag-grid-community";
 import Filters from "@al/components/filters";
 import comparer from "@al/services/comparer";
 import LogData, { JSONLog } from "@al/models/logData";
+import Download from "@al/components/download";
 
-function Analyzer() {
+function Analyze() {
   let gridRef = {} as AgGridSolidRef;
 
   const {
@@ -16,7 +17,6 @@ function Analyzer() {
     handleColsChange,
     rows,
     cols,
-    downloadSubset,
     initialCols,
     setInitialCols,
     timeJumps,
@@ -57,13 +57,7 @@ function Analyzer() {
             </h3>
           </Grid>
           <Grid item xs={6}>
-            <Button
-              sx={{ margin: 2 }}
-              variant="outlined"
-              onClick={downloadSubset}
-            >
-              Download the subset
-            </Button>
+            <Download logs={rows}></Download>
           </Grid>
         </Grid>
         <Grid item xs={2}>
@@ -113,4 +107,4 @@ function Analyzer() {
   );
 }
 
-export default Analyzer;
+export default Analyze;
