@@ -14,18 +14,26 @@ function getNestedKeys(obj: Record<string, any>): string[] {
   return keys;
 }
 
-function isJSON(text: string): boolean {
+function parseJSON<TReturn>(text: string): TReturn | null {
+  if (text == null) {
+    return null;
+  }
+
+  if (text.at(0) === '"' && text.at(-1) === '"') {
+    text = text.slice(1, -1);
+  }
+
   try {
-    JSON.parse(text);
-    return true;
-  } catch (err) {
-    return false;
+    const obj = JSON.parse(text) as TReturn;
+    return obj;
+  } catch {
+    return null;
   }
 }
 
 const objectsUtils = {
   getNestedKeys,
-  isJSON,
+  parseJSON,
 };
 
 export default objectsUtils;

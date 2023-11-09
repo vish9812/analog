@@ -26,11 +26,19 @@ test("getNestedKeys", () => {
   expect(objectsUtils.getNestedKeys(obj).sort()).toEqual(expected.sort());
 });
 
+const jsonObj = { key1: "val1", key2: 4 };
+const jsonArr = ["val1", "val2"];
+
 test.each`
-  text                                         | expected
-  ${"abc"}                                     | ${false}
-  ${JSON.stringify({ key1: "val1", key2: 4 })} | ${true}
-  ${JSON.stringify(["val1", "val2"])}          | ${true}
-`("isJSON text: $text", ({ text, expected }) => {
-  expect(objectsUtils.isJSON(text)).toEqual(expected);
+  text                       | expected
+  ${"null"}                  | ${null}
+  ${null}                    | ${null}
+  ${"non-json log"}          | ${null}
+  ${'"quoted non-json log"'} | ${null}
+  ${'" "'}                   | ${null}
+  ${'""'}                    | ${null}
+  ${JSON.stringify(jsonObj)} | ${jsonObj}
+  ${JSON.stringify(jsonArr)} | ${jsonArr}
+`("parseJSON text: $text", ({ text, expected }) => {
+  expect(objectsUtils.parseJSON(text)).toEqual(expected);
 });

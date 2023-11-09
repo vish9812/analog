@@ -1,4 +1,4 @@
-import stringsUtils from "../utils/strings";
+import stringsUtils from "@al/utils/strings";
 import LogData, { GroupedMsg } from "./logData";
 
 describe("isErrorLog", () => {

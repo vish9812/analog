@@ -10,6 +10,12 @@ interface GroupedMsg {
   hasErrors: boolean;
 }
 
+type LineParserType = (logLine: string) => JSONLog | null;
+
+const regex = {
+  lineSplit: /\r?\n/,
+};
+
 class LogData {
   fileInfo = {
     name: "",
@@ -37,13 +43,13 @@ class LogData {
     error: "error",
   };
 
-  async init(file: File) {
+  async init(file: File, lineParser: LineParserType) {
     this.initFileInfo(file);
 
     const keysSet = new Set<string>();
     let count = 0;
     for (const line of await LogData.getLines(file)) {
-      const log = this.addLog(line.trim());
+      const log = this.addLog(line, lineParser);
       if (log == null) {
         continue;
       }
@@ -98,25 +104,25 @@ class LogData {
     }
   }
 
-  private addLog(line: string): JSONLog | null {
+  private addLog(line: string, lineParser: LineParserType): JSONLog | null {
     if (!line || !line.trim()) {
       console.info("skipping empty line");
       return null;
     }
 
-    try {
-      const log = JSON.parse(line) as JSONLog;
-      log[LogData.logKeys.fullData] = line;
-      this.logs.push(log);
-      return log;
-    } catch {
-      console.warn("failed to parse the json line:", line);
+    const log = lineParser(line);
+    if (log == null) {
+      console.warn("non-supported log format.");
       return null;
     }
+
+    log[LogData.logKeys.fullData] = JSON.stringify(log);
+    this.logs.push(log);
+    return log;
   }
 
   private static async getLines(file: File): Promise<string[]> {
-    return (await file.text()).split(/\r?\n/);
+    return (await file.text()).split(regex.lineSplit);
 
     // Sample Test JSON Lines
     // return Promise.resolve([
