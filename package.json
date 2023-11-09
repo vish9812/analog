@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.1",
   "description": "",
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": ">=8"
+  },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "start": "vite",

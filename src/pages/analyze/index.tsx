@@ -8,6 +8,7 @@ import Filters from "@al/components/filters";
 import comparer from "@al/services/comparer";
 import LogData, { JSONLog } from "@al/models/logData";
 import Download from "@al/components/download";
+import TimeJumps from "@al/components/timeJumps";
 
 function Analyze() {
   let gridRef = {} as AgGridSolidRef;
@@ -19,7 +20,6 @@ function Analyze() {
     cols,
     initialCols,
     setInitialCols,
-    timeJumps,
     handleTimeJump,
     handleContextClick,
   } = useViewModel();
@@ -61,21 +61,9 @@ function Analyze() {
           </Grid>
         </Grid>
         <Grid item xs={2}>
-          <Button
-            variant="outlined"
-            disabled={timeJumps().prevDisabled}
-            onClick={() => handleTimeJump(gridRef, false)}
-          >
-            {"<<"}
-          </Button>
-          Time Jumps
-          <Button
-            variant="outlined"
-            disabled={timeJumps().nextDisabled}
-            onClick={() => handleTimeJump(gridRef, true)}
-          >
-            {">>"}
-          </Button>
+          <TimeJumps
+            onTimeJump={(jumpID) => handleTimeJump(gridRef, jumpID)}
+          ></TimeJumps>
         </Grid>
         <Grid item xs={5} container spacing={2} sx={{ alignItems: "center" }}>
           <Grid item xs={8}>

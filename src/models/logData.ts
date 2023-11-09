@@ -99,14 +99,18 @@ class LogData {
   }
 
   private addLog(line: string): JSONLog | null {
+    if (!line || !line.trim()) {
+      console.info("skipping empty line");
+      return null;
+    }
+
     try {
       const log = JSON.parse(line) as JSONLog;
       log[LogData.logKeys.fullData] = line;
       this.logs.push(log);
       return log;
-    } catch (err) {
-      console.log("failed to parse the json line:", line);
-      console.log(err);
+    } catch {
+      console.warn("failed to parse the json line:", line);
       return null;
     }
   }
@@ -119,47 +123,47 @@ class LogData {
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "msg a",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:00:00.000 +10:00",
     //   }),
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "test b",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:05:00.000 +10:00",
     //   }),
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "msg c",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:10:00.000 +10:00",
     //   }),
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "test d",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:15:00.000 +10:00",
     //   }),
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "msg e",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:20:00.000 +10:00",
     //   }),
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "test f",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:30:00.000 +10:00",
     //   }),
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "msg g",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:35:00.000 +10:00",
     //   }),
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "test h",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:50:00.000 +10:00",
     //   }),
     //   JSON.stringify({
     //     [this.logKeys.level]: "info",
     //     [this.logKeys.msg]: "msg i",
-    //     [this.logKeys.timestamp]: "2023-08-22 02:59:54.879 +10:00",
+    //     [this.logKeys.timestamp]: "2023-08-22 03:55:00.000 +10:00",
     //   }),
     // ]);
   }

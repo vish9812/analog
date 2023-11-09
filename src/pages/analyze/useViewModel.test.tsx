@@ -5,6 +5,7 @@ import { FiltersData } from "@al/components/filters/useViewModel";
 import comparer from "@al/services/comparer";
 import LogData from "@al/models/logData";
 import timesUtils from "@al/utils/times";
+import useJumper from "@al/components/timeJumps/useJumper";
 
 describe("useViewModel", () => {
   beforeEach(() => {
@@ -24,13 +25,6 @@ describe("useViewModel", () => {
     createRoot((dispose) => {
       const vm = useViewModel();
 
-      expect(vm.timeJumps(), "timeJumps").toBeTruthy();
-      expect(vm.timeJumps().nextDisabled, "timeJumps().nextDisabled").toEqual(
-        true
-      );
-      expect(vm.timeJumps().prevDisabled, "timeJumps().prevDisabled").toEqual(
-        true
-      );
       expect(vm.rows(), "rows").toEqual(comparer.last().logs);
       expect(vm.initialCols(), "initialCols").toEqual(
         gridService.defaultCols()
@@ -97,6 +91,14 @@ describe("useViewModel", () => {
         .mockReturnValueOnce(false);
 
       vi.spyOn(timesUtils, "diffMinutes").mockReturnValue(100);
+      const mockUseJumper = {
+        reset: vi.spyOn(useJumper, "reset"),
+        validator: vi.spyOn(useJumper, "validator").mockReturnValue(vi.fn()),
+        adder: vi.spyOn(useJumper, "adder").mockReturnValue({
+          add: vi.fn(),
+          done: vi.fn(),
+        }),
+      };
 
       const filters: FiltersData = {
         startTime: "2023-10-20T01:00:00.000Z",
@@ -135,167 +137,32 @@ describe("useViewModel", () => {
         comparer.last().logs[2],
         comparer.last().logs[3],
       ]);
-      expect(vm.timeJumps().prevDisabled, "prevDisabled").toEqual(true);
-      expect(vm.timeJumps().nextDisabled, "nextDisabled").toEqual(false);
+
+      expect(mockUseJumper.reset).toHaveBeenCalledOnce();
+      expect(mockUseJumper.adder).toHaveBeenCalledOnce();
+      expect(mockUseJumper.validator).toHaveBeenCalledOnce();
 
       dispose();
     });
   });
 
-  describe("handleTimeJump", () => {
-    let filters: FiltersData;
-    beforeEach(() => {
-      const logData = new LogData();
-      logData.logs = [
-        {
-          [LogData.logKeys.id]: "1",
-          [LogData.logKeys.timestamp]: "2023-10-20T08:00:00.000Z",
-          [LogData.logKeys.fullData]: "json string 1",
+  test("handleTimeJump", () => {
+    createRoot((dispose) => {
+      const vm = useViewModel();
+
+      const gridRef = {
+        api: {
+          ensureNodeVisible: () => {},
+          getRowNode: vi.fn(),
         },
-        {
-          [LogData.logKeys.id]: "2",
-          [LogData.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
-          [LogData.logKeys.fullData]: "json string 2",
-        },
-        {
-          [LogData.logKeys.id]: "3",
-          [LogData.logKeys.timestamp]: "2023-10-20T12:00:00.000Z",
-          [LogData.logKeys.fullData]: "json string 3",
-        },
-        {
-          [LogData.logKeys.id]: "4",
-          [LogData.logKeys.timestamp]: "2023-10-20T14:00:00.000Z",
-          [LogData.logKeys.fullData]: "json string 4",
-        },
-        {
-          [LogData.logKeys.id]: "5",
-          [LogData.logKeys.timestamp]: "2023-10-20T16:00:00.000Z",
-          [LogData.logKeys.fullData]: "json string 5",
-        },
-      ];
-      vi.spyOn(comparer, "last").mockReturnValue(logData);
+      };
 
-      vi.spyOn(timesUtils, "diffMinutes")
-        .mockReturnValueOnce(2)
-        .mockReturnValueOnce(50)
-        .mockReturnValueOnce(3)
-        .mockReturnValueOnce(70)
-        .mockReturnValueOnce(30);
+      const id = "10";
+      vm.handleTimeJump(gridRef as any, id);
 
-      filters = {
-        logs: [],
-      } as any;
-    });
+      expect(gridRef.api.getRowNode, "getRowNode").toHaveBeenCalledWith(id);
 
-    test("handleTimeJump", () => {
-      createRoot((dispose) => {
-        const vm = useViewModel();
-        vm.handleFiltersChange(filters);
-        expect(vm.rows().length, "rows.length").toEqual(
-          comparer.last().logs.length
-        );
-
-        const mockGridRef = {
-          api: {
-            ensureNodeVisible: vi.fn(),
-            getRowNode: vi.fn().mockImplementation((x) => x),
-          },
-        };
-
-        let jump = "next1 ";
-        vm.handleTimeJump(mockGridRef as any, true);
-        expect(
-          mockGridRef.api.ensureNodeVisible,
-          jump + "ensureNodeVisible"
-        ).toHaveBeenNthCalledWith(1, "2", "middle");
-        expect(vm.timeJumps().prevDisabled, jump + "prevDisabled").toEqual(
-          false
-        );
-        expect(vm.timeJumps().nextDisabled, jump + "nextDisabled").toEqual(
-          false
-        );
-
-        jump = "next2 ";
-        vm.handleTimeJump(mockGridRef as any, true);
-        expect(
-          mockGridRef.api.ensureNodeVisible,
-          jump + "ensureNodeVisible"
-        ).toHaveBeenNthCalledWith(2, "4", "middle");
-        expect(vm.timeJumps().prevDisabled, jump + "prevDisabled").toEqual(
-          false
-        );
-        expect(vm.timeJumps().nextDisabled, jump + "nextDisabled").toEqual(
-          false
-        );
-
-        jump = "next3 ";
-        vm.handleTimeJump(mockGridRef as any, true);
-        expect(
-          mockGridRef.api.ensureNodeVisible,
-          jump + "ensureNodeVisible"
-        ).toHaveBeenNthCalledWith(3, "5", "middle");
-        expect(vm.timeJumps().prevDisabled, jump + "prevDisabled").toEqual(
-          false
-        );
-        expect(vm.timeJumps().nextDisabled, jump + "nextDisabled").toEqual(
-          true
-        );
-
-        jump = "prev1 ";
-        vm.handleTimeJump(mockGridRef as any, false);
-        expect(
-          mockGridRef.api.ensureNodeVisible,
-          jump + "ensureNodeVisible"
-        ).toHaveBeenNthCalledWith(4, "4", "middle");
-        expect(vm.timeJumps().prevDisabled, jump + "prevDisabled").toEqual(
-          false
-        );
-        expect(vm.timeJumps().nextDisabled, jump + "nextDisabled").toEqual(
-          false
-        );
-
-        jump = "prev2 ";
-        vm.handleTimeJump(mockGridRef as any, false);
-        expect(
-          mockGridRef.api.ensureNodeVisible,
-          jump + "ensureNodeVisible"
-        ).toHaveBeenNthCalledWith(5, "2", "middle");
-        expect(vm.timeJumps().prevDisabled, jump + "prevDisabled").toEqual(
-          false
-        );
-        expect(vm.timeJumps().nextDisabled, jump + "nextDisabled").toEqual(
-          false
-        );
-
-        // jump to 0th row
-        jump = "prev3 ";
-        vm.handleTimeJump(mockGridRef as any, false);
-        expect(
-          mockGridRef.api.ensureNodeVisible,
-          jump + "ensureNodeVisible"
-        ).toHaveBeenNthCalledWith(6, "1", "middle");
-        expect(vm.timeJumps().prevDisabled, jump + "prevDisabled").toEqual(
-          true
-        );
-        expect(vm.timeJumps().nextDisabled, jump + "nextDisabled").toEqual(
-          false
-        );
-
-        jump = "next1 ";
-        vm.handleTimeJump(mockGridRef as any, true);
-        expect(
-          mockGridRef.api.ensureNodeVisible,
-          jump + "ensureNodeVisible"
-        ).toHaveBeenNthCalledWith(7, "2", "middle");
-        expect(vm.timeJumps().prevDisabled, jump + "prevDisabled").toEqual(
-          false
-        );
-        expect(vm.timeJumps().nextDisabled, jump + "nextDisabled").toEqual(
-          false
-        );
-
-        dispose();
-      });
+      dispose();
     });
   });
 
