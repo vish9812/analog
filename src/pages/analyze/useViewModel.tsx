@@ -4,7 +4,6 @@ import { AgGridSolidRef } from "ag-grid-solid";
 import { GridApi } from "ag-grid-community";
 import { FiltersData, SearchTerm } from "@al/components/filters/useViewModel";
 import LogData, { JSONLogs } from "@al/models/logData";
-import filesUtils from "@al/utils/files";
 import stringsUtils from "@al/utils/strings";
 import comparer from "@al/services/comparer";
 import useJumper from "@al/components/timeJumps/useJumper";
@@ -92,13 +91,6 @@ function useViewModel() {
     setRows(() => filteredLogs);
   }
 
-  function downloadSubset() {
-    filesUtils.downloadNewFile(
-      "filtered-logs.log",
-      rows().map((m) => m[LogData.logKeys.fullData])
-    );
-  }
-
   function handleTimeJump(gridRef: AgGridSolidRef, jumpID: string) {
     gridRef.api.ensureNodeVisible(gridRef.api.getRowNode(jumpID), "middle");
   }
@@ -124,7 +116,6 @@ function useViewModel() {
     handleColsChange,
     rows,
     cols,
-    downloadSubset,
     initialCols,
     setInitialCols,
     handleTimeJump,
