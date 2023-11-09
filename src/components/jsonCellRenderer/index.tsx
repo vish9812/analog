@@ -1,4 +1,4 @@
-import type { ICellRendererParams } from "ag-grid-community";
+import { ICellRendererParams } from "ag-grid-community";
 import jsonFormatter from "./jsonFormatter";
 
 function JSONCellRenderer(props: ICellRendererParams) {

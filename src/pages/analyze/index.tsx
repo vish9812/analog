@@ -1,14 +1,16 @@
-import AgGridSolid, { type AgGridSolidRef } from "ag-grid-solid";
-import { Grid, Button, Typography, Divider } from "@suid/material";
+import AgGridSolid, { AgGridSolidRef } from "ag-grid-solid";
+import { Grid, Button, Divider } from "@suid/material";
 import useViewModel from "./useViewModel";
-import Filters from "../components/filters";
 import gridService from "./gridService";
-import comparer from "../models/comparer";
 import { Select, createOptions } from "@thisbeyond/solid-select";
-import type { GridOptions } from "ag-grid-community";
-import Processor, { type JSONLog } from "../models/processor";
+import { GridOptions } from "ag-grid-community";
+import Filters from "@al/components/filters";
+import comparer from "@al/services/comparer";
+import LogData, { JSONLog } from "@al/models/logData";
+import Download from "@al/components/download";
+import TimeJumps from "@al/components/timeJumps";
 
-function Analyzer() {
+function Analyze() {
   let gridRef = {} as AgGridSolidRef;
 
   const {
@@ -16,10 +18,8 @@ function Analyzer() {
     handleColsChange,
     rows,
     cols,
-    downloadSubset,
     initialCols,
     setInitialCols,
-    timeJumps,
     handleTimeJump,
     handleContextClick,
   } = useViewModel();
@@ -35,7 +35,7 @@ function Analyzer() {
     columnDefs: cols(),
     getRowId: (params) => params.data.id,
     getRowStyle: (params) =>
-      params.data && Processor.isErrorLog(params.data)
+      params.data && LogData.isErrorLog(params.data)
         ? { background: "#FFBFBF" }
         : undefined,
   });
@@ -51,37 +51,19 @@ function Analyzer() {
       <Grid item xs={12} container spacing={2}>
         <Grid item xs={5} container spacing={2} sx={{ alignItems: "center" }}>
           <Grid item xs={6}>
-            <Typography variant="h4" margin={2}>
+            <h3>
               All Logs
               {rows().length ? " : " + rows().length.toLocaleString() : ""}
-            </Typography>
+            </h3>
           </Grid>
           <Grid item xs={6}>
-            <Button
-              sx={{ margin: 2 }}
-              variant="outlined"
-              onClick={downloadSubset}
-            >
-              Download the subset
-            </Button>
+            <Download logs={rows}></Download>
           </Grid>
         </Grid>
         <Grid item xs={2}>
-          <Button
-            variant="outlined"
-            disabled={timeJumps().prevDisabled}
-            onClick={() => handleTimeJump(gridRef, false)}
-          >
-            {"<<"}
-          </Button>
-          Time Jumps
-          <Button
-            variant="outlined"
-            disabled={timeJumps().nextDisabled}
-            onClick={() => handleTimeJump(gridRef, true)}
-          >
-            {">>"}
-          </Button>
+          <TimeJumps
+            onTimeJump={(jumpID) => handleTimeJump(gridRef, jumpID)}
+          ></TimeJumps>
         </Grid>
         <Grid item xs={5} container spacing={2} sx={{ alignItems: "center" }}>
           <Grid item xs={8}>
@@ -113,4 +95,4 @@ function Analyzer() {
   );
 }
 
-export default Analyzer;
+export default Analyze;

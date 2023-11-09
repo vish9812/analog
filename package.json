@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.0.1",
   "description": "",
+  "engines": {
+    "node": ">=20.9.0",
+    "pnpm": ">=8"
+  },
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "start": "vite",
@@ -22,6 +26,7 @@
     "typescript": "^5.2.2",
     "vite": "^4.4.9",
     "vite-plugin-solid": "^2.7.0",
+    "vite-tsconfig-paths": "^4.2.1",
     "vitest": "^0.34.6"
   },
   "dependencies": {

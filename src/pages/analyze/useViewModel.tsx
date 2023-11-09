@@ -1,29 +1,22 @@
-import Processor, { JSONLogs } from "../models/processor";
 import { createSignal } from "solid-js";
-import type {
-  FiltersData,
-  SearchTerm,
-} from "../components/filters/useViewModel";
-import comparer from "../models/comparer";
-import stringsUtils from "../utils/strings";
-import filesUtils from "../utils/files";
 import gridService from "./gridService";
-import timesUtils from "../utils/times";
 import { AgGridSolidRef } from "ag-grid-solid";
-import type { GridApi } from "ag-grid-community";
-
-let zeroJump: string;
-let prevJumps: string[] = [];
-let nextJumps: string[] = [];
+import { GridApi } from "ag-grid-community";
+import { FiltersData, SearchTerm } from "@al/components/filters/useViewModel";
+import LogData, { JSONLogs } from "@al/models/logData";
+import stringsUtils from "@al/utils/strings";
+import comparer from "@al/services/comparer";
+import useJumper from "@al/components/timeJumps/useJumper";
 
 function useViewModel() {
-  const [timeJumps, setTimeJumps] = createSignal({
-    nextDisabled: true,
-    prevDisabled: true,
-  });
   const [rows, setRows] = createSignal(comparer.last().logs);
   const [initialCols, setInitialCols] = createSignal(gridService.defaultCols());
   const [cols, setCols] = createSignal(gridService.defaultCols());
+  const {
+    reset: resetJumps,
+    validator: jumpValidator,
+    adder: jumpAdder,
+  } = useJumper;
 
   function handleColsChange(cols: string[]) {
     const gridCols = cols.map((c) => gridService.getCol(c));
@@ -31,10 +24,9 @@ function useViewModel() {
   }
 
   function handleFiltersChange(filtersData: FiltersData) {
-    let prevTime: Date;
-    zeroJump = "";
-    prevJumps = [];
-    nextJumps = [];
+    resetJumps();
+    const validJump = jumpValidator();
+    const { add: addJump, done: doneAddingJumps } = jumpAdder();
 
     let filteredLogs: JSONLogs = filtersData.logs.length
       ? filtersData.logs
@@ -44,16 +36,16 @@ function useViewModel() {
       let keep = true;
 
       if (keep && filtersData.startTime) {
-        keep = log[Processor.logKeys.timestamp] >= filtersData.startTime;
+        keep = log[LogData.logKeys.timestamp] >= filtersData.startTime;
       }
       if (keep && filtersData.endTime) {
-        keep = log[Processor.logKeys.timestamp] <= filtersData.endTime;
+        keep = log[LogData.logKeys.timestamp] <= filtersData.endTime;
       }
       if (keep && filtersData.errorsOnly) {
-        keep = Processor.isErrorLog(log);
+        keep = LogData.isErrorLog(log);
       }
 
-      const fullData = log[Processor.logKeys.fullData].toLowerCase();
+      const fullData = log[LogData.logKeys.fullData].toLowerCase();
       if (keep && filtersData.regex) {
         keep = stringsUtils.regexMatch(fullData, filtersData.regex);
       }
@@ -86,58 +78,21 @@ function useViewModel() {
         keep = currCondition;
       }
 
-      // Update time jumps
       if (keep) {
-        const id = log[Processor.logKeys.id];
-        const time = new Date(log[Processor.logKeys.timestamp]);
-        if (!zeroJump) {
-          zeroJump = id;
-          prevTime = time;
+        if (validJump(new Date(log[LogData.logKeys.timestamp]))) {
+          addJump(log[LogData.logKeys.id]);
         }
-
-        if (timesUtils.diffMinutes(prevTime, time) > 13) {
-          nextJumps.push(id);
-        }
-
-        prevTime = time;
       }
 
       return keep;
     });
 
+    doneAddingJumps();
     setRows(() => filteredLogs);
-
-    // "Reverse" converts the queue(nextJumps) to stack to avoid unshift/shift O(n) ops and instead use push/pop O(1) ops.
-    nextJumps.reverse();
-    setTimeJumps(() => ({
-      nextDisabled: nextJumps.length === 0,
-      prevDisabled: prevJumps.length === 0,
-    }));
   }
 
-  function downloadSubset() {
-    filesUtils.downloadNewFile(
-      "filtered-logs.log",
-      rows().map((m) => m[Processor.logKeys.fullData])
-    );
-  }
-
-  function handleTimeJump(gridRef: AgGridSolidRef, next: boolean) {
-    let jumpID: string = "";
-    if (next) {
-      jumpID = nextJumps.pop()!;
-      prevJumps.push(jumpID);
-    } else {
-      const currID = prevJumps.pop()!;
-      jumpID = prevJumps.at(-1) || zeroJump;
-      nextJumps.push(currID);
-    }
-
+  function handleTimeJump(gridRef: AgGridSolidRef, jumpID: string) {
     gridRef.api.ensureNodeVisible(gridRef.api.getRowNode(jumpID), "middle");
-    setTimeJumps(() => ({
-      nextDisabled: nextJumps.length === 0,
-      prevDisabled: prevJumps.length === 0,
-    }));
   }
 
   function handleContextClick(gridApi: GridApi, logID: number) {
@@ -161,10 +116,8 @@ function useViewModel() {
     handleColsChange,
     rows,
     cols,
-    downloadSubset,
     initialCols,
     setInitialCols,
-    timeJumps,
     handleTimeJump,
     handleContextClick,
   };

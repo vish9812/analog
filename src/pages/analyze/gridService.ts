@@ -1,7 +1,7 @@
-import type { ICellRendererParams, ColDef } from "ag-grid-community";
-import JSONCellRenderer from "../components/jsonCellRenderer";
-import FullDataCellRenderer from "../components/fullDataCellRenderer";
-import Processor from "../models/processor";
+import FullDataCellRenderer from "@al/components/fullDataCellRenderer";
+import JSONCellRenderer from "@al/components/jsonCellRenderer";
+import LogData from "@al/models/logData";
+import { ICellRendererParams, ColDef } from "ag-grid-community";
 
 const defaultColDef: ColDef = {
   resizable: true,
@@ -12,19 +12,19 @@ const defaultColDef: ColDef = {
 function defaultCols(): ColDef[] {
   return [
     {
-      field: Processor.logKeys.id,
+      field: LogData.logKeys.id,
       width: 100,
       sortable: true,
       sort: "asc",
       sortingOrder: ["asc", "desc"],
     },
     {
-      field: Processor.logKeys.fullData,
+      field: LogData.logKeys.fullData,
       cellRenderer: FullDataCellRenderer,
       flex: 2,
     },
     {
-      field: Processor.logKeys.timestamp,
+      field: LogData.logKeys.timestamp,
       width: 270,
     },
   ];

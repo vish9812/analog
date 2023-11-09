@@ -10,6 +10,14 @@
     "jsxImportSource": "solid-js",
     "types": ["vite/client", "vitest/globals"],
     "noEmit": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "baseUrl": "src",
+    "paths": {
+      "@al/components/*": ["components/*"],
+      "@al/models/*": ["models/*"],
+      "@al/pages/*": ["pages/*"],
+      "@al/services/*": ["services/*"],
+      "@al/utils/*": ["utils/*"]
+    }
   }
 }
