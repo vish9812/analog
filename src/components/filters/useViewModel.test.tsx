@@ -99,6 +99,7 @@ describe("useViewModel", () => {
       const getGrid = () => ({
         api: {
           deselectAll: vi.fn(),
+          setFilterModel: vi.fn(),
         },
       });
       const topLogsGridRef = getGrid();
@@ -124,7 +125,9 @@ describe("useViewModel", () => {
         defaultFilters
       );
       expect(topLogsGridRef.api.deselectAll).toHaveBeenCalledOnce();
+      expect(topLogsGridRef.api.setFilterModel).toHaveBeenCalledOnce();
       expect(addedLogsGridRef.api.deselectAll).toHaveBeenCalledOnce();
+      expect(addedLogsGridRef.api.setFilterModel).toHaveBeenCalledOnce();
       dispose();
     });
   });

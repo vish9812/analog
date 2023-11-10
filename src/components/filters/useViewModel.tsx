@@ -59,8 +59,10 @@ function useViewModel(props: FiltersProps) {
   ) {
     setFilters(defaultFilters());
     handleErrorsOnlyChange(false);
+    topLogsGridRef.api.setFilterModel(null);
     topLogsGridRef.api.deselectAll();
     if (addedLogs().length > 0) {
+      addedLogsGridRef.api.setFilterModel(null);
       addedLogsGridRef.api.deselectAll();
     }
   }

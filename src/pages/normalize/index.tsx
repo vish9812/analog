@@ -43,6 +43,9 @@ function Normalize() {
     handleFileUpload,
   } = useViewModel();
 
+  const newFileText = () =>
+    logDatas().length === 1 ? "Compare With" : "New File";
+
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
@@ -59,7 +62,7 @@ function Normalize() {
             variant="contained"
             startIcon={<FileUploadIcon />}
           >
-            open file
+            {newFileText()}
             <HiddenInput
               type="file"
               multiple={false}

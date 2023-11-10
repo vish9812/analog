@@ -15,6 +15,8 @@ function useViewModel() {
   };
 
   const handleFileUpload = async (files: FileList, logData: LogData) => {
+    if (!files || !files.length) return;
+
     setProcessingFile(true);
     setAnalyzeDisabled(true);
 

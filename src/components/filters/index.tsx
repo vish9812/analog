@@ -50,6 +50,7 @@ function Filters(props: FiltersProps) {
       {
         field: "msg",
         flex: 2,
+        headerCheckboxSelection: true,
         checkboxSelection: true,
         filter: "agTextColumnFilter",
       },
