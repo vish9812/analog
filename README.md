@@ -10,26 +10,28 @@ Analog is a powerful tool designed for analyzing and visualizing log files. It p
 
   - **Filter by Timestamp**: Specify a start and end timestamp to narrow down your log analysis.
   - **Regex Search**: Perform regular expression searches to find specific log entries.
+  - **Search Combinations**: Perform normal searches with advanced combination of `Contains/Not Contains` and `AND/OR` operators.
   - **Top Logs**: Select entries in the Top Logs to view all the related logs together.
   - **Errors Only**: Isolate and focus on error log entries.
 
+- **Logs Context**: Even when a filter is applied, you can access the context around the current log entry.
+
 - **Log File Comparison**:
+
   - **Compare Two Log Files**: Compare two log files and see newly added or removed log entries.
+
 - **Create and Download a Filtered Subset**: Define filtering criteria to extract a specific subset of logs. You can also compare two subsets of a single log file to track changes.
 
 - **Time Jumps**: Navigate through log data in subsets repeating after every few minutes.
-
-- **See Data for Specific Fields/Keys**: Easily access and view log entries based on specific fields.
 
 - **Highlighted JSON Syntax**: Log entries with JSON data are automatically highlighted for improved readability.
 
 - **Highlighted Errors**: Errors in log entries are highlighted, making them stand out for quick identification.
 
-## Things to remember
+## Prerequisite
 
-- Currently supports only `json` logs.
-- Ensure you have Python 3 installed on your system to simply run via executing the `analog.sh`.
-- Or you can use any server of your preference to run the `index.html`
+- Ensure you have Python 3 installed on your system then you can simply execute `analog.sh` to run the app.
+- Otherwise run the `index.html` manually on any server of your preference.
 
 ## Getting Started
 
