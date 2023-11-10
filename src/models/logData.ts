@@ -10,6 +10,8 @@ interface GroupedMsg {
   hasErrors: boolean;
 }
 
+type LogsGenerator = Generator<JSONLog | null, void, unknown>;
+
 class LogData {
   fileInfo = {
     name: "",
@@ -37,17 +39,18 @@ class LogData {
     error: "error",
   };
 
-  async init(file: File) {
+  init(file: File, iteratorFunc: () => LogsGenerator) {
     this.initFileInfo(file);
 
     const keysSet = new Set<string>();
     let count = 0;
-    for (const line of await LogData.getLines(file)) {
-      const log = this.addLog(line.trim());
+    for (const log of iteratorFunc()) {
       if (log == null) {
+        console.warn("non-supported log format.");
         continue;
       }
 
+      this.addLog(log);
       log[LogData.logKeys.id] = count++ as any;
 
       this.initTopLogsMap(log);
@@ -98,76 +101,11 @@ class LogData {
     }
   }
 
-  private addLog(line: string): JSONLog | null {
-    if (!line || !line.trim()) {
-      console.info("skipping empty line");
-      return null;
-    }
-
-    try {
-      const log = JSON.parse(line) as JSONLog;
-      log[LogData.logKeys.fullData] = line;
-      this.logs.push(log);
-      return log;
-    } catch {
-      console.warn("failed to parse the json line:", line);
-      return null;
-    }
-  }
-
-  private static async getLines(file: File): Promise<string[]> {
-    return (await file.text()).split(/\r?\n/);
-
-    // Sample Test JSON Lines
-    // return Promise.resolve([
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "msg a",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:00:00.000 +10:00",
-    //   }),
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "test b",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:05:00.000 +10:00",
-    //   }),
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "msg c",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:10:00.000 +10:00",
-    //   }),
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "test d",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:15:00.000 +10:00",
-    //   }),
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "msg e",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:20:00.000 +10:00",
-    //   }),
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "test f",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:30:00.000 +10:00",
-    //   }),
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "msg g",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:35:00.000 +10:00",
-    //   }),
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "test h",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:50:00.000 +10:00",
-    //   }),
-    //   JSON.stringify({
-    //     [this.logKeys.level]: "info",
-    //     [this.logKeys.msg]: "msg i",
-    //     [this.logKeys.timestamp]: "2023-08-22 03:55:00.000 +10:00",
-    //   }),
-    // ]);
+  private addLog(log: JSONLog) {
+    log[LogData.logKeys.fullData] = JSON.stringify(log);
+    this.logs.push(log);
   }
 }
 
 export default LogData;
-export type { JSONLog, JSONLogs, GroupedMsg };
+export type { JSONLog, JSONLogs, GroupedMsg, LogsGenerator };

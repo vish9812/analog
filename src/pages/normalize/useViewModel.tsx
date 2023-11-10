@@ -2,6 +2,7 @@ import comparer from "@al/services/comparer";
 import LogData from "@al/models/logData";
 import { Setter, createSignal } from "solid-js";
 import { PagesValues, Pages } from "../usePage";
+import normalizer from "@al/services/normalizer";
 
 function useViewModel() {
   const [analyzeDisabled, setAnalyzeDisabled] = createSignal(true);
@@ -17,7 +18,7 @@ function useViewModel() {
     setProcessingFile(true);
     setAnalyzeDisabled(true);
 
-    await logData.init(files[0]);
+    await normalizer.init(logData, files[0]);
     comparer.addLogData(logData);
     setLogDatas((prev) => [...prev, logData]);
 
