@@ -1,5 +1,5 @@
 import stringsUtils from "@al/utils/strings";
-import LogData, { GroupedMsg } from "./logData";
+import LogData, { GroupedMsg, JSONLog, LogsGenerator } from "./logData";
 
 describe("isErrorLog", () => {
   it.each([
@@ -40,18 +40,18 @@ describe("isErrorLog", () => {
 describe("init", () => {
   const cutOffLen = LogData["msgCutOffLen"];
 
-  it("init", async () => {
+  it("init", () => {
     const log0 = {
       [LogData.logKeys.error]: "some error",
       [LogData.logKeys.msg]: "has errors",
       parentKey1: "k1",
-    };
+    } as JSONLog;
     const log0String = getJSONString(log0);
     const log1 = {
       [LogData.logKeys.level]: "error",
       [LogData.logKeys.msg]: "dbg msg",
       parentKey1: "k1",
-    };
+    } as JSONLog;
     const log1String = getJSONString(log1);
     const log2 = {
       [LogData.logKeys.level]: "info",
@@ -60,23 +60,23 @@ describe("init", () => {
         childKey1: 11,
         childKey2: 12,
       },
-    };
+    } as JSONLog;
     const log2String = getJSONString(log2);
     const log3 = {
       [LogData.logKeys.level]: "error",
       [LogData.logKeys.msg]: "abc ".repeat(cutOffLen) + "group 1",
       parentKey1: "k1",
-    };
+    } as JSONLog;
     const log3String = getJSONString(log3);
     const log4 = {
       [LogData.logKeys.level]: "info",
       [LogData.logKeys.msg]: "qwe ".repeat(cutOffLen) + "group 2",
-    };
+    } as JSONLog;
     const log4String = getJSONString(log4);
     const log5 = {
       [LogData.logKeys.level]: "info",
       [LogData.logKeys.msg]: "qwe ".repeat(cutOffLen) + "group 2",
-    };
+    } as JSONLog;
     const log5String = getJSONString(log5);
 
     function getJSONString(obj: any) {
@@ -86,24 +86,21 @@ describe("init", () => {
     const file = {
       name: "my-file.txt",
       size: "1024",
-      text: () =>
-        Promise.resolve(
-          `
-        ${log0String}
-        ${log1String}
-        "non-json log"
-        ${log2String}
-  
-        ${log3String}
-        
-        ${log4String}
-        ${log5String}
-      `
-        ),
     };
 
+    function* logsIterator(): LogsGenerator {
+      yield log0;
+      yield log1;
+      yield null;
+      yield log2;
+      yield null;
+      yield log3;
+      yield log4;
+      yield log5;
+    }
+
     const logData = new LogData();
-    await logData.init(file as any);
+    logData.init(file as any, logsIterator);
 
     expect(logData.fileInfo.name, "file name").toEqual(file.name);
     expect(logData.fileInfo.size, "file size").toEqual(file.size);

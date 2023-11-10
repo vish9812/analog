@@ -3,6 +3,7 @@ import useViewModel from "./useViewModel";
 import comparer from "@al/services/comparer";
 import LogData from "@al/models/logData";
 import { Pages } from "../usePage";
+import normalizer from "@al/services/normalizer";
 
 describe("useViewModel", () => {
   test("initial values", () => {
@@ -36,39 +37,33 @@ describe("useViewModel", () => {
       const vm = useViewModel();
       return { dispose, vm };
     });
-    test("1 file uploaded", async () => {
-      const files: any = ["my-file"];
-      const logData = new LogData();
-      const spyInit = vi.spyOn(logData, "init").mockResolvedValue();
-      const spyAddLogData = vi.spyOn(comparer, "addLogData");
 
-      await vm.handleFileUpload(files, logData);
+    const testCases = [
+      { files: ["file-1"], newFileDisabled: false, filesLen: 1 },
+      { files: ["file-2"], newFileDisabled: true, filesLen: 2 },
+    ];
 
-      expect(vm.analyzeDisabled(), "analyzeDisabled").toEqual(false);
-      expect(vm.processingFile(), "processingFile").toEqual(false);
-      expect(vm.newFileDisabled(), "newFileDisabled").toEqual(false);
-      expect(vm.logDatas(), "logDatas").toBeTruthy();
-      expect(vm.logDatas().length, "logDatas().length").toEqual(1);
-      expect(spyInit, "spyInit").toHaveBeenCalledWith(files[0]);
-      expect(spyAddLogData, "spyAddLogData").toHaveBeenCalledWith(logData);
-    });
+    test.each(testCases)(
+      "$filesLen file uploaded",
+      async ({ files, newFileDisabled, filesLen }) => {
+        const logData = new LogData();
+        const spyInit = vi.spyOn(normalizer, "init").mockResolvedValue();
+        const spyAddLogData = vi.spyOn(comparer, "addLogData");
 
-    test("2 files uploaded", async () => {
-      const files: any = ["another-file"];
-      const logData = new LogData();
-      const spyInit = vi.spyOn(logData, "init").mockResolvedValue();
-      const spyAddLogData = vi.spyOn(comparer, "addLogData");
+        await vm.handleFileUpload(files as any, logData);
 
-      await vm.handleFileUpload(files, logData);
+        expect(vm.analyzeDisabled(), "analyzeDisabled").toEqual(false);
+        expect(vm.processingFile(), "processingFile").toEqual(false);
+        expect(vm.newFileDisabled(), "newFileDisabled").toEqual(
+          newFileDisabled
+        );
+        expect(vm.logDatas(), "logDatas").toBeTruthy();
+        expect(vm.logDatas().length, "logDatas().length").toEqual(filesLen);
+        expect(spyInit, "spyInit").toHaveBeenCalledWith(logData, files[0]);
+        expect(spyAddLogData, "spyAddLogData").toHaveBeenCalledWith(logData);
+      }
+    );
 
-      expect(vm.analyzeDisabled(), "analyzeDisabled").toEqual(false);
-      expect(vm.processingFile(), "processingFile").toEqual(false);
-      expect(vm.newFileDisabled(), "newFileDisabled").toEqual(true);
-      expect(vm.logDatas(), "logDatas").toBeTruthy();
-      expect(vm.logDatas().length, "logDatas.length").toEqual(2);
-      expect(spyInit, "spyInit").toHaveBeenCalledWith(files[0]);
-      expect(spyAddLogData, "spyAddLogData").toHaveBeenCalledWith(logData);
-    });
     dispose();
   });
 });
