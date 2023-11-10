@@ -10,7 +10,7 @@ interface GroupedMsg {
   hasErrors: boolean;
 }
 
-type LineParserType = (logLine: string) => JSONLog | null;
+type LogIteratorFunc = () => Generator<JSONLog | null, void, unknown>;
 
 const regex = {
   lineSplit: /\r?\n/,
@@ -43,17 +43,18 @@ class LogData {
     error: "error",
   };
 
-  async init(file: File, lineParser: LineParserType) {
+  init(file: File, iteratorFunc: LogIteratorFunc) {
     this.initFileInfo(file);
 
     const keysSet = new Set<string>();
     let count = 0;
-    for (const line of await LogData.getLines(file)) {
-      const log = this.addLog(line, lineParser);
+    for (const log of iteratorFunc()) {
       if (log == null) {
+        console.warn("non-supported log format.");
         continue;
       }
 
+      this.addLog(log);
       log[LogData.logKeys.id] = count++ as any;
 
       this.initTopLogsMap(log);
@@ -104,21 +105,9 @@ class LogData {
     }
   }
 
-  private addLog(line: string, lineParser: LineParserType): JSONLog | null {
-    if (!line || !line.trim()) {
-      console.info("skipping empty line");
-      return null;
-    }
-
-    const log = lineParser(line);
-    if (log == null) {
-      console.warn("non-supported log format.");
-      return null;
-    }
-
+  private addLog(log: JSONLog) {
     log[LogData.logKeys.fullData] = JSON.stringify(log);
     this.logs.push(log);
-    return log;
   }
 
   private static async getLines(file: File): Promise<string[]> {

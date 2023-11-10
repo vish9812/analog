@@ -4,16 +4,33 @@ import objectsUtils from "@al/utils/objects";
 // Sample Log Line:
 // info [2023-10-16 02:24:52.930 +11:00] Received HTTP request caller="jobs/base_workers.go:97" worker=PostPersistentNotifications job_id=a6kay9tcptdymeezjng9i965mh dynamic1=value1 dynamic2=value2
 
+type ParserFunc = (logLine: string) => JSONLog | null;
+
 async function init(logData: LogData, file: File) {
-  await logData.init(file, parse);
+  const isJSON = await isJSONFile(file);
+  const text = await getText(file);
+  const textSplitRegex = isJSON
+    ? /\r?\n/
+    : /\r?\n(?=error|warn|info|verbose|debug|trace)/;
+  const parserFunc = isJSON ? jsonParser : plainParser;
+  logData.init(file, parse(text, textSplitRegex, parserFunc));
 }
 
-function parse(logLine: string): JSONLog | null {
-  const log = objectsUtils.parseJSON<JSONLog>(logLine);
-  if (log) {
-    return log;
-  }
+async function getText(file: File): Promise<string> {
+  return await file.text();
+}
 
+async function isJSONFile(file: File): Promise<boolean> {
+  const firstLine = (await getText(file)).split(/\r?\n/, 1)[0];
+  const log = objectsUtils.parseJSON(firstLine);
+  return !!log;
+}
+
+function jsonParser(logLine: string): JSONLog | null {
+  return objectsUtils.parseJSON(logLine);
+}
+
+function plainParser(logLine: string): JSONLog | null {
   const regex = {
     // Data before the 1st key=value pair
     text: /(\w+) \[([\d-: .+]+)\] (.*?)(?=(\s\w+=|$))/g,
@@ -24,7 +41,7 @@ function parse(logLine: string): JSONLog | null {
   };
 
   logLine = logLine
-    .split(" ")
+    .split(/\s/)
     .filter((l) => l)
     .join(" ");
 
@@ -56,6 +73,14 @@ function parse(logLine: string): JSONLog | null {
   }
 
   return jsonLog;
+}
+
+function parse(text: string, textSplitRegex: RegExp, parserFunc: ParserFunc) {
+  return function* (): Generator<JSONLog | null, void, unknown> {
+    for (const line of text.split(textSplitRegex)) {
+      yield parserFunc(line);
+    }
+  };
 }
 
 const normalizer = {
