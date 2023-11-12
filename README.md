@@ -30,7 +30,7 @@ Analog is a powerful tool designed for analyzing and visualizing log files. It p
 
 ## Prerequisite
 
-- Ensure you have Python 3 installed on your system then you can simply execute `analog.sh` to run the app.
+- Ensure you have Python 3 installed on your system then you can simply execute the `analog script` to run the app.
 - Otherwise run the `index.html` manually on any server of your preference.
 
 ## Getting Started
@@ -43,7 +43,12 @@ Follow these steps to run the app:
 
 3. Open a terminal and navigate to the app's directory.
 
-4. Execute the `analog.sh` script to start the app:
+4. Execute the `analog script` to start the app.
+
+- For Non-Windows, just execute the script `./analog.sh`.
+- For Windows, use powershell:
+  - _Unblock_(one-time operation) the powershell file `analog.ps1` to be allowed to execute on the system: `Unblock-File .\analog.ps1`
+  - Execute the script `.\analog.ps1`
 
 5. Open your web browser and visit the following URL: `localhost:20002`
 

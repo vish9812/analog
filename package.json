@@ -13,7 +13,7 @@
     "test": "vitest --silent",
     "test-logs": "vitest",
     "coverage": "vitest run --coverage --silent",
-    "build": "vite build && cp analog.sh analog && zip -r analog.zip analog",
+    "build": "vite build && cp analog.sh analog && cp analog.bat analog && zip -r analog.zip analog",
     "preview": "vite preview"
   },
   "license": "MIT",
