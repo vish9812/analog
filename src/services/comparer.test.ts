@@ -1,5 +1,5 @@
 import comparer from "./comparer";
-import LogData, { GroupedMsg } from "../models/logData";
+import LogData from "../models/logData";
 
 describe("addLogData", () => {
   test("initial state", () => {
@@ -11,11 +11,13 @@ describe("addLogData", () => {
   });
 
   const logData1 = new LogData();
-  logData1.topLogsMap = new Map<string, GroupedMsg>([
-    ["grp1", { logs: [], hasErrors: false, msg: "grp1" }],
-    ["grp2", { logs: [], hasErrors: false, msg: "grp2" }],
-    ["grp3", { logs: [], hasErrors: false, msg: "grp3" }],
-  ]);
+  logData1.summary = {
+    msgs: [
+      { logs: [], hasErrors: false, msg: "grp1" },
+      { logs: [], hasErrors: false, msg: "grp2" },
+      { logs: [], hasErrors: false, msg: "grp3" },
+    ],
+  } as any;
 
   test("1st logData", () => {
     comparer.addLogData(logData1);
@@ -28,12 +30,14 @@ describe("addLogData", () => {
   });
 
   const logData2 = new LogData();
-  logData2.topLogsMap = new Map<string, GroupedMsg>([
-    ["grp11", { logs: [], hasErrors: false, msg: "grp11" }],
-    ["grp2", logData1.topLogsMap.get("grp2")!],
-    ["grp44", { logs: [], hasErrors: false, msg: "grp44" }],
-    ["grp3", logData1.topLogsMap.get("grp3")!],
-  ]);
+  logData2.summary = {
+    msgs: [
+      { logs: [], hasErrors: false, msg: "grp11" },
+      logData1.summary.msgs[1],
+      { logs: [], hasErrors: false, msg: "grp44" },
+      logData1.summary.msgs[2],
+    ],
+  } as any;
 
   test("2nd logData", () => {
     comparer.addLogData(logData2);
@@ -42,11 +46,8 @@ describe("addLogData", () => {
     expect(comparer.first(), "first").toEqual(logData1);
     expect(comparer.last(), "last").toEqual(logData2);
 
-    const added = [
-      logData2.topLogsMap.get("grp11"),
-      logData2.topLogsMap.get("grp44"),
-    ];
-    const removed = [logData1.topLogsMap.get("grp1")];
+    const added = [logData2.summary.msgs[0], logData2.summary.msgs[2]];
+    const removed = [logData1.summary.msgs[0]];
     expect(comparer.added, "added").toEqual(added);
     expect(comparer.removed, "removed").toEqual(removed);
   });

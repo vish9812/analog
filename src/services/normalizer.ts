@@ -4,7 +4,7 @@ import objectsUtils from "@al/utils/objects";
 // Sample Log Line Format:
 // info [2023-10-16 02:24:52.930 +11:00] Received HTTP request caller="jobs/base_workers.go:97" worker=PostPersistentNotifications job_id=a6kay9tcptdymeezjng9i965mh dynamic1=value1 dynamic2=value2
 
-type ParserFunc = (logLine: string) => JSONLog | null;
+type ParserFn = (logLine: string) => JSONLog | null;
 
 async function init(logData: LogData, file: File) {
   const text = await getText(file);
@@ -12,14 +12,14 @@ async function init(logData: LogData, file: File) {
   const textSplitRegex = isJSON
     ? /\r?\n/
     : /\r?\n(?=error|warn|info|verbose|debug|trace)/;
-  const parserFunc = isJSON ? jsonParser : plainParser;
-  logData.init(file, parse(text, textSplitRegex, parserFunc));
+  const parserFn = isJSON ? jsonParser : plainParser;
+  logData.init(file, parse(text, textSplitRegex, parserFn));
 }
 
-function parse(text: string, textSplitRegex: RegExp, parserFunc: ParserFunc) {
+function parse(text: string, textSplitRegex: RegExp, parserFn: ParserFn) {
   return function* (): LogsGenerator {
     for (const line of text.split(textSplitRegex)) {
-      yield parserFunc(line);
+      yield parserFn(line);
     }
   };
 }
@@ -75,57 +75,73 @@ function plainParser(logLine: string): JSONLog | null {
 
 function getText(file: File): Promise<string> {
   return file.text();
-  // Sample Test JSON Lines
-  // return Promise.resolve(
-  //   [
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "msg a",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:00:00.000 +10:00",
-  //     }),
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "test b",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:05:00.000 +10:00",
-  //     }),
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "msg c",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:10:00.000 +10:00",
-  //     }),
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "test d",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:15:00.000 +10:00",
-  //     }),
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "msg e",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:20:00.000 +10:00",
-  //     }),
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "test f",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:30:00.000 +10:00",
-  //     }),
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "msg g",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:35:00.000 +10:00",
-  //     }),
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "test h",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:50:00.000 +10:00",
-  //     }),
-  //     JSON.stringify({
-  //       [LogData.logKeys.level]: "info",
-  //       [LogData.logKeys.msg]: "msg i",
-  //       [LogData.logKeys.timestamp]: "2023-08-22 03:55:00.000 +10:00",
-  //     }),
-  //   ].join("\n")
-  // );
+  // return getTextSample();
 }
+
+// Sample Test JSON Lines
+// function getTextSample(): Promise<string> {
+//   return Promise.resolve(
+//     [
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "msg a",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:00:00.000 +10:00",
+//         [LogData.logKeys.status_code]: "404",
+//         [LogData.logKeys.plugin_id]: "plugin-1",
+//         [LogData.logKeys.worker]: "job-1",
+//       }),
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "test b",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:05:00.000 +10:00",
+//         [LogData.logKeys.status_code]: "200",
+//         [LogData.logKeys.plugin_id]: "plugin-2",
+//         [LogData.logKeys.worker]: "job-2",
+//       }),
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "msg c",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:10:00.000 +10:00",
+//         [LogData.logKeys.status_code]: "404",
+//         [LogData.logKeys.worker]: "job-2",
+//       }),
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "test d",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:15:00.000 +10:00",
+//         [LogData.logKeys.status_code]: "200",
+//         [LogData.logKeys.plugin_id]: "plugin-2",
+//       }),
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "msg e",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:20:00.000 +10:00",
+//         [LogData.logKeys.plugin_id]: "plugin-2",
+//         [LogData.logKeys.worker]: "job-2",
+//       }),
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "test f",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:30:00.000 +10:00",
+//       }),
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "msg g",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:35:00.000 +10:00",
+//       }),
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "test h",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:50:00.000 +10:00",
+//       }),
+//       JSON.stringify({
+//         [LogData.logKeys.level]: "info",
+//         [LogData.logKeys.msg]: "msg i",
+//         [LogData.logKeys.timestamp]: "2023-08-22 03:55:00.000 +10:00",
+//       }),
+//     ].join("\n")
+//   );
+// }
 
 function isJSONLog(text: string): boolean {
   const firstLine = text.split(/\r?\n/, 1)[0];

@@ -1,29 +1,67 @@
 import { createRoot } from "solid-js";
-import useViewModel from "./useViewModel";
-import { FiltersData, FiltersProps } from "./useViewModel";
+import useViewModel, { GridsRefs, defaultFilters } from "./useViewModel";
+import { FiltersProps } from "./useViewModel";
 import comparer from "@al/services/comparer";
-import LogData, { GroupedMsg } from "@al/models/logData";
+import LogData, { Summary } from "@al/models/logData";
 
 describe("useViewModel", () => {
-  const topLogs: GroupedMsg[] = [
-    {
-      logs: [{}, {}, {}],
-      hasErrors: false,
-      msg: "grp1",
-    },
-    {
-      logs: [{}],
-      hasErrors: true,
-      msg: "grp2",
-    },
-    {
-      logs: [{}, {}],
-      hasErrors: true,
-      msg: "grp3",
-    },
-  ];
+  const summary: Summary = {
+    msgs: [
+      {
+        logs: [{}, {}, {}],
+        hasErrors: false,
+        msg: "grp1",
+      },
+      {
+        logs: [{}],
+        hasErrors: true,
+        msg: "grp2",
+      },
+      {
+        logs: [{}, {}],
+        hasErrors: true,
+        msg: "grp3",
+      },
+    ],
+    httpCodes: [
+      {
+        logs: [{}, {}, {}],
+        hasErrors: false,
+        msg: "404",
+      },
+      {
+        logs: [{}],
+        hasErrors: true,
+        msg: "200",
+      },
+    ],
+    jobs: [
+      {
+        logs: [{}, {}, {}],
+        hasErrors: false,
+        msg: "job-1",
+      },
+      {
+        logs: [{}],
+        hasErrors: true,
+        msg: "job-2",
+      },
+    ],
+    plugins: [
+      {
+        logs: [{}, {}, {}],
+        hasErrors: false,
+        msg: "plugin-1",
+      },
+      {
+        logs: [{}],
+        hasErrors: true,
+        msg: "plugin-2",
+      },
+    ],
+  };
 
-  comparer.removed = [topLogs[0], topLogs[2]];
+  comparer.removed = [summary.msgs[0], summary.msgs[2]];
   comparer.added = [
     {
       logs: [{}, {}, {}, {}, {}],
@@ -37,21 +75,6 @@ describe("useViewModel", () => {
     },
   ];
 
-  const defaultFilters: FiltersData = {
-    startTime: "",
-    endTime: "",
-    regex: "",
-    terms: [
-      {
-        and: true,
-        contains: true,
-        value: "",
-      },
-    ],
-    logs: [],
-    errorsOnly: false,
-  };
-
   let props: FiltersProps;
 
   beforeEach(() => {
@@ -60,7 +83,7 @@ describe("useViewModel", () => {
     };
 
     const lastLogData = new LogData();
-    lastLogData.topLogs = topLogs;
+    lastLogData.summary = summary;
     vi.spyOn(comparer, "last").mockReturnValue(lastLogData);
   });
 
@@ -74,8 +97,13 @@ describe("useViewModel", () => {
 
       expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
       expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
-      expect(vm.topLogs(), "topLogs").toEqual(comparer.last().topLogs);
-      expect(vm.filters, "filters").toEqual(defaultFilters);
+      expect(vm.msgs(), "msgs").toEqual(comparer.last().summary.msgs);
+      expect(vm.httpCodes(), "httpCodes").toEqual(
+        comparer.last().summary.httpCodes
+      );
+      expect(vm.jobs(), "jobs").toEqual(comparer.last().summary.jobs);
+      expect(vm.plugins(), "plugins").toEqual(comparer.last().summary.plugins);
+      expect(vm.filters, "filters").toEqual(defaultFilters());
 
       dispose();
     });
@@ -102,8 +130,14 @@ describe("useViewModel", () => {
           setFilterModel: vi.fn(),
         },
       });
-      const topLogsGridRef = getGrid();
-      const addedLogsGridRef = getGrid();
+      const gridsRefs: GridsRefs = {
+        msgs: getGrid() as any,
+        httpCodes: getGrid() as any,
+        jobs: getGrid() as any,
+        plugins: getGrid() as any,
+        added: getGrid() as any,
+        removed: getGrid() as any,
+      };
 
       const vm = useViewModel(props);
       vm.setFilters(() => ({
@@ -115,39 +149,113 @@ describe("useViewModel", () => {
       }));
       expect(vm.filters.regex, "regex").toEqual("some regex");
 
-      vm.handleResetClick(topLogsGridRef as any, addedLogsGridRef as any);
+      vm.handleResetClick(gridsRefs);
 
-      expect(vm.filters, "filters").toEqual(defaultFilters);
+      expect(vm.filters, "filters").toEqual(defaultFilters());
       expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
       expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
-      expect(vm.topLogs(), "topLogs").toEqual(comparer.last().topLogs);
-      expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
-        defaultFilters
+      expect(vm.msgs(), "msgs").toEqual(comparer.last().summary.msgs);
+      expect(vm.httpCodes(), "httpCodes").toEqual(
+        comparer.last().summary.httpCodes
       );
-      expect(topLogsGridRef.api.deselectAll).toHaveBeenCalledOnce();
-      expect(topLogsGridRef.api.setFilterModel).toHaveBeenCalledOnce();
-      expect(addedLogsGridRef.api.deselectAll).toHaveBeenCalledOnce();
-      expect(addedLogsGridRef.api.setFilterModel).toHaveBeenCalledOnce();
+      expect(vm.jobs(), "jobs").toEqual(comparer.last().summary.jobs);
+      expect(vm.plugins(), "plugins").toEqual(comparer.last().summary.plugins);
+
+      expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
+        defaultFilters()
+      );
+      expect(
+        gridsRefs.msgs.api.deselectAll,
+        "msgs.api.deselectAll"
+      ).toHaveBeenCalledOnce();
+      expect(
+        gridsRefs.msgs.api.setFilterModel,
+        "msgs.api.setFilterModel"
+      ).toHaveBeenCalledOnce();
+      expect(
+        gridsRefs.httpCodes.api.deselectAll,
+        "httpCodes.api.deselectAll"
+      ).toHaveBeenCalledOnce();
+      expect(
+        gridsRefs.httpCodes.api.setFilterModel,
+        "httpCodes.api.setFilterModel"
+      ).toHaveBeenCalledOnce();
+      expect(
+        gridsRefs.jobs.api.deselectAll,
+        "jobs.api.deselectAll"
+      ).toHaveBeenCalledOnce();
+      expect(
+        gridsRefs.jobs.api.setFilterModel,
+        "jobs.api.setFilterModel"
+      ).toHaveBeenCalledOnce();
+      expect(
+        gridsRefs.plugins.api.deselectAll,
+        "plugins.api.deselectAll"
+      ).toHaveBeenCalledOnce();
+      expect(
+        gridsRefs.plugins.api.setFilterModel,
+        "plugins.api.setFilterModel"
+      ).toHaveBeenCalledOnce();
+
       dispose();
     });
   });
 
   test("handleLogsSelectionChanged", () => {
     createRoot((dispose) => {
-      const rows = [{ logs: [{}, {}] }, { logs: [{}] }];
-      const logs = rows.flatMap((r) => r.logs);
-      const selectionEvent = {
-        api: {
-          getSelectedRows: () => rows,
-        },
+      const gridsRefs: GridsRefs = {
+        msgs: {
+          api: {
+            getSelectedRows: () => [
+              { logs: [{ id: 1 }, { id: 2 }] },
+              { logs: [{ id: 3 }] },
+            ],
+          },
+        } as any,
+        httpCodes: {
+          api: {
+            getSelectedRows: () => [
+              { logs: [{ id: 1 }, { id: 2 }] },
+              { logs: [{ id: 4 }] },
+            ],
+          },
+        } as any,
+        jobs: {
+          api: {
+            getSelectedRows: () => [{ logs: [{ id: 5 }] }],
+          },
+        } as any,
+        plugins: {
+          api: {
+            getSelectedRows: () => [
+              { logs: [{ id: 4 }, { id: 5 }] },
+              { logs: [{ id: 6 }] },
+            ],
+          },
+        } as any,
+        added: {
+          api: {
+            getSelectedRows: () => [{ logs: [{ id: 1 }, { id: 7 }] }],
+          },
+        } as any,
+        removed: undefined as any,
       };
 
       const vm = useViewModel(props);
-      vm.handleLogsSelectionChanged(selectionEvent as any);
+      vm.handleLogsSelectionChanged(gridsRefs);
 
+      const logs = [
+        { id: 1 },
+        { id: 2 },
+        { id: 3 },
+        { id: 4 },
+        { id: 5 },
+        { id: 6 },
+        { id: 7 },
+      ];
       expect(vm.filters.logs, "filters.logs").toEqual(logs);
       expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith({
-        ...defaultFilters,
+        ...defaultFilters(),
         logs,
       });
 
@@ -162,16 +270,22 @@ describe("useViewModel", () => {
         const vm = useViewModel(props);
         vm.handleErrorsOnlyChange(checked);
 
-        const errTopLogs = [topLogs[1], topLogs[2]];
+        const errMsgs = [summary.msgs[1], summary.msgs[2]];
+        const errHTTPCodes = [summary.httpCodes[1]];
+        const errJobs = [summary.jobs[1]];
+        const errPlugins = [summary.plugins[1]];
         const errAddedTopLogs = [comparer.added[1]];
         const errRemovedTopLogs = [comparer.removed[1]];
 
         expect(vm.filters.errorsOnly, "errorsOnly").toEqual(checked);
         expect(vm.addedLogs(), "addedLogs").toEqual(errAddedTopLogs);
         expect(vm.removedLogs(), "removedLogs").toEqual(errRemovedTopLogs);
-        expect(vm.topLogs(), "topLogs").toEqual(errTopLogs);
+        expect(vm.msgs(), "msgs").toEqual(errMsgs);
+        expect(vm.httpCodes(), "httpCodes").toEqual(errHTTPCodes);
+        expect(vm.jobs(), "jobs").toEqual(errJobs);
+        expect(vm.plugins(), "plugins").toEqual(errPlugins);
         expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith({
-          ...defaultFilters,
+          ...defaultFilters(),
           errorsOnly: checked,
         });
 
@@ -188,9 +302,12 @@ describe("useViewModel", () => {
         expect(vm.filters.errorsOnly, "errorsOnly").toEqual(checked);
         expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
         expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
-        expect(vm.topLogs(), "topLogs").toEqual(comparer.last().topLogs);
+        expect(vm.msgs(), "msgs").toEqual(summary.msgs);
+        expect(vm.httpCodes(), "httpCodes").toEqual(summary.httpCodes);
+        expect(vm.jobs(), "jobs").toEqual(summary.jobs);
+        expect(vm.plugins(), "plugins").toEqual(summary.plugins);
         expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
-          defaultFilters
+          defaultFilters()
         );
 
         dispose();
