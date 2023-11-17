@@ -13,8 +13,8 @@ const added: GroupedMsg[] = [];
 const removed: GroupedMsg[] = [];
 
 function compare() {
-  const mapA = logDatas[0].topLogsMap;
-  const mapB = logDatas[1].topLogsMap;
+  const mapA = getLogMaps(logDatas[0].summary.msgs);
+  const mapB = getLogMaps(logDatas[1].summary.msgs);
 
   // Removed entries from 2nd log file
   for (const [k, v] of mapA) {
@@ -30,8 +30,14 @@ function compare() {
     }
   }
 
-  added.sort(LogData.sortComparerFn);
-  removed.sort(LogData.sortComparerFn);
+  added.sort(LogData.sortByLogsFn);
+  removed.sort(LogData.sortByLogsFn);
+}
+
+function getLogMaps(grpLogs: GroupedMsg[]): Map<string, GroupedMsg> {
+  const map = new Map<string, GroupedMsg>();
+  grpLogs.forEach((l) => map.set(l.msg, l));
+  return map;
 }
 
 const comparer = {

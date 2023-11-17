@@ -4,15 +4,20 @@ Analog is a powerful tool designed for analyzing and visualizing log files. It p
 
 ## Features
 
-- **Top Logs**: Quickly identify and analyze the most frequently occurring log entries.
+- **Summary View**: Quickly gain insights into your log file with the Summary View. It provides frequencies of the following key aspects:
+
+  - Top Logs
+  - HTTP Codes
+  - Jobs
+  - Plugins
 
 - **Filter Logs**:
 
   - **Filter by Timestamp**: Specify a start and end timestamp to narrow down your log analysis.
   - **Regex Search**: Perform regular expression searches to find specific log entries.
   - **Search Combinations**: Perform normal searches with advanced combination of `Contains/Not Contains` and `AND/OR` operators.
-  - **Top Logs**: Select entries in the Top Logs to view all the related logs together.
   - **Errors Only**: Isolate and focus on error log entries.
+  - **Summary View**: Filter on any of the key aspect of the Summary View.
 
 - **Logs Context**: Even when a filter is applied, you can access the context around the current log entry.
 

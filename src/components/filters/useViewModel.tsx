@@ -1,12 +1,20 @@
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import { SelectionChangedEvent } from "ag-grid-community";
 import { AgGridSolidRef } from "ag-grid-solid";
 import comparer from "@al/services/comparer";
-import { JSONLogs, GroupedMsg } from "@al/models/logData";
+import LogData, { JSONLogs, GroupedMsg, JSONLog } from "@al/models/logData";
 
 interface FiltersProps {
   onFiltersChange: (filters: FiltersData) => void;
+}
+
+interface GridsRefs {
+  msgs: AgGridSolidRef;
+  httpCodes: AgGridSolidRef;
+  jobs: AgGridSolidRef;
+  plugins: AgGridSolidRef;
+  added: AgGridSolidRef;
+  removed: AgGridSolidRef;
 }
 
 interface SearchTerm {
@@ -41,11 +49,14 @@ function defaultFilters(): FiltersData {
   };
 }
 
-const errorFilterFn = (prev: GroupedMsg[]) => prev.filter((m) => m.hasErrors);
-
 function useViewModel(props: FiltersProps) {
   const [filters, setFilters] = createStore(defaultFilters());
-  const [topLogs, setTopLogs] = createSignal(comparer.last().topLogs);
+  const [msgs, setMsgs] = createSignal(comparer.last().summary.msgs);
+  const [httpCodes, setHTTPCodes] = createSignal(
+    comparer.last().summary.httpCodes
+  );
+  const [jobs, setJobs] = createSignal(comparer.last().summary.jobs);
+  const [plugins, setPlugins] = createSignal(comparer.last().summary.plugins);
   const [addedLogs, setAddedLogs] = createSignal(comparer.added);
   const [removedLogs, setRemovedLogs] = createSignal(comparer.removed);
 
@@ -53,37 +64,64 @@ function useViewModel(props: FiltersProps) {
     props.onFiltersChange(filters);
   }
 
-  function handleResetClick(
-    topLogsGridRef: AgGridSolidRef,
-    addedLogsGridRef: AgGridSolidRef
-  ) {
+  function handleResetClick(gridsRefs: GridsRefs) {
     setFilters(defaultFilters());
     handleErrorsOnlyChange(false);
-    topLogsGridRef.api.setFilterModel(null);
-    topLogsGridRef.api.deselectAll();
+
+    gridsRefs.msgs.api.setFilterModel(null);
+    gridsRefs.msgs.api.deselectAll();
+
+    gridsRefs.httpCodes.api.setFilterModel(null);
+    gridsRefs.httpCodes.api.deselectAll();
+
+    gridsRefs.jobs.api.setFilterModel(null);
+    gridsRefs.jobs.api.deselectAll();
+
+    gridsRefs.plugins.api.setFilterModel(null);
+    gridsRefs.plugins.api.deselectAll();
+
     if (addedLogs().length > 0) {
-      addedLogsGridRef.api.setFilterModel(null);
-      addedLogsGridRef.api.deselectAll();
+      gridsRefs.added.api.setFilterModel(null);
+      gridsRefs.added.api.deselectAll();
     }
   }
 
-  function handleLogsSelectionChanged(e: SelectionChangedEvent<GroupedMsg>) {
-    setFilters(
-      "logs",
-      e.api.getSelectedRows().flatMap((n) => n.logs)
-    );
+  function handleLogsSelectionChanged(gridsRefs: GridsRefs) {
+    const map = new Map<string, JSONLog>();
+    populateMap(gridsRefs.msgs);
+    populateMap(gridsRefs.httpCodes);
+    populateMap(gridsRefs.jobs);
+    populateMap(gridsRefs.plugins);
+
+    if (addedLogs().length > 0) {
+      populateMap(gridsRefs.added);
+    }
+
+    setFilters("logs", [...map.values()]);
     handleFiltersChange();
+
+    function populateMap(gridRef: AgGridSolidRef) {
+      for (const r of gridRef.api.getSelectedRows() as GroupedMsg[]) {
+        r.logs.forEach((l) => map.set(l[LogData.logKeys.id], l));
+      }
+    }
   }
 
   function handleErrorsOnlyChange(checked: boolean) {
     setFilters("errorsOnly", checked);
 
     if (checked) {
-      setTopLogs(errorFilterFn);
-      setAddedLogs(errorFilterFn);
-      setRemovedLogs(errorFilterFn);
+      setMsgs(LogData.errorFilterFn);
+      setHTTPCodes(LogData.errorFilterFn);
+      setJobs(LogData.errorFilterFn);
+      setPlugins(LogData.errorFilterFn);
+      setAddedLogs(LogData.errorFilterFn);
+      setRemovedLogs(LogData.errorFilterFn);
     } else {
-      setTopLogs(comparer.last().topLogs);
+      setMsgs(comparer.last().summary.msgs);
+      setHTTPCodes(comparer.last().summary.httpCodes);
+      setJobs(comparer.last().summary.jobs);
+      setPlugins(comparer.last().summary.plugins);
       setAddedLogs(comparer.added);
       setRemovedLogs(comparer.removed);
     }
@@ -106,9 +144,12 @@ function useViewModel(props: FiltersProps) {
 
   return {
     filters,
-    topLogs,
-    addedLogs: addedLogs,
-    removedLogs: removedLogs,
+    msgs,
+    httpCodes,
+    jobs,
+    plugins,
+    addedLogs,
+    removedLogs,
     setFilters,
     handleFiltersChange,
     handleLogsSelectionChanged,
@@ -119,4 +160,5 @@ function useViewModel(props: FiltersProps) {
 }
 
 export default useViewModel;
-export type { SearchTerm, FiltersData, FiltersProps };
+export { defaultFilters };
+export type { SearchTerm, FiltersData, FiltersProps, GridsRefs };

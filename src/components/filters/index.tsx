@@ -7,7 +7,11 @@ import {
   Switch,
   TextField,
 } from "@suid/material";
-import useViewModel, { SearchTerm, FiltersProps } from "./useViewModel";
+import useViewModel, {
+  SearchTerm,
+  FiltersProps,
+  GridsRefs,
+} from "./useViewModel";
 import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
 import { Accessor, For, Show } from "solid-js";
@@ -26,14 +30,31 @@ const texts = {
   notContains: "Not Contains",
 };
 
-function Filters(props: FiltersProps) {
-  let topLogsGridRef = {} as AgGridSolidRef;
-  let addedLogsGridRef = {} as AgGridSolidRef;
-  let removedLogsGridRef = {} as AgGridSolidRef;
+interface GridsOptions {
+  msgs: GridOptions<GroupedMsg>;
+  httpCodes: GridOptions<GroupedMsg>;
+  jobs: GridOptions<GroupedMsg>;
+  plugins: GridOptions<GroupedMsg>;
+  added: GridOptions<GroupedMsg>;
+  removed: GridOptions<GroupedMsg>;
+}
 
-  let {
+function Filters(props: FiltersProps) {
+  const gridsRefs: GridsRefs = {
+    msgs: {} as AgGridSolidRef,
+    httpCodes: {} as AgGridSolidRef,
+    jobs: {} as AgGridSolidRef,
+    plugins: {} as AgGridSolidRef,
+    added: {} as AgGridSolidRef,
+    removed: {} as AgGridSolidRef,
+  };
+
+  const {
     filters,
-    topLogs,
+    msgs,
+    httpCodes,
+    jobs,
+    plugins,
     addedLogs,
     removedLogs,
     setFilters,
@@ -63,30 +84,34 @@ function Filters(props: FiltersProps) {
     ],
     rowSelection: "multiple",
     suppressRowClickSelection: true,
-    onSelectionChanged: handleLogsSelectionChanged,
+    onSelectionChanged: () => handleLogsSelectionChanged(gridsRefs),
     getRowStyle: (params) =>
       params.data?.hasErrors ? { background: "#FFBFBF" } : undefined,
   };
 
-  const topLogsGridOptions: GridOptions<GroupedMsg> = {
-    ...commonGridOptions,
-    rowData: topLogs(),
-  };
-
-  const addedLogsGridOptions: GridOptions<GroupedMsg> = {
-    ...commonGridOptions,
-    rowData: addedLogs(),
-  };
-
-  const removedLogsGridOptions: GridOptions<GroupedMsg> = {
-    ...commonGridOptions,
-    rowData: removedLogs(),
-    columnDefs: [
-      { ...commonGridOptions.columnDefs![0], checkboxSelection: undefined },
-      { ...commonGridOptions.columnDefs![1] },
-    ],
-    rowSelection: undefined,
-    onSelectionChanged: undefined,
+  const gridsOptions: GridsOptions = {
+    msgs: { ...commonGridOptions, rowData: msgs() },
+    jobs: { ...commonGridOptions, rowData: jobs() },
+    plugins: { ...commonGridOptions, rowData: plugins() },
+    added: { ...commonGridOptions, rowData: addedLogs() },
+    httpCodes: {
+      ...commonGridOptions,
+      rowData: httpCodes(),
+      columnDefs: [
+        { ...commonGridOptions.columnDefs![0], flex: 1 },
+        { ...commonGridOptions.columnDefs![1], flex: 1 },
+      ],
+    },
+    removed: {
+      ...commonGridOptions,
+      rowData: removedLogs(),
+      columnDefs: [
+        { ...commonGridOptions.columnDefs![0], checkboxSelection: undefined },
+        { ...commonGridOptions.columnDefs![1] },
+      ],
+      rowSelection: undefined,
+      onSelectionChanged: undefined,
+    },
   };
 
   function handleEnterKey(e: KeyboardEvent) {
@@ -113,7 +138,7 @@ function Filters(props: FiltersProps) {
           }
         />
         <TextField
-          label="value"
+          label="text"
           value={term.value}
           onChange={(_, val) => setFilters("terms", i(), "value", val)}
           onKeyDown={handleEnterKey}
@@ -164,7 +189,7 @@ function Filters(props: FiltersProps) {
           <Divider orientation="vertical" flexItem></Divider>
           <Button
             variant="outlined"
-            onClick={() => handleResetClick(topLogsGridRef, addedLogsGridRef)}
+            onClick={() => handleResetClick(gridsRefs)}
           >
             Reset
           </Button>
@@ -185,30 +210,51 @@ function Filters(props: FiltersProps) {
       <Grid item xs={12} container spacing={2}>
         <Grid item xs={4}>
           <GroupedMsgGrid
-            ref={topLogsGridRef}
+            ref={gridsRefs.msgs}
             name="Top Logs"
-            options={topLogsGridOptions}
+            options={gridsOptions.msgs}
           ></GroupedMsgGrid>
         </Grid>
-        <Show when={comparer.isOn()}>
-          <Grid item xs={8} container spacing={2}>
-            <Grid item xs={6}>
-              <GroupedMsgGrid
-                ref={addedLogsGridRef}
-                name="Added Logs"
-                options={addedLogsGridOptions}
-              ></GroupedMsgGrid>
-            </Grid>
-            <Grid item xs={6}>
-              <GroupedMsgGrid
-                ref={removedLogsGridRef}
-                name="Removed Logs"
-                options={removedLogsGridOptions}
-              ></GroupedMsgGrid>
-            </Grid>
-          </Grid>
-        </Show>
+        <Grid item xs={2}>
+          <GroupedMsgGrid
+            ref={gridsRefs.httpCodes}
+            name="HTTP Codes"
+            options={gridsOptions.httpCodes}
+          ></GroupedMsgGrid>
+        </Grid>
+        <Grid item xs={3}>
+          <GroupedMsgGrid
+            ref={gridsRefs.jobs}
+            name="Jobs"
+            options={gridsOptions.jobs}
+          ></GroupedMsgGrid>
+        </Grid>
+        <Grid item xs={3}>
+          <GroupedMsgGrid
+            ref={gridsRefs.plugins}
+            name="Plugins"
+            options={gridsOptions.plugins}
+          ></GroupedMsgGrid>
+        </Grid>
       </Grid>
+      <Show when={comparer.isOn()}>
+        <Grid item xs={12} container spacing={2}>
+          <Grid item xs={6}>
+            <GroupedMsgGrid
+              ref={gridsRefs.added}
+              name="Added Logs"
+              options={gridsOptions.added}
+            ></GroupedMsgGrid>
+          </Grid>
+          <Grid item xs={6}>
+            <GroupedMsgGrid
+              ref={gridsRefs.removed}
+              name="Removed Logs"
+              options={gridsOptions.removed}
+            ></GroupedMsgGrid>
+          </Grid>
+        </Grid>
+      </Show>
     </Grid>
   );
 }
