@@ -60,6 +60,7 @@ class LogData {
     Error: "Error",
     plugin_id: "plugin_id",
     worker: "worker",
+    workername: "workername",
     scheduler_name: "scheduler_name",
     status_code: "status_code",
     status: "status",
@@ -179,7 +180,11 @@ class LogData {
   }
 
   private static jobKeySelector(log: JSONLog): string | undefined {
-    return log[LogData.logKeys.scheduler_name] || log[LogData.logKeys.worker];
+    return (
+      log[LogData.logKeys.scheduler_name] ||
+      log[LogData.logKeys.worker] ||
+      log[LogData.logKeys.workername]
+    );
   }
 
   private static pluginKeySelector(log: JSONLog): string | undefined {
