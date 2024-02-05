@@ -43,7 +43,7 @@ For details, refer to its [README.md](https://github.com/vish9812/analog/blob/ma
 
 ## Prerequisite
 
-- Ensure you have Python 3 installed on your system then you can simply execute the `analog script` to run the app.
+- Ensure you have Python 3 [installed](https://www.python.org/downloads/) on your system then you can simply execute the Python server command to run the app.
 - Otherwise host the `index.html` manually on any server of your preference.
 
 ## Getting Started
@@ -56,18 +56,38 @@ Follow these steps to run the app:
 
 3. Open a terminal and navigate to the app's directory.
 
-4. Execute the `analog script` to start the app.
+4. Execute the following `python` command to start the app:
 
-- For Non-Windows, execute the script `./analog.sh`.
-- For Windows, use powershell:
-  - _Unblock_(one-time operation) the powershell file `analog.ps1` to be allowed to execute on the system: `Unblock-File .\analog.ps1`
-  - Execute the script `.\analog.ps1`
+- For Linux/Mac: `python3 -m http.server 20002`
+- For Windows: `python -m http.server 20002`
 
 5. Open your web browser and visit the following URL: `localhost:20002`
 
 You are now ready to use the Analog and take advantage of its powerful log analysis features.
 
 Enjoy analyzing your log data!
+
+## FAQ
+
+### Expected log format
+
+Following are the 3 must have keys in the logs:
+
+- level
+- timestamp
+- msg
+
+Example Format for JSON logs:
+
+```
+{"timestamp":"2023-10-16 10:13:16.710 +11:00","level":"debug","msg":"Received HTTP request","dynamicKey1":"value 1","dynamicKey2":"value 2"}
+```
+
+Example Format for plain-text logs:
+
+```
+debug [2023-10-16 10:13:16.710 +11:00] Received HTTP request dynamicKey1="value 1" dynamicKey2=value 2
+```
 
 ## License
 
