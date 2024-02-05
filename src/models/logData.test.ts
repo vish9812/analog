@@ -115,7 +115,8 @@ describe("init", () => {
     }
 
     const logData = new LogData();
-    logData.init(file as any, logsIterator);
+    logData.initFileInfo(file as any);
+    logData.init(logsIterator);
 
     expect(logData.fileInfo.name, "file name").toEqual(file.name);
     expect(logData.fileInfo.size, "file size").toEqual(file.size);

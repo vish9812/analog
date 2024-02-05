@@ -13,16 +13,10 @@ interface ParserOptions {
   parserFn: ParserFn;
 }
 
-async function init(logData: LogData, file: File) {
+async function init(logData: LogData, file: File, filterer: LineFilterFn) {
   const text = await getText(file);
   const parserOptions = getParserOptions(text);
-  logData.init(file, parse(text, parserOptions, filterer));
-}
-
-// TODO: Capture the minTime and maxTime from UI and filter based on that.
-// Doesn't filter anything yet.
-function filterer(jsonLine: JSONLog): boolean {
-  return false;
+  logData.init(parse(text, parserOptions, filterer));
 }
 
 function getParserOptions(text: string): ParserOptions {

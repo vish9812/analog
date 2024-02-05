@@ -69,9 +69,7 @@ class LogData {
     error: "error",
   };
 
-  init(file: File, logsGeneratorFn: () => LogsGenerator) {
-    this.initFileInfo(file);
-
+  init(logsGeneratorFn: () => LogsGenerator) {
     const summaryMap: SummaryMap = {
       httpCodes: new Map<string, GroupedMsg>(),
       jobs: new Map<string, GroupedMsg>(),
@@ -83,7 +81,6 @@ class LogData {
     let count = 0;
     for (const log of logsGeneratorFn()) {
       if (log == null) {
-        console.warn("non-supported log format.");
         continue;
       }
 
@@ -107,7 +104,7 @@ class LogData {
     );
   }
 
-  private initFileInfo(file: File) {
+  initFileInfo(file: File) {
     this.fileInfo = {
       name: file.name,
       size: file.size,

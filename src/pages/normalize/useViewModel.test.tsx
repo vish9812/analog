@@ -24,8 +24,11 @@ describe("useViewModel", () => {
     createRoot((dispose) => {
       const setPage = vi.fn();
 
-      useViewModel().handleAnalyzeClick(setPage);
+      const vm = useViewModel();
+      vm.handleAnalyzeClick(setPage);
 
+      expect(vm.processingFile(), "processingFile").toEqual(false);
+      expect(vm.analyzeDisabled(), "analyzeDisabled").toEqual(false);
       expect(setPage, "setPage").toHaveBeenCalledWith(Pages.analyze);
 
       dispose();
@@ -47,20 +50,15 @@ describe("useViewModel", () => {
       "$filesLen file uploaded",
       async ({ files, newFileDisabled, filesLen }) => {
         const logData = new LogData();
-        const spyInit = vi.spyOn(normalizer, "init").mockResolvedValue();
-        const spyAddLogData = vi.spyOn(comparer, "addLogData");
 
         await vm.handleFileUpload(files as any, logData);
 
         expect(vm.analyzeDisabled(), "analyzeDisabled").toEqual(false);
-        expect(vm.processingFile(), "processingFile").toEqual(false);
         expect(vm.newFileDisabled(), "newFileDisabled").toEqual(
           newFileDisabled
         );
         expect(vm.logDatas(), "logDatas").toBeTruthy();
-        expect(vm.logDatas().length, "logDatas().length").toEqual(filesLen);
-        expect(spyInit, "spyInit").toHaveBeenCalledWith(logData, files[0]);
-        expect(spyAddLogData, "spyAddLogData").toHaveBeenCalledWith(logData);
+        expect(vm.logDatas().length, "length").toEqual(filesLen);
       }
     );
 

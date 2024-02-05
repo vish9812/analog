@@ -8,6 +8,7 @@ import {
   ListItemIcon,
   ListItemText,
   Stack,
+  TextField,
   styled,
 } from "@suid/material";
 import useViewModel from "./useViewModel";
@@ -41,6 +42,7 @@ function Normalize() {
     processingFile,
     handleAnalyzeClick,
     handleFileUpload,
+    setTimeRange,
   } = useViewModel();
 
   const newFileText = () =>
@@ -48,6 +50,23 @@ function Normalize() {
 
   return (
     <Grid container spacing={2}>
+      <Grid item xs={12}>
+        <p>Following are the 3 must have keys in the logs:</p>
+        <pre>{`
+- level
+- timestamp
+- msg
+      `}</pre>
+        <p>Example Format for JSON logs:</p>
+        <pre>{`
+{"timestamp":"2023-10-16 10:13:16.710 +11:00","level":"debug","msg":"Received HTTP request","dynamicKey1":"value 1","dynamicKey2":"value 2"}
+        `}</pre>
+
+        <p>Example Format for plain-text logs:</p>
+        <pre>{`
+debug [2023-10-16 10:13:16.710 +11:00] Received HTTP request dynamicKey1="value 1" dynamicKey2=value 2
+        `}</pre>
+      </Grid>
       <Grid item xs={12}>
         <Stack
           direction="row"
@@ -66,7 +85,11 @@ function Normalize() {
             <HiddenInput
               type="file"
               multiple={false}
-              onChange={(e) => handleFileUpload(e.target.files!, new LogData())}
+              onChange={(e) => {
+                handleFileUpload(e.target.files, new LogData());
+                // To allow uploading the same file again and triggering the "onChange" event for the same file
+                e.target.value = "";
+              }}
             />
           </Button>
           <Show when={processingFile()}>
@@ -86,21 +109,45 @@ function Normalize() {
         </Stack>
       </Grid>
       <Show when={!!logDatas().length}>
-        <Grid item xs={3}>
+        <Grid item xs={12} textAlign="center">
+          You can <em>optionally</em> filter the files by time
+          <br />- In case of big files( &gt; 70MB) for faster processing of data
+          <br />- To compare different time slices of the same or different
+          files
+        </Grid>
+        <Grid item xs={12}>
           <List subheader="Files">
             <For each={logDatas()}>
-              {(logData) => {
+              {(logData, idx) => {
                 return (
                   <ListItem disablePadding>
-                    <ListItemButton>
-                      <ListItemIcon>
-                        <InsertDriveFileIcon />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={logData.fileInfo.name}
-                        secondary={prettyBytes(logData.fileInfo.size)}
-                      />
-                    </ListItemButton>
+                    <Grid container spacing={2}>
+                      <Grid item xs={3}>
+                        <ListItemButton>
+                          <ListItemIcon>
+                            <InsertDriveFileIcon />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={logData.fileInfo.name}
+                            secondary={prettyBytes(logData.fileInfo.size)}
+                          />
+                        </ListItemButton>
+                      </Grid>
+                      <Grid item xs={3}>
+                        <TextField
+                          fullWidth={true}
+                          label="Start Time"
+                          onChange={(_, val) => setTimeRange(idx(), "min", val)}
+                        />
+                      </Grid>
+                      <Grid item xs={3}>
+                        <TextField
+                          fullWidth={true}
+                          label="End Time"
+                          onChange={(_, val) => setTimeRange(idx(), "max", val)}
+                        />
+                      </Grid>
+                    </Grid>
                   </ListItem>
                 );
               }}
