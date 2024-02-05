@@ -4,31 +4,63 @@ import objectsUtils from "@al/utils/objects";
 // Sample Log Line Format:
 // info [2023-10-16 02:24:52.930 +11:00] Received HTTP request caller="jobs/base_workers.go:97" worker=PostPersistentNotifications job_id=a6kay9tcptdymeezjng9i965mh dynamic1=value1 dynamic2=value2
 
-type ParserFn = (logLine: string) => JSONLog | null;
+// LineFilterFn validates the line filter. Remove the line, if it returns true.
+type LineFilterFn = (jsonLine: JSONLog) => boolean;
+type ParserFn = (logLine: string, lineFilterFn: LineFilterFn) => JSONLog | null;
+
+interface ParserOptions {
+  textSplitRegex: RegExp;
+  parserFn: ParserFn;
+}
 
 async function init(logData: LogData, file: File) {
   const text = await getText(file);
+  const parserOptions = getParserOptions(text);
+  logData.init(file, parse(text, parserOptions, filterer));
+}
+
+// TODO: Capture the minTime and maxTime from UI and filter based on that.
+// Doesn't filter anything yet.
+function filterer(jsonLine: JSONLog): boolean {
+  return false;
+}
+
+function getParserOptions(text: string): ParserOptions {
   const isJSON = isJSONLog(text);
   const textSplitRegex = isJSON
     ? /\r?\n/
     : /\r?\n(?=error|warn|info|verbose|debug|trace)/;
   const parserFn = isJSON ? jsonParser : plainParser;
-  logData.init(file, parse(text, textSplitRegex, parserFn));
+  return { textSplitRegex, parserFn };
 }
 
-function parse(text: string, textSplitRegex: RegExp, parserFn: ParserFn) {
+function parse(
+  text: string,
+  { textSplitRegex, parserFn }: ParserOptions,
+  lineFilterFn: LineFilterFn
+) {
   return function* (): LogsGenerator {
     for (const line of text.split(textSplitRegex)) {
-      yield parserFn(line);
+      yield parserFn(line, lineFilterFn);
     }
   };
 }
 
-function jsonParser(logLine: string): JSONLog | null {
-  return objectsUtils.parseJSON(logLine);
+function jsonParser(
+  logLine: string,
+  lineFilterFn: (jsonLine: JSONLog) => boolean
+): JSONLog | null {
+  const jsonLog = objectsUtils.parseJSON<JSONLog>(logLine);
+  if (!jsonLog || lineFilterFn(jsonLog)) {
+    return null;
+  }
+  return jsonLog;
 }
 
-function plainParser(logLine: string): JSONLog | null {
+function plainParser(
+  logLine: string,
+  lineFilterFn: (jsonLine: JSONLog) => boolean
+): JSONLog | null {
   const regex = {
     // Data before the 1st key=value pair
     text: /(\w+) \[([\d-: .+]+)\] (.*?)(?=(\s\w+=|$))/g,
@@ -58,6 +90,8 @@ function plainParser(logLine: string): JSONLog | null {
     [LogData.logKeys.timestamp]: timestamp,
     [LogData.logKeys.msg]: message,
   };
+
+  if (lineFilterFn(jsonLog)) return null;
 
   // Capture the key=value pairs
   const kvStr = logLine.slice(matches[0].length + 1);
@@ -151,6 +185,8 @@ function isJSONLog(text: string): boolean {
 
 const normalizer = {
   init,
+  parse,
+  getParserOptions,
 };
 
 export default normalizer;
