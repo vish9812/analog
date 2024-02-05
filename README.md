@@ -1,8 +1,16 @@
 # Analog
 
-Analog is a powerful tool designed for analyzing and visualizing log files. It provides several features to help you efficiently work with your log data. Whether you need to identify common patterns, compare logs from different versions of your application, or filter logs based on various criteria, this app has you covered.
+Analog is a powerful tool designed for analyzing the log files. It provides several features to help you efficiently work with your log data. Whether you need to identify common patterns, compare logs from different versions, or filter logs based on various criteria, this app has you covered.
 
 ## Features
+
+### CLI
+
+Manage _multiple_ log files directly from the command line with the Analog CLI tool.
+
+For details, refer to its [README.md](https://github.com/vish9812/analog/blob/main/src/cmd/README.md) file.
+
+### Web UI
 
 - **Summary View**: Quickly gain insights into your log file with the Summary View. It provides frequencies of the following key aspects:
 
@@ -23,11 +31,11 @@ Analog is a powerful tool designed for analyzing and visualizing log files. It p
 
 - **Log File Comparison**:
 
-  - **Compare Two Log Files**: Compare two log files and see newly added or removed log entries.
+  - **Compare Two Log Files**: Compare two log files and identify what changed by reviewing newly added or removed log entries.
 
 - **Create and Download a Filtered Subset**: Define filtering criteria to extract a specific subset of logs. You can also compare two subsets of a single log file to track changes.
 
-- **Time Jumps**: Navigate through log data in subsets repeating after every few minutes.
+- **Time Jumps**: Navigate through log data in subsets whenever there is a break of more than 13 minutes.
 
 - **Highlighted JSON Syntax**: Log entries with JSON data are automatically highlighted for improved readability.
 
@@ -36,7 +44,7 @@ Analog is a powerful tool designed for analyzing and visualizing log files. It p
 ## Prerequisite
 
 - Ensure you have Python 3 installed on your system then you can simply execute the `analog script` to run the app.
-- Otherwise run the `index.html` manually on any server of your preference.
+- Otherwise host the `index.html` manually on any server of your preference.
 
 ## Getting Started
 
@@ -50,7 +58,7 @@ Follow these steps to run the app:
 
 4. Execute the `analog script` to start the app.
 
-- For Non-Windows, just execute the script `./analog.sh`.
+- For Non-Windows, execute the script `./analog.sh`.
 - For Windows, use powershell:
   - _Unblock_(one-time operation) the powershell file `analog.ps1` to be allowed to execute on the system: `Unblock-File .\analog.ps1`
   - Execute the script `.\analog.ps1`
