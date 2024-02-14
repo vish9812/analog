@@ -47,7 +47,7 @@ self.onmessage = async (event: MessageEvent<IReaderRequest>) => {
 const res: IReaderResponse = { work: Work.Ask };
 postMessage(res);
 
-async function processFile(data: IWorkData) {
+async function processFile(data: IWorkData): Promise<JSONLog[]> {
   const logsArr: JSONLog[] = [];
   let linesCount = 0;
 
@@ -56,7 +56,7 @@ async function processFile(data: IWorkData) {
   const filterer = ({ timestamp }: JSONLog) =>
     !!(
       (data.minTime && timestamp < data.minTime) ||
-      (data.maxTime && timestamp > data.maxTime)
+      (data.maxTime && timestamp >= data.maxTime)
     );
 
   const logsGeneratorFn = normalizer.parse(

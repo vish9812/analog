@@ -138,7 +138,7 @@ function Filters(props: FiltersProps) {
           }
         />
         <TextField
-          label="text"
+          label="Search"
           value={term.value}
           onChange={(_, val) => setFilters("terms", i(), "value", val)}
           onKeyDown={handleEnterKey}
@@ -152,13 +152,13 @@ function Filters(props: FiltersProps) {
       <Grid item xs={12}>
         <Stack direction="row" spacing={2}>
           <TextField
-            label="Start Time"
+            label="Start Time(Inclusive)"
             value={filters.startTime}
             onChange={(_, val) => setFilters("startTime", val)}
             onKeyDown={handleEnterKey}
           />
           <TextField
-            label="End Time"
+            label="End Time(Exclusive)"
             value={filters.endTime}
             onChange={(_, val) => setFilters("endTime", val)}
             onKeyDown={handleEnterKey}

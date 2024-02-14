@@ -55,7 +55,7 @@ function useViewModel() {
     return ({ timestamp }: JSONLog) =>
       !!(
         (timeRange.min && timestamp < timeRange.min) ||
-        (timeRange.max && timestamp > timeRange.max)
+        (timeRange.max && timestamp >= timeRange.max)
       );
   }
 

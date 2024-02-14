@@ -1,6 +1,9 @@
 import { parseArgs } from "util";
 import type { ICmd } from "./common";
 import Filterer from "./filterer";
+import Summary from "./summary";
+// @ts-ignore
+import figlet from "figlet";
 
 let cmd: ICmd;
 let isHelp = false;
@@ -16,6 +19,10 @@ const { values: flags } = parseArgs({
       type: "boolean",
       short: "f",
     },
+    summary: {
+      type: "boolean",
+      short: "s",
+    },
   },
   strict: false,
   allowPositionals: true,
@@ -27,6 +34,8 @@ if (typeof flags.help === "boolean" && flags.help) {
 
 if (typeof flags.filter === "boolean" && flags.filter) {
   cmd = new Filterer();
+} else if (typeof flags.summary === "boolean" && flags.summary) {
+  cmd = new Summary();
 } else {
   help();
   process.exit(0);
@@ -40,11 +49,26 @@ if (isHelp) {
 }
 
 // TODO: Bug: Something is keeping the main process alive, so exiting forcefully.
-// Maybe some issue with Workers as they are still experimental.
-// Experimental Note at the top of the page: https://bun.sh/docs/api/workers
+console.log("Beyonder....");
 process.exit(0);
 
 function help() {
+  console.log(figlet.textSync(`ANALOG`));
+  console.log(`
+                         .="=.
+                      _/.-.-.\\_     _
+                     ( ( o o ) )    ))
+                      |/  "  \\|    //
+      .-------.        \\'---'/    //
+     _|~~ ~~  |_       /'"""'\\\\  ((
+   =(_|_______|_)=    / /_,_\\ \\\\  \\\\
+     |:::::::::|      \\_\\\\_'__/ \\  ))
+     |:::::::[]|       /'  /'~\\  |//
+     |o=======.|      /   /    \\  /
+    '"""""""""'  ,--',--'\\/\\    /
+                   '-- "--'  '--'
+  `);
+
   console.log(`
   analog is a cli for managing the log files.
   
@@ -55,6 +79,8 @@ function help() {
   The commands are:
     
     --filter(-f)           filters all files from a given folder within a time range and generate a single time-sorted log file.
+
+    --summary(-s)          provides a summary view of all the log files.
 
   Use "analog --help(-h) <command>" for more information about a command.
 

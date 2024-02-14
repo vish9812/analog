@@ -39,7 +39,7 @@ function useViewModel() {
         keep = log[LogData.logKeys.timestamp] >= filtersData.startTime;
       }
       if (keep && filtersData.endTime) {
-        keep = log[LogData.logKeys.timestamp] <= filtersData.endTime;
+        keep = log[LogData.logKeys.timestamp] < filtersData.endTime;
       }
       if (keep && filtersData.errorsOnly) {
         keep = LogData.isErrorLog(log);
