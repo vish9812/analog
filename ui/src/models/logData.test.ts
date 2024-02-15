@@ -6,6 +6,7 @@ describe("isErrorLog", () => {
       test: "error as level value",
       log: {
         [LogData.logKeys.level]: "error",
+        [LogData.logKeys.msg]: "test msg",
       },
       expected: true,
     },
@@ -13,6 +14,7 @@ describe("isErrorLog", () => {
       test: "error key",
       log: {
         [LogData.logKeys.error]: "error key",
+        [LogData.logKeys.msg]: "test msg",
       },
       expected: true,
     },
@@ -20,6 +22,21 @@ describe("isErrorLog", () => {
       test: "Error key",
       log: {
         [LogData.logKeys.Error]: "Error key",
+        [LogData.logKeys.msg]: "test msg",
+      },
+      expected: true,
+    },
+    {
+      test: "error in msg",
+      log: {
+        [LogData.logKeys.msg]: "Errors in msg",
+      },
+      expected: true,
+    },
+    {
+      test: "failure in msg",
+      log: {
+        [LogData.logKeys.msg]: "text fail in msg",
       },
       expected: true,
     },
@@ -28,17 +45,19 @@ describe("isErrorLog", () => {
       log: {
         [LogData.logKeys.level]: "error",
         [LogData.logKeys.error]: "error key",
+        [LogData.logKeys.msg]: "test msg",
       },
       expected: true,
     },
     {
-      test: "no error level or key",
+      test: "none of the above scenario of error or fail",
       log: {
         [LogData.logKeys.level]: "another level",
+        [LogData.logKeys.msg]: "test msg",
       },
       expected: false,
     },
-  ])("returns $expected when log has $test ", ({ log, expected }) => {
+  ])("returns $expected when log has $test", ({ log, expected }) => {
     expect(LogData.isErrorLog(log)).toBe(expected);
   });
 });
@@ -135,22 +154,26 @@ describe("init", () => {
       msgs: [
         {
           msg: getCutOffMsg(log0),
-          logs: [expectedLogs[0]] as any,
+          logs: [expectedLogs[0]],
+          logsCount: 1,
           hasErrors: true,
         },
         {
           msg: getCutOffMsg(log1),
           logs: [expectedLogs[1]] as any,
+          logsCount: 1,
           hasErrors: true,
         },
         {
           msg: getCutOffMsg(log2),
           logs: [expectedLogs[2], expectedLogs[3]] as any,
+          logsCount: 2,
           hasErrors: true,
         },
         {
           msg: getCutOffMsg(log4),
           logs: [expectedLogs[4], expectedLogs[5]] as any,
+          logsCount: 2,
           hasErrors: false,
         },
       ].sort(LogData.sortByLogsFn),
@@ -158,11 +181,13 @@ describe("init", () => {
         {
           msg: log0[LogData.logKeys.status_code],
           logs: [expectedLogs[0], expectedLogs[3]] as any,
+          logsCount: 2,
           hasErrors: true,
         },
         {
           msg: log1[LogData.logKeys.status],
           logs: [expectedLogs[1]] as any,
+          logsCount: 1,
           hasErrors: true,
         },
       ].sort(LogData.sortByMsgFn),
@@ -170,11 +195,13 @@ describe("init", () => {
         {
           msg: log1[LogData.logKeys.worker],
           logs: [expectedLogs[1], expectedLogs[2]] as any,
+          logsCount: 2,
           hasErrors: true,
         },
         {
           msg: log3[LogData.logKeys.worker],
           logs: [expectedLogs[3]] as any,
+          logsCount: 1,
           hasErrors: true,
         },
       ].sort(LogData.sortByLogsFn),
@@ -182,11 +209,13 @@ describe("init", () => {
         {
           msg: log0[LogData.logKeys.plugin_id],
           logs: [expectedLogs[0]] as any,
+          logsCount: 1,
           hasErrors: true,
         },
         {
           msg: log1[LogData.logKeys.plugin_id],
           logs: [expectedLogs[1]] as any,
+          logsCount: 1,
           hasErrors: true,
         },
       ].sort(LogData.sortByLogsFn),
