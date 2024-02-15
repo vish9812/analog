@@ -6,9 +6,9 @@ Analog is a powerful tool designed for analyzing the log files. It provides seve
 
 ### CLI
 
-Manage _multiple_ log files directly from the command line with the Analog CLI tool.
+Analyze _multiple_ log files directly from the command line with the Analog CLI tool.
 
-For details, refer to its [README.md](https://github.com/vish9812/analog/blob/main/src/cmd/README.md) file.
+For details, refer to its [README.md](https://github.com/vish9812/analog/blob/main/cmd/README.md) file.
 
 ### Web UI
 

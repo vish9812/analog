@@ -1,15 +1,20 @@
 # Analog CLI
 
-Analog CLI is a tool for managing log files.
+Run analog as cli for analyzing multiple log files.
 
 ## Installation
 
-The CLI comes with the Analog app downloaded from the [Releases Page](https://github.com/vish9812/analog/releases).
+The CLI comes with the Analog app downloaded from the [Releases Page](https://github.com/vish9812/analog/releases) inside the `cli` folder.
 
 ## Commands:
 
-- **Filter**: Filters all files from a given folder within a time range and generates a single time-sorted log file.
+- **Summary**: Provides a summary view of all the log files.
+- **Filter**: Filters all files from a given folder within a time range and generate a single time-sorted log file.
+
+## Prerequisite:
+
+Install [Bun](https://bun.sh/docs/installation) to run as CLI.
 
 ## Usage:
 
-Execute `/path/to/cli/analog --help` to see the usage.
+Execute `bun run ./cli/main.js --help` to see the usage.

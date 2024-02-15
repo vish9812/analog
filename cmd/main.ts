@@ -80,9 +80,9 @@ function help() {
 
   The commands are:
     
-    --filter(-f)           filters all files from a given folder within a time range and generate a single time-sorted log file.
-
-    --summary(-s)          provides a summary view of all the log files.
+  --summary(-s)          provides a summary view of all the log files.
+  
+  --filter(-f)           filters all files from a given folder within a time range and generate a single time-sorted log file.
 
   Use "bun run ./cli/main.js --help <command>" for more information about a command.
   Example: bun run ./cli/main.js --help --filter
