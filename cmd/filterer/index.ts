@@ -3,7 +3,7 @@ import * as path from "node:path";
 import { parseArgs } from "util";
 import { cpus } from "node:os";
 import type { JSONLog } from "@al/models/logData";
-import type { ICmd } from "@al/cmd/common";
+import type { ICmd } from "@al/cmd/utils/cmd-runner";
 import readerWorker, {
   type IReaderRequest,
   type IReaderResponse,

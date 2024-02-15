@@ -1,4 +1,4 @@
-import { parentPort, isMainThread } from "node:worker_threads";
+import { parentPort } from "node:worker_threads";
 import LogData, { type GroupedMsg, type SummaryMap } from "@al/models/logData";
 import normalizer from "@al/services/normalizer";
 
@@ -15,8 +15,8 @@ interface IResult {
 }
 
 // Thread Code
-if (!isMainThread) {
-  parentPort!.on("message", async (task: ITask) => {
+if (parentPort) {
+  parentPort.on("message", async (task: ITask) => {
     const stats = await processFile(task);
     parentPort!.postMessage(stats);
     console.log(`Processed File: ${task.filePath}`);

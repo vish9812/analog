@@ -1,5 +1,5 @@
 import { parseArgs } from "util";
-import type { ICmd } from "./common";
+import type { ICmd } from "./utils/cmd-runner";
 import Filterer from "./filterer";
 import Summary from "./summary";
 // @ts-ignore
@@ -44,12 +44,13 @@ if (typeof flags.filter === "boolean" && flags.filter) {
 if (isHelp) {
   cmd.help();
 } else {
+  console.log("========Started========");
   await cmd.run();
   console.log("========Finished========");
 }
 
 // TODO: Bug: Something is keeping the main process alive, so exiting forcefully.
-console.log("Beyonder....");
+console.log("Beyonder...");
 process.exit(0);
 
 function help() {
@@ -70,11 +71,12 @@ function help() {
   `);
 
   console.log(`
-  analog is a cli for managing the log files.
+  Run analog as cli for analyzing multiple log files.
+  [Bun](https://bun.sh/docs/installation) tool is needed to run as cli.
   
   Usage:
   
-    analog <commands> [arguments]
+    bun run ./cli/main.js <commands> [arguments]
 
   The commands are:
     
@@ -82,11 +84,10 @@ function help() {
 
     --summary(-s)          provides a summary view of all the log files.
 
-  Use "analog --help(-h) <command>" for more information about a command.
+  Use "bun run ./cli/main.js --help <command>" for more information about a command.
+  Example: bun run ./cli/main.js --help --filter
 
-  Caution: Currently, the CLI doesn't support the parallel processing of the files which would be much faster.
-           To utilize the parallelization, clone the repository and use [Bun](https://bun.sh/docs/installation) directly to process the log files.
-           To execute commands, replace "analog" with "bun run ./src/cmd/index.ts".
-           Example: bun run ./src/cmd/index.ts --help --filter
+  Caution: Processing multiple files will need at least twice the space as the logs files size.
+            For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.
   `);
 }

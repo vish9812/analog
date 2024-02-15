@@ -2,7 +2,7 @@ import prettyBytes from "pretty-bytes";
 import { Table } from "console-table-printer";
 import { parseArgs } from "util";
 import { cpus } from "node:os";
-import type { ICmd } from "@al/cmd/common";
+import type { ICmd } from "@al/cmd/utils/cmd-runner";
 import { type ITask, type IResult } from "./worker";
 import WorkerPool from "@al/cmd/utils/worker-pool";
 import fileHelper from "@al/cmd/utils/file-helper";
@@ -12,6 +12,8 @@ import type {
   SummaryMap,
 } from "@al/models/logData";
 import LogData from "@al/models/logData";
+
+let workerURL = new URL("worker.ts", import.meta.url);
 
 interface IStats extends Omit<IResult, "filePath"> {
   minTimeFile: string;
@@ -33,7 +35,10 @@ class Summary implements ICmd {
     },
   };
 
-  private inFolderPath: string = "";
+  private flags = {
+    inFolderPath: "",
+  };
+
   private filePaths: string[] = [];
 
   help(): void {
@@ -42,7 +47,7 @@ class Summary implements ICmd {
     
     Usage:
     
-      analog --summary(-s) [arguments]
+    bun run ./cli/main.js --summary [arguments]
   
     The arguments are:
       
@@ -51,17 +56,24 @@ class Summary implements ICmd {
   
     Example: 
       
-      analog -s -i "/path/to/logs/folder"
+      bun run ./cli/main.js -s -i "/path/to/logs/folder"
     `);
   }
 
   async run(): Promise<void> {
+    const workerFile = Bun.file(workerURL);
+    if (!(await workerFile.exists())) {
+      // Path for the bundled code
+      workerURL = new URL("summary/worker.js", import.meta.url);
+    }
+
     this.parseFlags();
+
     await this.processLogs();
   }
 
   private parseFlags() {
-    const { values: flags } = parseArgs({
+    const { values } = parseArgs({
       args: Bun.argv,
       options: {
         summary: {
@@ -77,13 +89,15 @@ class Summary implements ICmd {
       allowPositionals: true,
     });
 
-    if (!flags.inFolderPath) throw new Error("Pass input logs folder path.");
+    if (!values.inFolderPath) throw new Error("Pass input logs folder path.");
 
-    this.inFolderPath = flags.inFolderPath;
+    this.flags.inFolderPath = values.inFolderPath;
   }
 
   private async processLogs() {
-    this.filePaths = await fileHelper.getFilesRecursively(this.inFolderPath);
+    this.filePaths = await fileHelper.getFilesRecursively(
+      this.flags.inFolderPath
+    );
 
     console.log("=========Begin Read Files=========");
     await this.readFiles();
@@ -96,7 +110,6 @@ class Summary implements ICmd {
 
   private readFiles() {
     return new Promise<void>((res, rej) => {
-      const workerURL = new URL("worker.ts", import.meta.url);
       const maxWorkers = Math.min(
         Math.max(cpus().length - 1, 1),
         this.filePaths.length
@@ -106,29 +119,24 @@ class Summary implements ICmd {
 
       let finishedTasks = 0;
       for (const filePath of this.filePaths) {
-        pool.runTask(
-          { filePath },
-          async (err: Error | null, result: IResult) => {
-            if (err) {
-              console.error("Failed for file: ", filePath);
-              rej();
-            }
-
-            await this.processFileResponse(result);
-
-            if (++finishedTasks === this.filePaths.length) {
-              await pool.close();
-              res();
-            }
+        pool.runTask({ filePath }, async (err, result) => {
+          if (err) {
+            console.error("Failed for file: ", filePath);
+            rej();
           }
-        );
+
+          await this.processFileResponse(result);
+
+          if (++finishedTasks === this.filePaths.length) {
+            await pool.close();
+            res();
+          }
+        });
       }
     });
   }
 
-  private async processFileResponse(fileStats?: IResult) {
-    if (!fileStats) return;
-
+  private async processFileResponse(fileStats: IResult) {
     if (fileStats.maxTime > this.stats.maxTime) {
       this.stats.maxTime = fileStats.maxTime;
       this.stats.maxTimeFile = fileStats.filePath;
@@ -145,13 +153,16 @@ class Summary implements ICmd {
   }
 
   private initSummaryMap(dataMap: SummaryMap) {
-    Summary.mergeDataMaps(dataMap.httpCodes, this.stats.dataMap.httpCodes);
-    Summary.mergeDataMaps(dataMap.jobs, this.stats.dataMap.jobs);
-    Summary.mergeDataMaps(dataMap.msgs, this.stats.dataMap.msgs);
-    Summary.mergeDataMaps(dataMap.plugins, this.stats.dataMap.plugins);
+    Summary.mergeIntoOverallMap(
+      dataMap.httpCodes,
+      this.stats.dataMap.httpCodes
+    );
+    Summary.mergeIntoOverallMap(dataMap.jobs, this.stats.dataMap.jobs);
+    Summary.mergeIntoOverallMap(dataMap.msgs, this.stats.dataMap.msgs);
+    Summary.mergeIntoOverallMap(dataMap.plugins, this.stats.dataMap.plugins);
   }
 
-  private static mergeDataMaps(
+  private static mergeIntoOverallMap(
     fileMap: Map<string, GroupedMsg>,
     overallMap: Map<string, GroupedMsg>
   ) {
@@ -172,6 +183,7 @@ class Summary implements ICmd {
   }
 
   private writeContent(summary: SummaryData) {
+    console.log();
     console.log("=========Overall summary of all the logs=========");
 
     this.stats.size = prettyBytes(this.stats.size) as any;
