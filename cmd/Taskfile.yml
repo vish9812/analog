@@ -1,0 +1,18 @@
+version: "3"
+
+tasks:
+  install:
+    desc: install npm packages
+    cmds:
+      - bun i
+
+  build:
+    desc: transpile and bundle
+    cmds:
+      - > 
+        bun build 
+        ./main.ts 
+        ./summary/worker.ts 
+        ./filterer/reader.worker.ts 
+        --outdir ./cli 
+        --target bun

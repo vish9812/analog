@@ -1,0 +1,35 @@
+version: "3"
+
+includes:
+  ui:
+    taskfile: ui/Taskfile.yml
+    dir: ui
+    internal: true
+  
+  cmd:
+    taskfile: cmd/Taskfile.yml
+    dir: cmd
+    internal: true
+
+tasks:
+  install:
+    desc: install npm packages
+    deps:
+      - ui:install
+      - cmd:install
+
+  test:
+      desc: run tests
+      deps:
+        - ui:test
+
+  build:
+    desc: transpile, bundle and create the release zip
+    deps:
+      - ui:build
+      - cmd:build
+    cmds:
+      - mv ui/analog .
+      - mv cmd/cli ./analog
+      - zip -r analog.zip analog/*
+      - rm -rf analog
