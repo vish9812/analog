@@ -184,12 +184,11 @@ class Summary implements ICmd {
 
   private writeContent(summary: SummaryData) {
     console.log();
-    console.log("=========Overall summary of all the logs=========");
 
     this.stats.size = prettyBytes(this.stats.size) as any;
 
     let table = new Table({
-      title: "Stats",
+      title: "Overall summary of all the logs",
       columns: [
         { name: "minTime" },
         { name: "minTimeFile" },

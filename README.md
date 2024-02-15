@@ -37,6 +37,10 @@ For details, refer to its [README.md](https://github.com/vish9812/analog/blob/ma
 
 - **Time Jumps**: Navigate through log data in subsets whenever there is a time break of certain minutes.
 
+## Prerequisite:
+
+Install [Bun](https://bun.sh/docs/installation) to run as CLI.
+
 ## Getting Started
 
 Follow these steps to run the app:

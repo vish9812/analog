@@ -72,7 +72,6 @@ function help() {
 
   console.log(`
   Run analog as cli for analyzing multiple log files.
-  [Bun](https://bun.sh/docs/installation) tool is needed to run as cli.
   
   Usage:
   
@@ -80,9 +79,11 @@ function help() {
 
   The commands are:
     
-  --summary(-s)          provides a summary view of all the log files.
+  -s, --summary             
+        provides a summary view of all the log files.
   
-  --filter(-f)           filters all files from a given folder within a time range and generate a single time-sorted log file.
+  -f, --filter              
+        filters all files from a given folder within a time range and generate a single time-sorted log file.
 
   Use "bun run ./cli/main.js --help <command>" for more information about a command.
   Example: bun run ./cli/main.js --help --filter
