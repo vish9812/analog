@@ -111,7 +111,8 @@ debug [2023-10-16 10:13:16.710 +11:00] Received HTTP request dynamicKey1="value 
       <Show when={!!logDatas().length}>
         <Grid item xs={12} textAlign="center">
           You can <em>optionally</em> filter the files by time
-          <br />- In case of big files( &gt; 70MB) for faster processing of data
+          <br />- In case of big files( &gt; 100MB) for faster processing of
+          data
           <br />- To compare different time slices of the same or different
           files
         </Grid>
@@ -136,14 +137,14 @@ debug [2023-10-16 10:13:16.710 +11:00] Received HTTP request dynamicKey1="value 
                       <Grid item xs={3}>
                         <TextField
                           fullWidth={true}
-                          label="Start Time"
+                          label="Start Time(Inclusive)"
                           onChange={(_, val) => setTimeRange(idx(), "min", val)}
                         />
                       </Grid>
                       <Grid item xs={3}>
                         <TextField
                           fullWidth={true}
-                          label="End Time"
+                          label="End Time(Exclusive)"
                           onChange={(_, val) => setTimeRange(idx(), "max", val)}
                         />
                       </Grid>

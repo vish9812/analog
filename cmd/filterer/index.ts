@@ -3,7 +3,7 @@ import * as path from "node:path";
 import { parseArgs } from "util";
 import { cpus } from "node:os";
 import type { JSONLog } from "@al/models/logData";
-import type { ICmd } from "@al/cmd/common";
+import type { ICmd } from "@al/cmd/utils/cmd-runner";
 import readerWorker, {
   type IReaderRequest,
   type IReaderResponse,
@@ -34,9 +34,9 @@ class Filterer implements ICmd {
   
     The arguments are:
       
-      --minTime(-x)           Filters out logs with timestamps earlier than the specified minimum time.
+      --minTime(-x)           Filters out logs with timestamps earlier than the specified minimum time(inclusive).
       
-      --maxTime(-y)           Filters out logs with timestamps later than the specified maximum time.
+      --maxTime(-y)           Filters out logs with timestamps equal or later than the specified maximum time(exclusive).
       
       --inFolderPath(-i)      Specifies the path to the folder containing the log files. 
                               The folder should only contain log files or nested folders with log files.
@@ -46,7 +46,7 @@ class Filterer implements ICmd {
   
     Example: 
       
-      analog -f -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/file/name.log"
+      analog -f -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log"
     `);
   }
 
@@ -62,7 +62,6 @@ class Filterer implements ICmd {
         filter: {
           type: "boolean",
           short: "f",
-          default: true,
         },
         minTime: {
           type: "string",
@@ -125,7 +124,7 @@ class Filterer implements ICmd {
     hasWorker ? this.readFilesParallely() : await this.readFilesSerially();
   }
 
-  private appendFileLogs(fileLogs?: JSONLog[]) {
+  private processFileResponse(fileLogs?: JSONLog[]) {
     if (!fileLogs?.length) return;
 
     let idx = this.filteredLogs.length;
@@ -144,7 +143,7 @@ class Filterer implements ICmd {
         minTime: this.minTime,
         maxTime: this.maxTime,
       });
-      this.appendFileLogs(fileLogs);
+      this.processFileResponse(fileLogs);
     }
   }
 
@@ -164,7 +163,7 @@ class Filterer implements ICmd {
 
         worker.onmessage = (event: Bun.MessageEvent<IReaderResponse>) => {
           if (event.data.work === readerWorker.Work.Ask) {
-            this.appendFileLogs(event.data.filteredLogs);
+            this.processFileResponse(event.data.filteredLogs);
 
             const filePath = this.filePaths.pop();
             const message: IReaderRequest = filePath

@@ -7,6 +7,7 @@ type JSONLogs = JSONLog[];
 interface GroupedMsg {
   msg: string;
   logs: JSONLogs;
+  logsCount: number;
   hasErrors: boolean;
 }
 
@@ -43,7 +44,7 @@ class LogData {
   };
 
   static readonly sortByLogsFn = (a: GroupedMsg, b: GroupedMsg) =>
-    b.logs.length - a.logs.length;
+    b.logsCount - a.logsCount;
   static readonly sortByMsgFn = (a: GroupedMsg, b: GroupedMsg) =>
     a.msg >= b.msg ? 1 : -1;
   static readonly errorFilterFn = (msgs: GroupedMsg[]) =>
@@ -59,6 +60,7 @@ class LogData {
     error: "error",
     Error: "Error",
     plugin_id: "plugin_id",
+    missing_plugin_id: "missing_plugin_id",
     worker: "worker",
     workername: "workername",
     scheduler_name: "scheduler_name",
@@ -88,19 +90,21 @@ class LogData {
       this.logs.push(log);
       log[LogData.logKeys.id] = count++ as any;
 
-      LogData.initSummaryMap(log, summaryMap);
+      LogData.initSummaryMap(log, summaryMap, true);
       LogData.initKeysSet(log, keysSet);
     }
 
     this.keys = [...keysSet].sort();
-    this.initSummary(summaryMap);
+    this.summary = LogData.initSummary(summaryMap);
   }
 
   static isErrorLog(log: JSONLog): boolean {
     return (
       log[LogData.logKeys.level] === LogData.levels.error ||
       !!log[LogData.logKeys.error] ||
-      !!log[LogData.logKeys.Error]
+      !!log[LogData.logKeys.Error] ||
+      log[LogData.logKeys.msg].toLowerCase().includes("error") ||
+      log[LogData.logKeys.msg].toLowerCase().includes("fail")
     );
   }
 
@@ -115,40 +119,51 @@ class LogData {
     objectsUtils.getNestedKeys(log).forEach((k) => keysSet.add(k));
   }
 
-  private initSummary(summaryMap: SummaryMap) {
-    this.summary.msgs = [...summaryMap.msgs.values()].sort(
-      LogData.sortByLogsFn
-    );
-    this.summary.httpCodes = [...summaryMap.httpCodes.values()].sort(
-      LogData.sortByMsgFn
-    );
-    this.summary.jobs = [...summaryMap.jobs.values()].sort(
-      LogData.sortByLogsFn
-    );
-    this.summary.plugins = [...summaryMap.plugins.values()].sort(
-      LogData.sortByLogsFn
-    );
+  static initSummary(summaryMap: SummaryMap): Summary {
+    return {
+      msgs: [...summaryMap.msgs.values()].sort(LogData.sortByLogsFn),
+      httpCodes: [...summaryMap.httpCodes.values()].sort(LogData.sortByMsgFn),
+      jobs: [...summaryMap.jobs.values()].sort(LogData.sortByLogsFn),
+      plugins: [...summaryMap.plugins.values()].sort(LogData.sortByLogsFn),
+    };
   }
 
-  private static initSummaryMap(log: JSONLog, summaryMap: SummaryMap) {
-    LogData.populateSummaryMap(log, summaryMap.msgs, LogData.msgKeySelector);
-    LogData.populateSummaryMap(log, summaryMap.jobs, LogData.jobKeySelector);
+  static initSummaryMap(
+    log: JSONLog,
+    summaryMap: SummaryMap,
+    keepLogsArr: boolean
+  ) {
+    LogData.populateSummaryMap(
+      log,
+      summaryMap.msgs,
+      LogData.msgKeySelector,
+      keepLogsArr
+    );
+    LogData.populateSummaryMap(
+      log,
+      summaryMap.jobs,
+      LogData.jobKeySelector,
+      keepLogsArr
+    );
     LogData.populateSummaryMap(
       log,
       summaryMap.httpCodes,
-      LogData.httpCodeKeySelector
+      LogData.httpCodeKeySelector,
+      keepLogsArr
     );
     LogData.populateSummaryMap(
       log,
       summaryMap.plugins,
-      LogData.pluginKeySelector
+      LogData.pluginKeySelector,
+      keepLogsArr
     );
   }
 
   private static populateSummaryMap(
     log: JSONLog,
     grpLogsMap: Map<string, GroupedMsg>,
-    keySelectorFn: (log: JSONLog) => string | undefined
+    keySelectorFn: (log: JSONLog) => string | undefined,
+    keepLogsArr: boolean
   ) {
     const key = keySelectorFn(log);
     if (!key) return;
@@ -157,14 +172,17 @@ class LogData {
       grpLogsMap.set(key, {
         msg: key,
         hasErrors: false,
+        logsCount: 0,
         logs: [],
       });
     }
 
     const grpLog = grpLogsMap.get(key)!;
-    grpLog.logs.push(log);
-    if (!grpLog.hasErrors && LogData.isErrorLog(log)) {
-      grpLog.hasErrors = true;
+    grpLog.logsCount += 1;
+    grpLog.hasErrors = grpLog.hasErrors || LogData.isErrorLog(log);
+
+    if (keepLogsArr) {
+      grpLog.logs.push(log);
     }
   }
 
@@ -185,7 +203,9 @@ class LogData {
   }
 
   private static pluginKeySelector(log: JSONLog): string | undefined {
-    return log[LogData.logKeys.plugin_id];
+    return (
+      log[LogData.logKeys.plugin_id] || log[LogData.logKeys.missing_plugin_id]
+    );
   }
 
   private static getCutOffMsg(log: JSONLog) {
@@ -197,4 +217,11 @@ class LogData {
 }
 
 export default LogData;
-export type { JSONLog, JSONLogs, GroupedMsg, LogsGenerator, Summary };
+export type {
+  JSONLog,
+  JSONLogs,
+  GroupedMsg,
+  LogsGenerator,
+  Summary,
+  SummaryMap,
+};

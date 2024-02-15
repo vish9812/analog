@@ -6,9 +6,9 @@ Analog is a powerful tool designed for analyzing the log files. It provides seve
 
 ### CLI
 
-Manage _multiple_ log files directly from the command line with the Analog CLI tool.
+Analyze _multiple_ log files directly from the command line with the Analog CLI tool.
 
-For details, refer to its [README.md](https://github.com/vish9812/analog/blob/main/src/cmd/README.md) file.
+For details, refer to its [README.md](https://github.com/vish9812/analog/blob/main/cmd/README.md) file.
 
 ### Web UI
 
@@ -27,24 +27,19 @@ For details, refer to its [README.md](https://github.com/vish9812/analog/blob/ma
   - **Errors Only**: Isolate and focus on error log entries.
   - **Summary View**: Filter on any of the key aspect of the Summary View.
 
-- **Logs Context**: Even when a filter is applied, you can access the context around the current log entry.
-
 - **Log File Comparison**:
 
   - **Compare Two Log Files**: Compare two log files and identify what changed by reviewing newly added or removed log entries.
 
 - **Create and Download a Filtered Subset**: Define filtering criteria to extract a specific subset of logs. You can also compare two subsets of a single log file to track changes.
 
-- **Time Jumps**: Navigate through log data in subsets whenever there is a break of more than 13 minutes.
+- **Logs Context**: Even when a filter is applied, you can access the context around the current log entry.
 
-- **Highlighted JSON Syntax**: Log entries with JSON data are automatically highlighted for improved readability.
+- **Time Jumps**: Navigate through log data in subsets whenever there is a time break of certain minutes.
 
-- **Highlighted Errors**: Errors in log entries are highlighted, making them stand out for quick identification.
+## Prerequisite:
 
-## Prerequisite
-
-- Ensure you have Python 3 [installed](https://www.python.org/downloads/) on your system then you can simply execute the Python server command to run the app.
-- Otherwise host the `index.html` manually on any server of your preference.
+Install [Bun](https://bun.sh/docs/installation) to run as CLI.
 
 ## Getting Started
 
@@ -56,10 +51,11 @@ Follow these steps to run the app:
 
 3. Open a terminal and navigate to the app's directory.
 
-4. Execute the following `python` command to start the app:
+4. Execute the following script to start the app:
 
-- For Linux/Mac: `python3 -m http.server 20002`
-- For Windows: `python -m http.server 20002`
+- The script will download python 3 if not installed.
+- For Linux/Mac: `./analog.sh`
+- For Windows: `./analog.ps1`
 
 5. Open your web browser and visit the following URL: `localhost:20002`
 
@@ -87,6 +83,34 @@ Example Format for plain-text logs:
 
 ```
 debug [2023-10-16 10:13:16.710 +11:00] Received HTTP request dynamicKey1="value 1" dynamicKey2=value 2
+```
+
+### Utility Commands
+
+#### Uncompress logs
+
+```bash
+find . -name "*.gz" -print0 | xargs -0 -P 0 -I{} sh -c 'gzip -d "`dirname \"{}\"`" "{}"' ';'
+```
+
+#### Split into smaller files and Remove original big files
+
+```bash
+find . -type f -print0 | xargs -0 -P 0 -I{} sh -c 'split -d -l 250000 "{}" "{}_" && rm "{}"'
+```
+
+#### Convert to parsable format
+
+There could be many formats and the following command should be modified according to the formats.
+
+This command:
+
+- converts the format `2024-01-25T19:00:41.108Z debug [2024-01-25 19:00:41.108 Z] Received HTTP request` to `debug [2024-01-25 19:00:41.108 +00:00] Received HTTP request`
+- Remove 1st timestamp before the level(debug/info/etc.)
+- Replace `Z` in timestamps with `+00:00`
+
+```bash
+find . -type f -print0 | xargs -0 -P 0 -L 1 sed -i -e 's/^[0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}T[0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}\.[0-9]\{3\}Z //g' -r -e 's/(\[[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{3} )Z/\1+00:00/g'
 ```
 
 ## License
