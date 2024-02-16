@@ -1,8 +1,8 @@
 import { parseArgs } from "util";
 // @ts-ignore
 import figlet from "figlet";
-import Filterer from "./commands/filterer";
-import Summary from "./commands/summary";
+import filterer from "./commands/filterer";
+import summary from "./commands/summary";
 import type { ICmd } from "./utils/cmd-runner";
 
 let cmd: ICmd;
@@ -33,9 +33,9 @@ if (typeof flags.help === "boolean" && flags.help) {
 }
 
 if (typeof flags.filter === "boolean" && flags.filter) {
-  cmd = new Filterer();
+  cmd = filterer;
 } else if (typeof flags.summary === "boolean" && flags.summary) {
-  cmd = new Summary();
+  cmd = summary;
 } else {
   help();
   process.exit(0);
@@ -67,27 +67,27 @@ function help() {
   `);
 
   console.log(`
-  Run analog as cli for analyzing multiple log files.
-  
-  Usage:
-  
-    bun run ./cli/main.js <commands> [arguments]
+Run analog as cli for analyzing multiple log files.
 
-  The commands are:
-    
-    -s, --summary             
-          provides a summary view of all the log files.
-    
-    -f, --filter              
-          filters all files from a given folder within a time range and generate a single time-sorted log file.
+Usage:
 
-  Use "bun run ./cli/main.js --help <command>" for more information about a command.
+  bun run ./cli/main.js <commands> [arguments]
+
+The commands are:
   
-  Example: 
-    
-    bun run ./cli/main.js --help --filter
+  -s, --summary             
+        provides a summary view of all the log files.
+  
+  -f, --filter              
+        filters all files from a given folder within a time range and generate a single time-sorted log file.
 
-  Caution:  Processing multiple files will need at least twice the space as the logs files size.
-            For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.
+Use "bun run ./cli/main.js --help <command>" for more information about a command.
+
+Example: 
+  
+  bun run ./cli/main.js --help --filter
+
+Caution:  Processing multiple files will need at least twice the space as the logs files size.
+          For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.
   `);
 }
