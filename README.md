@@ -39,7 +39,9 @@ For details, refer to its [README.md](https://github.com/vish9812/analog/blob/ma
 
 ## Prerequisite:
 
-Install [Bun](https://bun.sh/docs/installation) to run as CLI.
+- [Bun](https://bun.sh/docs/installation) is needed to run the CLI.
+- [Python 3](https://www.python.org/downloads/) is needed to run the UI.
+  - Python will be automatically installed if you run the Analog UI app with the `analog` script.
 
 ## Getting Started
 
