@@ -39,7 +39,9 @@ For details, refer to its [README.md](https://github.com/vish9812/analog/blob/ma
 
 ## Prerequisite:
 
-Install [Bun](https://bun.sh/docs/installation) to run as CLI.
+- [Bun](https://bun.sh/docs/installation) is needed to run the CLI.
+- [Python 3](https://www.python.org/downloads/) is needed to run the UI.
+  - Python will be automatically installed if you run the Analog UI app with the `analog` script.
 
 ## Getting Started
 
@@ -73,13 +75,13 @@ Following are the 3 must have keys in the logs:
 - timestamp
 - msg
 
-Example Format for JSON logs:
+Expected Format for JSON logs:
 
 ```
 {"timestamp":"2023-10-16 10:13:16.710 +11:00","level":"debug","msg":"Received HTTP request","dynamicKey1":"value 1","dynamicKey2":"value 2"}
 ```
 
-Example Format for plain-text logs:
+Expected Format for plain-text logs:
 
 ```
 debug [2023-10-16 10:13:16.710 +11:00] Received HTTP request dynamicKey1="value 1" dynamicKey2=value 2

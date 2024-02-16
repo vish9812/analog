@@ -57,12 +57,12 @@ function Normalize() {
 - timestamp
 - msg
       `}</pre>
-        <p>Example Format for JSON logs:</p>
+        <p>Expected Format for JSON logs:</p>
         <pre>{`
 {"timestamp":"2023-10-16 10:13:16.710 +11:00","level":"debug","msg":"Received HTTP request","dynamicKey1":"value 1","dynamicKey2":"value 2"}
         `}</pre>
 
-        <p>Example Format for plain-text logs:</p>
+        <p>Expected Format for plain-text logs:</p>
         <pre>{`
 debug [2023-10-16 10:13:16.710 +11:00] Received HTTP request dynamicKey1="value 1" dynamicKey2=value 2
         `}</pre>

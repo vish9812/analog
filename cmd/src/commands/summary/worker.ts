@@ -1,6 +1,9 @@
 import { parentPort } from "node:worker_threads";
-import LogData, { type GroupedMsg, type SummaryMap } from "@al/models/logData";
-import normalizer from "@al/services/normalizer";
+import LogData, {
+  type GroupedMsg,
+  type SummaryMap,
+} from "@al/ui/models/logData";
+import normalizer from "@al/ui/services/normalizer";
 
 interface ITask {
   filePath: string;

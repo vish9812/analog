@@ -1,9 +1,9 @@
 import { parseArgs } from "util";
-import type { ICmd } from "./utils/cmd-runner";
-import Filterer from "./filterer";
-import Summary from "./summary";
 // @ts-ignore
 import figlet from "figlet";
+import filterer from "./commands/filterer";
+import summary from "./commands/summary";
+import type { ICmd } from "./utils/cmd-runner";
 
 let cmd: ICmd;
 let isHelp = false;
@@ -33,9 +33,9 @@ if (typeof flags.help === "boolean" && flags.help) {
 }
 
 if (typeof flags.filter === "boolean" && flags.filter) {
-  cmd = new Filterer();
+  cmd = filterer;
 } else if (typeof flags.summary === "boolean" && flags.summary) {
-  cmd = new Summary();
+  cmd = summary;
 } else {
   help();
   process.exit(0);
@@ -48,10 +48,6 @@ if (isHelp) {
   await cmd.run();
   console.log("========Finished========");
 }
-
-// TODO: Bug: Something is keeping the main process alive, so exiting forcefully.
-console.log("Beyonder...");
-process.exit(0);
 
 function help() {
   console.log(figlet.textSync(`ANALOG`));
@@ -71,24 +67,27 @@ function help() {
   `);
 
   console.log(`
-  Run analog as cli for analyzing multiple log files.
-  
-  Usage:
-  
-    bun run ./cli/main.js <commands> [arguments]
+Run analog as cli for analyzing multiple log files.
 
-  The commands are:
-    
+Usage:
+
+  bun run ./cli/main.js <commands> [arguments]
+
+The commands are:
+  
   -s, --summary             
         provides a summary view of all the log files.
   
   -f, --filter              
         filters all files from a given folder within a time range and generate a single time-sorted log file.
 
-  Use "bun run ./cli/main.js --help <command>" for more information about a command.
-  Example: bun run ./cli/main.js --help --filter
+Use "bun run ./cli/main.js --help <command>" for more information about a command.
 
-  Caution: Processing multiple files will need at least twice the space as the logs files size.
-            For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.
+Example: 
+  
+  bun run ./cli/main.js --help --filter
+
+Caution:  Processing multiple files will need at least twice the space as the logs files size.
+          For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.
   `);
 }
