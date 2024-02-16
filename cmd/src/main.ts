@@ -1,9 +1,9 @@
 import { parseArgs } from "util";
-import type { ICmd } from "./utils/cmd-runner";
-import Filterer from "./filterer";
-import Summary from "./summary";
 // @ts-ignore
 import figlet from "figlet";
+import Filterer from "./commands/filterer";
+import Summary from "./commands/summary";
+import type { ICmd } from "./utils/cmd-runner";
 
 let cmd: ICmd;
 let isHelp = false;
@@ -49,10 +49,6 @@ if (isHelp) {
   console.log("========Finished========");
 }
 
-// TODO: Bug: Something is keeping the main process alive, so exiting forcefully.
-console.log("Beyonder...");
-process.exit(0);
-
 function help() {
   console.log(figlet.textSync(`ANALOG`));
   console.log(`
@@ -79,16 +75,19 @@ function help() {
 
   The commands are:
     
-  -s, --summary             
-        provides a summary view of all the log files.
-  
-  -f, --filter              
-        filters all files from a given folder within a time range and generate a single time-sorted log file.
+    -s, --summary             
+          provides a summary view of all the log files.
+    
+    -f, --filter              
+          filters all files from a given folder within a time range and generate a single time-sorted log file.
 
   Use "bun run ./cli/main.js --help <command>" for more information about a command.
-  Example: bun run ./cli/main.js --help --filter
+  
+  Example: 
+    
+    bun run ./cli/main.js --help --filter
 
-  Caution: Processing multiple files will need at least twice the space as the logs files size.
+  Caution:  Processing multiple files will need at least twice the space as the logs files size.
             For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.
   `);
 }

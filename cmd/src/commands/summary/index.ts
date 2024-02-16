@@ -10,8 +10,8 @@ import type {
   GroupedMsg,
   Summary as SummaryData,
   SummaryMap,
-} from "@al/models/logData";
-import LogData from "@al/models/logData";
+} from "@al/ui/models/logData";
+import LogData from "@al/ui/models/logData";
 
 let workerURL = new URL("worker.ts", import.meta.url);
 
@@ -37,9 +37,8 @@ class Summary implements ICmd {
 
   private flags = {
     inFolderPath: "",
+    topLogsCount: 30,
   };
-
-  private filePaths: string[] = [];
 
   help(): void {
     console.log(`
@@ -47,12 +46,17 @@ class Summary implements ICmd {
     
     Usage:
     
-    bun run ./cli/main.js --summary [arguments]
+      bun run ./cli/main.js --summary [arguments]
   
     The arguments are:
       
-      --inFolderPath(-i)      Specifies the path to the folder containing the log files. 
-                              The folder should only contain log files or nested folders with log files.
+      -i, --inFolderPath             
+            Specifies the path to the folder containing the log files. 
+            The folder should only contain log files or nested folders with log files.
+      
+      -t, --top             
+            Specifies the maximum number of top logs you see.
+            Default: 30
   
     Example: 
       
@@ -64,7 +68,7 @@ class Summary implements ICmd {
     const workerFile = Bun.file(workerURL);
     if (!(await workerFile.exists())) {
       // Path for the bundled code
-      workerURL = new URL("summary/worker.js", import.meta.url);
+      workerURL = new URL("commands/summary/worker.js", import.meta.url);
     }
 
     this.parseFlags();
@@ -84,6 +88,10 @@ class Summary implements ICmd {
           type: "string",
           short: "i",
         },
+        top: {
+          type: "string",
+          short: "t",
+        },
       },
       strict: true,
       allowPositionals: true,
@@ -92,15 +100,16 @@ class Summary implements ICmd {
     if (!values.inFolderPath) throw new Error("Pass input logs folder path.");
 
     this.flags.inFolderPath = values.inFolderPath;
+    if (values.top) this.flags.topLogsCount = +values.top;
   }
 
   private async processLogs() {
-    this.filePaths = await fileHelper.getFilesRecursively(
+    const filePaths = await fileHelper.getFilesRecursively(
       this.flags.inFolderPath
     );
 
     console.log("=========Begin Read Files=========");
-    await this.readFiles();
+    await this.readFiles(filePaths);
     console.log("=========End Read Files=========");
 
     const summary = LogData.initSummary(this.stats.dataMap);
@@ -108,35 +117,35 @@ class Summary implements ICmd {
     this.writeContent(summary);
   }
 
-  private readFiles() {
+  private readFiles(filePaths: string[]) {
     return new Promise<void>((res, rej) => {
       const maxWorkers = Math.min(
         Math.max(cpus().length - 1, 1),
-        this.filePaths.length
+        filePaths.length
       );
 
       const pool = new WorkerPool<ITask, IResult>(workerURL, maxWorkers);
 
       let finishedTasks = 0;
-      for (const filePath of this.filePaths) {
+      for (const filePath of filePaths) {
         pool.runTask({ filePath }, async (err, result) => {
           if (err) {
-            console.error("Failed for file: ", filePath);
-            rej();
+            console.error("Failed for file: " + filePath);
+            return rej(err);
           }
 
-          await this.processFileResponse(result);
+          this.processFileResponse(result);
 
-          if (++finishedTasks === this.filePaths.length) {
+          if (++finishedTasks === filePaths.length) {
             await pool.close();
-            res();
+            return res();
           }
         });
       }
     });
   }
 
-  private async processFileResponse(fileStats: IResult) {
+  private processFileResponse(fileStats: IResult) {
     if (fileStats.maxTime > this.stats.maxTime) {
       this.stats.maxTime = fileStats.maxTime;
       this.stats.maxTimeFile = fileStats.filePath;
@@ -208,13 +217,13 @@ class Summary implements ICmd {
     );
     table.printTable();
 
-    Summary.writeGroupedMsgs(summary.msgs, "Top Logs");
-    Summary.writeGroupedMsgs(summary.httpCodes, "HTTP Codes");
-    Summary.writeGroupedMsgs(summary.jobs, "Jobs");
-    Summary.writeGroupedMsgs(summary.plugins, "Plugins");
+    this.writeGroupedMsgs(summary.msgs, "Top Logs");
+    this.writeGroupedMsgs(summary.httpCodes, "HTTP Codes");
+    this.writeGroupedMsgs(summary.jobs, "Jobs");
+    this.writeGroupedMsgs(summary.plugins, "Plugins");
   }
 
-  private static writeGroupedMsgs(grpMsgs: GroupedMsg[], title: string) {
+  private writeGroupedMsgs(grpMsgs: GroupedMsg[], title: string) {
     console.log();
 
     const table = new Table({
@@ -225,7 +234,7 @@ class Summary implements ICmd {
       disabledColumns: ["hasErrors", "logs"],
     });
 
-    for (const grp of grpMsgs.slice(0, 30)) {
+    for (const grp of grpMsgs.slice(0, this.flags.topLogsCount)) {
       table.addRow(grp, { color: grp.hasErrors ? "red" : "green" });
     }
 

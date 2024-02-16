@@ -13,6 +13,7 @@
     "isolatedModules": true,
     "baseUrl": "src",
     "paths": {
+      /* If required, add paths in the cmd tsconfig.json as well */
       "@al/components/*": ["components/*"],
       "@al/models/*": ["models/*"],
       "@al/pages/*": ["pages/*"],

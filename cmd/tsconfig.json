@@ -18,14 +18,12 @@
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "forceConsistentCasingInFileNames": true,
-    "baseUrl": "..",
     "paths": {
-      "@al/cmd/*": ["cmd/*"],
-      "@al/components/*": ["ui/src/components/*"],
-      "@al/models/*": ["ui/src/models/*"],
-      "@al/pages/*": ["ui/src/pages/*"],
-      "@al/services/*": ["ui/src/services/*"],
-      "@al/utils/*": ["ui/src/utils/*"]
+      "@al/cmd/*": ["./src/*"],
+      "@al/ui/models/*": ["../ui/src/models/*"],
+      "@al/ui/services/*": ["../ui/src/services/*"],
+      "@al/ui/utils/*": ["../ui/src/utils/*"]
     }
-  }
+  },
+  "include": ["src/**/*", "../ui/src/**/*"]
 }

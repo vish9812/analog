@@ -11,8 +11,8 @@ tasks:
     cmds:
       - > 
         bun build 
-        ./main.ts 
-        ./summary/worker.ts 
-        ./filterer/reader.worker.ts 
+        ./src/main.ts 
+        ./src/commands/summary/worker.ts 
+        ./src/commands/filterer/worker.ts 
         --outdir ./cli 
         --target bun
