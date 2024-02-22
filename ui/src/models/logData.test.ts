@@ -155,25 +155,21 @@ describe("init", () => {
         {
           msg: getCutOffMsg(log0),
           logs: [expectedLogs[0]],
-          logsCount: 1,
           hasErrors: true,
         },
         {
           msg: getCutOffMsg(log1),
           logs: [expectedLogs[1]] as any,
-          logsCount: 1,
           hasErrors: true,
         },
         {
           msg: getCutOffMsg(log2),
           logs: [expectedLogs[2], expectedLogs[3]] as any,
-          logsCount: 2,
           hasErrors: true,
         },
         {
           msg: getCutOffMsg(log4),
           logs: [expectedLogs[4], expectedLogs[5]] as any,
-          logsCount: 2,
           hasErrors: false,
         },
       ].sort(LogData.sortByLogsFn),
@@ -181,13 +177,11 @@ describe("init", () => {
         {
           msg: log0[LogData.logKeys.status_code],
           logs: [expectedLogs[0], expectedLogs[3]] as any,
-          logsCount: 2,
           hasErrors: true,
         },
         {
           msg: log1[LogData.logKeys.status],
           logs: [expectedLogs[1]] as any,
-          logsCount: 1,
           hasErrors: true,
         },
       ].sort(LogData.sortByMsgFn),
@@ -195,13 +189,11 @@ describe("init", () => {
         {
           msg: log1[LogData.logKeys.worker],
           logs: [expectedLogs[1], expectedLogs[2]] as any,
-          logsCount: 2,
           hasErrors: true,
         },
         {
           msg: log3[LogData.logKeys.worker],
           logs: [expectedLogs[3]] as any,
-          logsCount: 1,
           hasErrors: true,
         },
       ].sort(LogData.sortByLogsFn),
@@ -209,13 +201,11 @@ describe("init", () => {
         {
           msg: log0[LogData.logKeys.plugin_id],
           logs: [expectedLogs[0]] as any,
-          logsCount: 1,
           hasErrors: true,
         },
         {
           msg: log1[LogData.logKeys.plugin_id],
           logs: [expectedLogs[1]] as any,
-          logsCount: 1,
           hasErrors: true,
         },
       ].sort(LogData.sortByLogsFn),
