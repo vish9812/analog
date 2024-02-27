@@ -7,7 +7,6 @@ type JSONLogs = JSONLog[];
 interface GroupedMsg {
   msg: string;
   logs: JSONLogs;
-  logsCount: number;
   hasErrors: boolean;
 }
 
@@ -44,7 +43,7 @@ class LogData {
   };
 
   static readonly sortByLogsFn = (a: GroupedMsg, b: GroupedMsg) =>
-    b.logsCount - a.logsCount;
+    b.logs.length - a.logs.length;
   static readonly sortByMsgFn = (a: GroupedMsg, b: GroupedMsg) =>
     a.msg >= b.msg ? 1 : -1;
   static readonly errorFilterFn = (msgs: GroupedMsg[]) =>
@@ -66,6 +65,7 @@ class LogData {
     scheduler_name: "scheduler_name",
     status_code: "status_code",
     status: "status",
+    http_code: "http_code",
   };
   private static readonly levels = {
     error: "error",
@@ -90,7 +90,7 @@ class LogData {
       this.logs.push(log);
       log[LogData.logKeys.id] = count++ as any;
 
-      LogData.initSummaryMap(log, summaryMap, true);
+      LogData.initSummaryMap(log, summaryMap);
       LogData.initKeysSet(log, keysSet);
     }
 
@@ -99,12 +99,15 @@ class LogData {
   }
 
   static isErrorLog(log: JSONLog): boolean {
+    const httpCode = LogData.httpCodeKeySelector(log);
+
     return (
       log[LogData.logKeys.level] === LogData.levels.error ||
       !!log[LogData.logKeys.error] ||
       !!log[LogData.logKeys.Error] ||
       log[LogData.logKeys.msg].toLowerCase().includes("error") ||
-      log[LogData.logKeys.msg].toLowerCase().includes("fail")
+      log[LogData.logKeys.msg].toLowerCase().includes("fail") ||
+      !!(httpCode && httpCode >= "500" && httpCode < "600")
     );
   }
 
@@ -119,7 +122,7 @@ class LogData {
     objectsUtils.getNestedKeys(log).forEach((k) => keysSet.add(k));
   }
 
-  static initSummary(summaryMap: SummaryMap): Summary {
+  private static initSummary(summaryMap: SummaryMap): Summary {
     return {
       msgs: [...summaryMap.msgs.values()].sort(LogData.sortByLogsFn),
       httpCodes: [...summaryMap.httpCodes.values()].sort(LogData.sortByMsgFn),
@@ -128,42 +131,25 @@ class LogData {
     };
   }
 
-  static initSummaryMap(
-    log: JSONLog,
-    summaryMap: SummaryMap,
-    keepLogsArr: boolean
-  ) {
-    LogData.populateSummaryMap(
-      log,
-      summaryMap.msgs,
-      LogData.msgKeySelector,
-      keepLogsArr
-    );
-    LogData.populateSummaryMap(
-      log,
-      summaryMap.jobs,
-      LogData.jobKeySelector,
-      keepLogsArr
-    );
+  private static initSummaryMap(log: JSONLog, summaryMap: SummaryMap) {
+    LogData.populateSummaryMap(log, summaryMap.msgs, LogData.msgKeySelector);
+    LogData.populateSummaryMap(log, summaryMap.jobs, LogData.jobKeySelector);
     LogData.populateSummaryMap(
       log,
       summaryMap.httpCodes,
-      LogData.httpCodeKeySelector,
-      keepLogsArr
+      LogData.httpCodeKeySelector
     );
     LogData.populateSummaryMap(
       log,
       summaryMap.plugins,
-      LogData.pluginKeySelector,
-      keepLogsArr
+      LogData.pluginKeySelector
     );
   }
 
   private static populateSummaryMap(
     log: JSONLog,
     grpLogsMap: Map<string, GroupedMsg>,
-    keySelectorFn: (log: JSONLog) => string | undefined,
-    keepLogsArr: boolean
+    keySelectorFn: (log: JSONLog) => string | undefined
   ) {
     const key = keySelectorFn(log);
     if (!key) return;
@@ -172,29 +158,28 @@ class LogData {
       grpLogsMap.set(key, {
         msg: key,
         hasErrors: false,
-        logsCount: 0,
         logs: [],
       });
     }
 
     const grpLog = grpLogsMap.get(key)!;
-    grpLog.logsCount += 1;
-    grpLog.hasErrors = grpLog.hasErrors || LogData.isErrorLog(log);
-
-    if (keepLogsArr) {
-      grpLog.logs.push(log);
-    }
+    grpLog.hasErrors ||= LogData.isErrorLog(log);
+    grpLog.logs.push(log);
   }
 
-  private static msgKeySelector(log: JSONLog): string {
+  static msgKeySelector(log: JSONLog): string {
     return LogData.getCutOffMsg(log);
   }
 
-  private static httpCodeKeySelector(log: JSONLog): string | undefined {
-    return log[LogData.logKeys.status_code] || log[LogData.logKeys.status];
+  static httpCodeKeySelector(log: JSONLog): string | undefined {
+    return (
+      log[LogData.logKeys.status_code] ||
+      log[LogData.logKeys.status] ||
+      log[LogData.logKeys.http_code]
+    )?.toString();
   }
 
-  private static jobKeySelector(log: JSONLog): string | undefined {
+  static jobKeySelector(log: JSONLog): string | undefined {
     return (
       log[LogData.logKeys.scheduler_name] ||
       log[LogData.logKeys.worker] ||
@@ -202,7 +187,7 @@ class LogData {
     );
   }
 
-  private static pluginKeySelector(log: JSONLog): string | undefined {
+  static pluginKeySelector(log: JSONLog): string | undefined {
     return (
       log[LogData.logKeys.plugin_id] || log[LogData.logKeys.missing_plugin_id]
     );

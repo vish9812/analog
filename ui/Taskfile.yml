@@ -16,3 +16,8 @@ tasks:
     cmds:
       - pnpm build
       - cp analog.sh analog.ps1 analog
+  
+  run:
+    desc: run
+    cmds:
+      - pnpm start

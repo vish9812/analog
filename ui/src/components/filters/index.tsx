@@ -140,7 +140,9 @@ function Filters(props: FiltersProps) {
         <TextField
           label="Search"
           value={term.value}
-          onChange={(_, val) => setFilters("terms", i(), "value", val)}
+          onChange={(_, val) =>
+            setFilters("terms", i(), "value", val.toLowerCase())
+          }
           onKeyDown={handleEnterKey}
         />
       </>

@@ -3,21 +3,36 @@ import { Table } from "console-table-printer";
 import { parseArgs } from "util";
 import { cpus } from "node:os";
 import type { ICmd } from "@al/cmd/utils/cmd-runner";
-import { type ITask, type IResult } from "./worker";
+import type {
+  ITask,
+  IResult,
+  IGroupedMsg,
+  ISummaryMap,
+  ISummaryMapGeneric,
+} from "./worker";
 import WorkerPool from "@al/cmd/utils/worker-pool";
 import fileHelper from "@al/cmd/utils/file-helper";
-import type {
-  GroupedMsg,
-  Summary as SummaryData,
-  SummaryMap,
-} from "@al/ui/models/logData";
-import LogData from "@al/ui/models/logData";
 
 let workerURL = new URL("worker.ts", import.meta.url);
 
-interface IStats extends Omit<IResult, "filePath"> {
+interface IStats extends Omit<IResult, "filePath" | "dataMap"> {
   minTimeFile: string;
   maxTimeFile: string;
+  dataMap: IStatsSummaryMap;
+}
+
+interface IStatsGroupedMsg extends IGroupedMsg {
+  firstFile: string;
+  lastFile: string;
+}
+
+type IStatsSummaryMap = ISummaryMapGeneric<IStatsGroupedMsg>;
+
+interface ISummary {
+  msgs: IStatsGroupedMsg[];
+  httpCodes: IStatsGroupedMsg[];
+  jobs: IStatsGroupedMsg[];
+  plugins: IStatsGroupedMsg[];
 }
 
 const stats: IStats = {
@@ -27,10 +42,10 @@ const stats: IStats = {
   minTimeFile: "",
   size: 0,
   dataMap: {
-    httpCodes: new Map<string, GroupedMsg>(),
-    jobs: new Map<string, GroupedMsg>(),
-    msgs: new Map<string, GroupedMsg>(),
-    plugins: new Map<string, GroupedMsg>(),
+    httpCodes: new Map<string, IStatsGroupedMsg>(),
+    jobs: new Map<string, IStatsGroupedMsg>(),
+    msgs: new Map<string, IStatsGroupedMsg>(),
+    plugins: new Map<string, IStatsGroupedMsg>(),
   },
 };
 
@@ -109,7 +124,7 @@ async function processLogs() {
   await readFiles(filePaths);
   console.log("=========End Read Files=========");
 
-  const summary = LogData.initSummary(stats.dataMap);
+  const summary = initSummary(stats.dataMap);
 
   writeContent(summary);
 }
@@ -155,37 +170,64 @@ function processFileResponse(fileStats: IResult) {
 
   stats.size += fileStats.size;
 
-  initSummaryMap(fileStats.dataMap);
+  initSummaryMap(fileStats.dataMap, fileStats.filePath);
 }
 
-function initSummaryMap(dataMap: SummaryMap) {
-  mergeIntoOverallMap(dataMap.httpCodes, stats.dataMap.httpCodes);
-  mergeIntoOverallMap(dataMap.jobs, stats.dataMap.jobs);
-  mergeIntoOverallMap(dataMap.msgs, stats.dataMap.msgs);
-  mergeIntoOverallMap(dataMap.plugins, stats.dataMap.plugins);
+function initSummaryMap(dataMap: ISummaryMap, filePath: string) {
+  mergeIntoOverallMap(dataMap.httpCodes, stats.dataMap.httpCodes, filePath);
+  mergeIntoOverallMap(dataMap.jobs, stats.dataMap.jobs, filePath);
+  mergeIntoOverallMap(dataMap.msgs, stats.dataMap.msgs, filePath);
+  mergeIntoOverallMap(dataMap.plugins, stats.dataMap.plugins, filePath);
 }
 
 function mergeIntoOverallMap(
-  fileMap: Map<string, GroupedMsg>,
-  overallMap: Map<string, GroupedMsg>
+  fileMap: Map<string, IGroupedMsg>,
+  overallMap: Map<string, IStatsGroupedMsg>,
+  filePath: string
 ) {
   for (const [k, v] of fileMap) {
     if (!overallMap.has(k)) {
       overallMap.set(k, {
         msg: v.msg,
         hasErrors: false,
-        logs: [],
         logsCount: 0,
+        firstTime: v.firstTime,
+        lastTime: v.lastTime,
+        firstFile: filePath,
+        lastFile: filePath,
       });
     }
 
     const grpOverall = overallMap.get(k)!;
-    grpOverall.hasErrors = grpOverall.hasErrors || v.hasErrors;
+    grpOverall.hasErrors ||= v.hasErrors;
     grpOverall.logsCount += v.logsCount!;
+
+    if (v.firstTime < grpOverall.firstTime) {
+      grpOverall.firstTime = v.firstTime;
+      grpOverall.firstFile = filePath;
+    }
+
+    if (v.lastTime > grpOverall.lastTime) {
+      grpOverall.lastTime = v.lastTime;
+      grpOverall.lastFile = filePath;
+    }
   }
 }
 
-function writeContent(summary: SummaryData) {
+function summarySorterFn(a: IStatsGroupedMsg, b: IStatsGroupedMsg) {
+  return b.logsCount - a.logsCount;
+}
+
+function initSummary(summaryMap: IStatsSummaryMap): ISummary {
+  return {
+    msgs: [...summaryMap.msgs.values()].sort(summarySorterFn),
+    httpCodes: [...summaryMap.httpCodes.values()].sort(summarySorterFn),
+    jobs: [...summaryMap.jobs.values()].sort(summarySorterFn),
+    plugins: [...summaryMap.plugins.values()].sort(summarySorterFn),
+  };
+}
+
+function writeContent(summary: ISummary) {
   console.log();
 
   stats.size = prettyBytes(stats.size) as any;
@@ -217,7 +259,7 @@ function writeContent(summary: SummaryData) {
   writeGroupedMsgs(summary.plugins, "Plugins");
 }
 
-function writeGroupedMsgs(grpMsgs: GroupedMsg[], title: string) {
+function writeGroupedMsgs(grpMsgs: IStatsGroupedMsg[], title: string) {
   console.log();
 
   const table = new Table({
@@ -225,7 +267,7 @@ function writeGroupedMsgs(grpMsgs: GroupedMsg[], title: string) {
       { name: "msg", title: title, alignment: "left" },
       { name: "logsCount", title: "Count" },
     ],
-    disabledColumns: ["hasErrors", "logs"],
+    disabledColumns: ["hasErrors"],
   });
 
   for (const grp of grpMsgs.slice(0, flags.topLogsCount)) {

@@ -19,9 +19,14 @@ tasks:
       - cmd:install
 
   test:
-      desc: run tests
-      deps:
-        - ui:test
+    desc: run tests
+    deps:
+      - ui:test
+
+  run:
+    desc: run the UI
+    deps:
+      - ui:run
 
   build:
     desc: transpile, bundle and create the release zip
