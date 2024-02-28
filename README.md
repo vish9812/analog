@@ -65,6 +65,10 @@ You are now ready to use the Analog and take advantage of its powerful log analy
 
 Enjoy analyzing your log data!
 
+## Contribution
+
+Refer the [Contribution](https://github.com/vish9812/analog/blob/main/Contribution.md) file.
+
 ## FAQ
 
 ### Expected log format
