@@ -30,6 +30,8 @@ interface FiltersData {
   terms: SearchTerm[];
   logs: JSONLogs;
   errorsOnly: boolean;
+  firstN: number;
+  lastN: number;
 }
 
 function defaultFilters(): FiltersData {
@@ -46,6 +48,8 @@ function defaultFilters(): FiltersData {
     ],
     logs: [],
     errorsOnly: false,
+    firstN: 0,
+    lastN: 0,
   };
 }
 
@@ -102,7 +106,17 @@ function useViewModel(props: FiltersProps) {
 
     function populateMap(gridRef: AgGridSolidRef) {
       for (const r of gridRef.api.getSelectedRows() as GroupedMsg[]) {
-        r.logs.forEach((l) => map.set(l[LogData.logKeys.id], l));
+        let nLogs: JSONLogs = [];
+        if (filters.firstN) {
+          nLogs = r.logs.slice(0, filters.firstN);
+        }
+        if (filters.lastN) {
+          nLogs = [...nLogs, ...r.logs.slice(-filters.lastN)];
+        }
+
+        if (!nLogs.length) nLogs = r.logs;
+
+        nLogs.forEach((l) => map.set(l[LogData.logKeys.id], l));
       }
     }
   }

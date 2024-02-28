@@ -120,6 +120,12 @@ function Filters(props: FiltersProps) {
     }
   }
 
+  function handleNLogsEnter(e: KeyboardEvent) {
+    if (e.key === "Enter") {
+      handleLogsSelectionChanged(gridsRefs);
+    }
+  }
+
   function getSimpleSearchHTML(term: SearchTerm, i: Accessor<number>) {
     return (
       <>
@@ -206,6 +212,23 @@ function Filters(props: FiltersProps) {
             }
             label="Errors Only"
             labelPlacement="start"
+          />
+          <Divider orientation="vertical" flexItem></Divider>
+          <TextField
+            label="First N Logs"
+            value={filters.firstN}
+            onChange={(_, val) =>
+              setFilters("firstN", isNaN(+val) || +val < 0 ? 0 : +val)
+            }
+            onKeyDown={handleNLogsEnter}
+          />
+          <TextField
+            label="Last N Logs"
+            value={filters.lastN}
+            onChange={(_, val) =>
+              setFilters("lastN", isNaN(+val) || +val < 0 ? 0 : +val)
+            }
+            onKeyDown={handleNLogsEnter}
           />
         </Stack>
       </Grid>
