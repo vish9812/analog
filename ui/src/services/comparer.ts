@@ -9,6 +9,7 @@ function addLogData(logData: LogData) {
   }
 }
 
+const unchanged: GroupedMsg[] = [];
 const added: GroupedMsg[] = [];
 const removed: GroupedMsg[] = [];
 
@@ -18,7 +19,9 @@ function compare() {
 
   // Removed entries from 2nd log file
   for (const [k, v] of mapA) {
-    if (!mapB.has(k)) {
+    if (mapB.has(k)) {
+      unchanged.push(v);
+    } else {
       removed.push(v);
     }
   }
@@ -30,6 +33,7 @@ function compare() {
     }
   }
 
+  unchanged.sort(LogData.sortByLogsFn);
   added.sort(LogData.sortByLogsFn);
   removed.sort(LogData.sortByLogsFn);
 }
@@ -42,6 +46,7 @@ function getLogMaps(grpLogs: GroupedMsg[]): Map<string, GroupedMsg> {
 
 const comparer = {
   addLogData,
+  unchanged,
   added,
   removed,
   isOn: () => logDatas.length > 1,
