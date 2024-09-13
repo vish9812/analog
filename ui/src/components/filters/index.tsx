@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Divider,
   FormControlLabel,
@@ -15,7 +16,7 @@ import useViewModel, {
 import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
 import { Accessor, For, Show } from "solid-js";
-import { Select } from "@thisbeyond/solid-select";
+import { Select, createOptions } from "@thisbeyond/solid-select";
 import { IconButton } from "@suid/material";
 import AddIcon from "@suid/icons-material/Add";
 import RemoveIcon from "@suid/icons-material/Remove";
@@ -28,6 +29,7 @@ const texts = {
   or: "OR",
   contains: "Contains",
   notContains: "Not Contains",
+  allFields: "All Fields",
 };
 
 interface GridsOptions {
@@ -143,6 +145,19 @@ function Filters(props: FiltersProps) {
             setFilters("terms", i(), "contains", val === texts.contains)
           }
         />
+        <Select
+          class="app-select"
+          initialValue={texts.allFields}
+          {...createOptions([texts.allFields, ...comparer.last().keys])}
+          onChange={(val) =>
+            setFilters(
+              "terms",
+              i(),
+              "field",
+              val === texts.allFields ? "" : val
+            )
+          }
+        />
         <TextField
           label="Search"
           value={term.value}
@@ -230,6 +245,7 @@ function Filters(props: FiltersProps) {
             }
             onKeyDown={handleNLogsEnter}
           />
+          <Alert severity="info">N-Logs works only with the Top Logs selection</Alert>
         </Stack>
       </Grid>
       <Grid item xs={12} container spacing={2}>

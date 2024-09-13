@@ -326,6 +326,7 @@ describe("useViewModel", () => {
         {
           and: true,
           contains: true,
+          field: "",
           value: "",
         },
       ]);
