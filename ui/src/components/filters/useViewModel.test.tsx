@@ -235,13 +235,18 @@ describe("useViewModel", () => {
         } as any,
         added: {
           api: {
-            getSelectedRows: () => [{ logs: [{ id: 1 }, { id: 7 }] }],
+            getSelectedRows: () => [
+              { logs: [{ id: 1 }, { id: 7 }, { id: 10 }, { id: 20 }] },
+              { logs: [{ id: 3 }, { id: 30 }] },
+            ],
           },
         } as any,
         removed: undefined as any,
       };
 
       const vm = useViewModel(props);
+      vm.setFilters("firstN", 1);
+      vm.setFilters("lastN", 1);
       vm.handleLogsSelectionChanged(gridsRefs);
 
       const logs = [
@@ -251,11 +256,14 @@ describe("useViewModel", () => {
         { id: 4 },
         { id: 5 },
         { id: 6 },
-        { id: 7 },
+        // { id: 7 }, // both skipped due to firstN=1 and lastN=1
+        // { id: 10 },
+        { id: 20 },
+        { id: 30 },
       ];
       expect(vm.filters.logs, "filters.logs").toEqual(logs);
       expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith({
-        ...defaultFilters(),
+        ...vm.filters,
         logs,
       });
 

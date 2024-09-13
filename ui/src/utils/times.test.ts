@@ -1,4 +1,5 @@
 import timesUtils from "./times";
+import { Mock } from "vitest";
 
 test.each`
   date1                             | date2                              | expected
@@ -11,3 +12,29 @@ test.each`
     expect(timesUtils.diffMinutes(date1, date2)).toBe(expected);
   }
 );
+
+describe("debounce", () => {
+  let mockFn: Mock;
+  let debouncedFn: Function;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    mockFn = vi.fn();
+    debouncedFn = timesUtils.debounce(mockFn, 20);
+  });
+
+  it("should not call function until delay is over", () => {
+    debouncedFn();
+    expect(mockFn).toHaveBeenCalledTimes(0);
+
+    vi.advanceTimersByTime(15); // Fast forward time to within the debounce duration
+    expect(mockFn).toHaveBeenCalledTimes(0);
+  });
+
+  it("should call function after delay has passed", () => {
+    debouncedFn();
+
+    vi.advanceTimersByTime(21); // Fast forward time beyond the debounce duration
+    expect(mockFn).toHaveBeenCalledTimes(1);
+  });
+});
