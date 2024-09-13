@@ -68,12 +68,19 @@ describe("useViewModel", () => {
           [LogData.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
           [LogData.logKeys.fullData]: "test one two contains check four",
           [LogData.logKeys.msg]: "test one two contains check four",
+          random_key_1: "Random Value",
         },
         {
           [LogData.logKeys.id]: "24",
           [LogData.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
-          [LogData.logKeys.fullData]: "test one two ands check four",
-          [LogData.logKeys.msg]: "test one two ands check four",
+          [LogData.logKeys.fullData]: "test one two ands four",
+          [LogData.logKeys.msg]: "test one two ands four",
+        },
+        {
+          [LogData.logKeys.id]: "25",
+          [LogData.logKeys.timestamp]: "2023-10-20T10:00:00.000Z",
+          [LogData.logKeys.fullData]: "test one two ands four",
+          [LogData.logKeys.msg]: "test one two ands four",
         },
         {
           [LogData.logKeys.id]: "30",
@@ -84,6 +91,7 @@ describe("useViewModel", () => {
       ];
 
       vi.spyOn(LogData, "isErrorLog")
+        .mockReturnValueOnce(true)
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(true)
         .mockReturnValueOnce(true)
@@ -105,6 +113,7 @@ describe("useViewModel", () => {
         endTime: "2023-10-20T11:00:00.000Z",
         errorsOnly: true,
         logs: [
+          comparer.last().logs[0],
           comparer.last().logs[1],
           comparer.last().logs[2],
           comparer.last().logs[3],
@@ -115,19 +124,30 @@ describe("useViewModel", () => {
           {
             and: true,
             contains: true,
+            field: "",
             value: "ands",
           },
           {
             and: true,
             contains: false,
+            field: "",
             value: "msg",
           },
           {
             and: false,
             contains: true,
+            field: "",
             value: "check",
           },
+          {
+            and: false,
+            contains: true,
+            field: "random_key_2",
+            value: "random value",
+          },
         ],
+        firstN: 0,
+        lastN: 0,
       };
 
       const vm = useViewModel();
@@ -136,6 +156,7 @@ describe("useViewModel", () => {
       expect(vm.rows(), "rows").toEqual([
         comparer.last().logs[2],
         comparer.last().logs[3],
+        comparer.last().logs[4],
       ]);
 
       expect(mockUseJumper.reset).toHaveBeenCalledOnce();

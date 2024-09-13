@@ -20,6 +20,7 @@ interface GridsRefs {
 interface SearchTerm {
   and: boolean;
   contains: boolean;
+  field: string;
   value: string;
 }
 
@@ -43,6 +44,7 @@ function defaultFilters(): FiltersData {
       {
         and: true,
         contains: true,
+        field: "",
         value: "",
       },
     ],
@@ -148,6 +150,7 @@ function useViewModel(props: FiltersProps) {
       setFilters("terms", filters.terms.length, {
         and: true,
         contains: true,
+        field: "",
         value: "",
       });
       return;

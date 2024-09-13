@@ -1,4 +1,5 @@
 import {
+  Alert,
   Button,
   Divider,
   FormControlLabel,
@@ -15,19 +16,21 @@ import useViewModel, {
 import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
 import { Accessor, For, Show } from "solid-js";
-import { Select } from "@thisbeyond/solid-select";
+import { Select, createOptions } from "@thisbeyond/solid-select";
 import { IconButton } from "@suid/material";
 import AddIcon from "@suid/icons-material/Add";
 import RemoveIcon from "@suid/icons-material/Remove";
 import comparer from "@al/services/comparer";
 import { GroupedMsg } from "@al/models/logData";
 import GroupedMsgGrid from "../groupedMsgGrid";
+import timesUtils from "@al/utils/times";
 
 const texts = {
   and: "AND",
   or: "OR",
   contains: "Contains",
   notContains: "Not Contains",
+  allFields: "All Fields",
 };
 
 interface GridsOptions {
@@ -114,16 +117,14 @@ function Filters(props: FiltersProps) {
     },
   };
 
-  function handleEnterKey(e: KeyboardEvent) {
+  function handleFiltersEnterKey(e: KeyboardEvent) {
     if (e.key === "Enter") {
       handleFiltersChange();
     }
   }
 
-  function handleNLogsEnter(e: KeyboardEvent) {
-    if (e.key === "Enter") {
-      handleLogsSelectionChanged(gridsRefs);
-    }
+  function handleNLogsKeyDown(e: KeyboardEvent) {
+    timesUtils.debounce(handleLogsSelectionChanged, 600)(gridsRefs);
   }
 
   function getSimpleSearchHTML(term: SearchTerm, i: Accessor<number>) {
@@ -143,13 +144,26 @@ function Filters(props: FiltersProps) {
             setFilters("terms", i(), "contains", val === texts.contains)
           }
         />
+        <Select
+          class="app-select"
+          initialValue={texts.allFields}
+          {...createOptions([texts.allFields, ...comparer.last().keys])}
+          onChange={(val) =>
+            setFilters(
+              "terms",
+              i(),
+              "field",
+              val === texts.allFields ? "" : val
+            )
+          }
+        />
         <TextField
           label="Search"
           value={term.value}
           onChange={(_, val) =>
             setFilters("terms", i(), "value", val.toLowerCase())
           }
-          onKeyDown={handleEnterKey}
+          onKeyDown={handleFiltersEnterKey}
         />
       </>
     );
@@ -163,19 +177,19 @@ function Filters(props: FiltersProps) {
             label="Start Time(Inclusive)"
             value={filters.startTime}
             onChange={(_, val) => setFilters("startTime", val)}
-            onKeyDown={handleEnterKey}
+            onKeyDown={handleFiltersEnterKey}
           />
           <TextField
             label="End Time(Exclusive)"
             value={filters.endTime}
             onChange={(_, val) => setFilters("endTime", val)}
-            onKeyDown={handleEnterKey}
+            onKeyDown={handleFiltersEnterKey}
           />
           <TextField
             label="Regex Search"
             value={filters.regex}
             onChange={(_, val) => setFilters("regex", val)}
-            onKeyDown={handleEnterKey}
+            onKeyDown={handleFiltersEnterKey}
           />
           <For each={filters.terms}>{getSimpleSearchHTML}</For>
           <IconButton color="primary" onClick={() => handleNewSearchTerm(true)}>
@@ -220,7 +234,7 @@ function Filters(props: FiltersProps) {
             onChange={(_, val) =>
               setFilters("firstN", isNaN(+val) || +val < 0 ? 0 : +val)
             }
-            onKeyDown={handleNLogsEnter}
+            onKeyDown={handleNLogsKeyDown}
           />
           <TextField
             label="Last N Logs"
@@ -228,8 +242,11 @@ function Filters(props: FiltersProps) {
             onChange={(_, val) =>
               setFilters("lastN", isNaN(+val) || +val < 0 ? 0 : +val)
             }
-            onKeyDown={handleNLogsEnter}
+            onKeyDown={handleNLogsKeyDown}
           />
+          <Alert severity="info">
+            N-Logs works only with the below "selection" filters.
+          </Alert>
         </Stack>
       </Grid>
       <Grid item xs={12} container spacing={2}>

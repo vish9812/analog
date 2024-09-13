@@ -51,13 +51,30 @@ function useViewModel() {
       }
       if (keep && filtersData.terms) {
         const ands = filtersData.terms.filter((t) => t.and);
+
         let currCondition = true;
         const updateCurrCondition = (term: SearchTerm) => {
+          const field = term.field;
           const val = term.value.trim();
-          if (val) {
+          if (field && !val) {
             currCondition = term.contains
-              ? fullData.includes(val)
-              : !fullData.includes(val);
+              ? log[field] !== undefined
+              : log[field] === undefined;
+
+            return;
+          }
+
+          if (val) {
+            if (field) {
+              const fieldVal = (log[field] && log[field].toString().toLowerCase()) || "";
+              currCondition = term.contains
+                ? fieldVal.includes(val)
+                : !fieldVal.includes(val);
+            } else {
+              currCondition = term.contains
+                ? fullData.includes(val)
+                : !fullData.includes(val);
+            }
           }
         };
 
