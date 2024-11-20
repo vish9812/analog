@@ -55,11 +55,19 @@ function plainParser(
   logLine: string,
   lineFilterFn: (jsonLine: JSONLog) => boolean
 ): JSONLog | null {
+  // const regex = {
+  //   // Data before the 1st key=value pair
+  //   text: /(\w+) \[([\d-: .+]+)\] (.*?)(?=(\s\w+=|$))/g,
+  //   // Key=value pairs
+  //   keyVal: /(\w+="[^"]+"|\w+=[^\s]*)/g,
+  //   // Key=Value split pattern
+  //   keyValSplit: /=(.*)/g,
+  // };
   const regex = {
     // Data before the 1st key=value pair
     text: /(\w+) \[([\d-: .+]+)\] (.*?)(?=(\s\w+=|$))/g,
     // Key=value pairs
-    keyVal: /(\w+="[^"]+"|\w+=[^\s]*)/g,
+    keyVal: /(\w+)=(?:"([^"]*)"|(\S+)|([^=]*?))(?=\s+\w+=|$)/g,
     // Key=Value split pattern
     keyValSplit: /=(.*)/g,
   };
