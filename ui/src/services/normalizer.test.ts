@@ -42,17 +42,50 @@ const log3JSON = {
 
 const log3JSONStr = JSON.stringify(log3JSON);
 
+const log4PlainStr = `debug [2024-10-11 10:15:59.309 +11:00] Ldap sync foreign user                        caller="ldap/ldap_sync_job.go:384" worker_name=EnterpriseLdapSync job_id=6sfg1dimb3yixdqgadi8tdh7ey job_type=ldap_sync job_create_at="Oct 10 23:15:56.770" ldap_user=map[allow_marketing:false auth_data: auth_service:ldap create_at:0 delete_at:0 email:something@example.com email_verified:true id: locale: mfa_active:false notify_props:map[] position:US props:map[] remote_id: roles: timezone:map[] update_at:0 username:someone]`;
+
+const log4JSON = {
+  timestamp: "2024-10-11 10:15:59.309 +11:00",
+  level: "debug",
+  msg: "Ldap sync foreign user",
+  caller: "ldap/ldap_sync_job.go:384",
+  worker_name: "EnterpriseLdapSync",
+  job_id: "6sfg1dimb3yixdqgadi8tdh7ey",
+  job_type: "ldap_sync",
+  job_create_at: "Oct 10 23:15:56.770",
+  ldap_user:
+    "map[allow_marketing:false auth_data: auth_service:ldap create_at:0 delete_at:0 email:something@example.com email_verified:true id: locale: mfa_active:false notify_props:map[] position:US props:map[] remote_id: roles: timezone:map[] update_at:0 username:someone]",
+};
+
+const log4JSONStr = JSON.stringify(log4JSON);
+
 describe("normalizer", () => {
+  const plainLog1JSON = { ...log1JSON };
+  plainLog1JSON.error += " " + "invalid-format";
+
   const testCases = [
     {
       name: "json",
-      inputLogs: [log1JSONStr, "invalid-format", log2JSONStr, log3JSONStr],
-      expectedLogs: [log1JSON, null, log2JSON, null],
+      inputLogs: [
+        log1JSONStr,
+        "invalid-format",
+        log2JSONStr,
+        log3JSONStr,
+        log4JSONStr,
+      ],
+      expectedLogs: [log1JSON, null, log2JSON, null, log4JSON],
     },
     {
+      // in case of plain logs, invalid formats become the last part of the previous log
       name: "plain",
-      inputLogs: [log1PlainStr, "invalid-format", log2PlainStr, log3PlainStr],
-      expectedLogs: [log1JSON, log2JSON, null],
+      inputLogs: [
+        log1PlainStr,
+        "invalid-format",
+        log2PlainStr,
+        log3PlainStr,
+        log4PlainStr,
+      ],
+      expectedLogs: [plainLog1JSON, log2JSON, null, log4JSON],
     },
   ];
 

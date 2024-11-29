@@ -50,9 +50,6 @@ function useViewModel() {
         keep = stringsUtils.regexMatch(fullData, filtersData.regex);
       }
       if (keep && filtersData.terms) {
-        const ands = filtersData.terms.filter((t) => t.and);
-
-        let currCondition = true;
         const updateCurrCondition = (term: SearchTerm) => {
           const field = term.field;
           const val = term.value.trim();
@@ -66,7 +63,8 @@ function useViewModel() {
 
           if (val) {
             if (field) {
-              const fieldVal = (log[field] && log[field].toString().toLowerCase()) || "";
+              const fieldVal =
+                (log[field] && log[field].toString().toLowerCase()) || "";
               currCondition = term.contains
                 ? fieldVal.includes(val)
                 : !fieldVal.includes(val);
@@ -78,18 +76,21 @@ function useViewModel() {
           }
         };
 
+        let currCondition = false;
+        const ors = filtersData.terms.filter((t) => !t.and);
+        for (const term of ors) {
+          if (currCondition) break;
+          updateCurrCondition(term);
+        }
+
+        currCondition = ors.length > 0 ? currCondition : true;
+        const ands = filtersData.terms.filter((t) => t.and);
         for (const term of ands) {
           if (!currCondition) break;
           updateCurrCondition(term);
         }
 
         if (!currCondition) {
-          const ors = filtersData.terms.filter((t) => !t.and);
-
-          for (const term of ors) {
-            if (currCondition) break;
-            updateCurrCondition(term);
-          }
         }
 
         keep = currCondition;
