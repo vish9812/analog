@@ -67,7 +67,7 @@ Enjoy analyzing your log data!
 
 ## Contribution
 
-Refer the [Contribution](https://github.com/vish9812/analog/blob/main/Contribution.md) file.
+Refer to the [Contribution](https://github.com/vish9812/analog/blob/main/Contribution.md) file.
 
 ## FAQ
 
