@@ -78,10 +78,6 @@ function deleteAllSavedFilters(): void {
   savedFilterKeys().forEach((key) => localStorage.removeItem(key));
 }
 
-function deleteSavedFilter(filterName: string) {
-  localStorage.removeItem(savedFilterKeyName(filterName));
-}
-
 function useViewModel(props: FiltersProps) {
   const [savedFilterName, setSavedFilterName] = createSignal("");
   const [filters, setFilters] = createStore(defaultFilters());
@@ -235,5 +231,5 @@ function useViewModel(props: FiltersProps) {
 }
 
 export default useViewModel;
-export { defaultFilters, savedFilterKeys };
+export { defaultFilters, savedFilterKeys, savedFilterKeyName };
 export type { SearchTerm, FiltersData, FiltersProps, GridsRefs };

@@ -1,5 +1,10 @@
 import { createRoot } from "solid-js";
-import useViewModel, { GridsRefs, defaultFilters } from "./useViewModel";
+import useViewModel, {
+  FiltersData,
+  GridsRefs,
+  defaultFilters,
+  savedFilterKeyName,
+} from "./useViewModel";
 import { FiltersProps } from "./useViewModel";
 import comparer from "@al/services/comparer";
 import LogData, { Summary } from "@al/models/logData";
@@ -89,13 +94,14 @@ describe("useViewModel", () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   test("initial values", () => {
     createRoot((dispose) => {
       const vm = useViewModel(null as any);
 
+      expect(vm.savedFilterName(), "savedFilterName").toEqual("");
       expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
       expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
       expect(vm.unchangedLogs(), "unchangedLogs").toEqual(comparer.unchanged);
@@ -108,6 +114,99 @@ describe("useViewModel", () => {
       expect(vm.filters, "filters").toEqual(defaultFilters());
 
       dispose();
+    });
+  });
+
+  describe("manageSavedFilters", () => {
+    const filterName = "test_filter";
+
+    const filterToSave: FiltersData = {
+      startTime: "2023-10-20T01:00:00.000Z",
+      endTime: "2023-10-20T11:00:00.000Z",
+      errorsOnly: true,
+      logs: [
+        {
+          some_key: "some_value",
+        },
+      ],
+      regex: "^some.*regex$",
+      terms: [
+        {
+          and: true,
+          contains: true,
+          field: "some_field",
+          value: "ands",
+        },
+      ],
+      firstN: 1,
+      lastN: 1,
+    };
+
+    const expectedSavedFilter = { ...filterToSave, logs: [] };
+
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    test("handleSaveFilter", () => {
+      createRoot((dispose) => {
+        const vm = useViewModel(props);
+
+        vm.setFilters(filterToSave);
+        vm.setSavedFilterName(filterName);
+        vm.handleSaveFilter();
+
+        expect(vm.savedFilterName(), "savedFilterName").toEqual(filterName);
+        expect(localStorage.length, "localStorage.length").toEqual(1);
+        const loadedFilterStr = localStorage.getItem(
+          savedFilterKeyName(filterName)
+        );
+        expect(loadedFilterStr, "loadedFilterStr").toBeTruthy();
+        const loadedFilterJSON = JSON.parse(loadedFilterStr!);
+        expect(loadedFilterJSON, "loadedFilterJSON").toEqual(
+          expectedSavedFilter
+        );
+
+        dispose();
+      });
+    });
+
+    describe("handleLoadFilter", () => {
+      test("whenNoFilterIsAvailableToLoad", () => {
+        createRoot((dispose) => {
+          const vm = useViewModel(props);
+
+          vm.handleLoadFilter(filterName);
+
+          expect(vm.savedFilterName(), "savedFilterName").toEqual(filterName);
+          expect(vm.filters, "filters").toEqual(defaultFilters());
+          expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
+            vm.filters
+          );
+
+          dispose();
+        });
+      });
+
+      test("whenAFilterIsAvailableToLoad", () => {
+        createRoot((dispose) => {
+          const vm = useViewModel(props);
+
+          localStorage.setItem(
+            savedFilterKeyName(filterName),
+            JSON.stringify(expectedSavedFilter)
+          );
+          vm.handleLoadFilter(filterName);
+
+          expect(vm.savedFilterName(), "savedFilterName").toEqual(filterName);
+          expect(vm.filters, "filters").toEqual(expectedSavedFilter);
+          expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
+            vm.filters
+          );
+
+          dispose();
+        });
+      });
     });
   });
 
@@ -248,7 +347,7 @@ describe("useViewModel", () => {
         unchanged: {
           api: {
             getSelectedRows: () => [
-              { logs: [{ id: 2 }, {id: 11}, { id: 4 }] },
+              { logs: [{ id: 2 }, { id: 11 }, { id: 4 }] },
               { logs: [{ id: 5 }] },
             ],
           },
@@ -302,7 +401,9 @@ describe("useViewModel", () => {
         expect(vm.filters.errorsOnly, "errorsOnly").toEqual(checked);
         expect(vm.addedLogs(), "addedLogs").toEqual(errAddedTopLogs);
         expect(vm.removedLogs(), "removedLogs").toEqual(errRemovedTopLogs);
-        expect(vm.unchangedLogs(), "unchangedLogs").toEqual(errUnchangedTopLogs);
+        expect(vm.unchangedLogs(), "unchangedLogs").toEqual(
+          errUnchangedTopLogs
+        );
         expect(vm.msgs(), "msgs").toEqual(errMsgs);
         expect(vm.httpCodes(), "httpCodes").toEqual(errHTTPCodes);
         expect(vm.jobs(), "jobs").toEqual(errJobs);
