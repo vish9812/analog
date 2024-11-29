@@ -62,6 +62,7 @@ describe("useViewModel", () => {
   };
 
   comparer.removed = [summary.msgs[0], summary.msgs[2]];
+  comparer.unchanged = [summary.msgs[1]];
   comparer.added = [
     {
       logs: [{}, {}, {}, {}, {}],
@@ -97,6 +98,7 @@ describe("useViewModel", () => {
 
       expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
       expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
+      expect(vm.unchangedLogs(), "unchangedLogs").toEqual(comparer.unchanged);
       expect(vm.msgs(), "msgs").toEqual(comparer.last().summary.msgs);
       expect(vm.httpCodes(), "httpCodes").toEqual(
         comparer.last().summary.httpCodes
@@ -137,6 +139,7 @@ describe("useViewModel", () => {
         plugins: getGrid() as any,
         added: getGrid() as any,
         removed: getGrid() as any,
+        unchanged: getGrid() as any,
       };
 
       const vm = useViewModel(props);
@@ -154,6 +157,7 @@ describe("useViewModel", () => {
       expect(vm.filters, "filters").toEqual(defaultFilters());
       expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
       expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
+      expect(vm.unchangedLogs(), "unchangedLogs").toEqual(comparer.unchanged);
       expect(vm.msgs(), "msgs").toEqual(comparer.last().summary.msgs);
       expect(vm.httpCodes(), "httpCodes").toEqual(
         comparer.last().summary.httpCodes
@@ -241,6 +245,14 @@ describe("useViewModel", () => {
             ],
           },
         } as any,
+        unchanged: {
+          api: {
+            getSelectedRows: () => [
+              { logs: [{ id: 2 }, {id: 11}, { id: 4 }] },
+              { logs: [{ id: 5 }] },
+            ],
+          },
+        } as any,
         removed: undefined as any,
       };
 
@@ -256,8 +268,9 @@ describe("useViewModel", () => {
         { id: 4 },
         { id: 5 },
         { id: 6 },
-        // { id: 7 }, // both skipped due to firstN=1 and lastN=1
+        // { id: 7 }, // all 3 are skipped due to firstN=1 and lastN=1, so only first 1 and last 1 logs are selected
         // { id: 10 },
+        // { id: 11 },
         { id: 20 },
         { id: 30 },
       ];
@@ -284,10 +297,12 @@ describe("useViewModel", () => {
         const errPlugins = [summary.plugins[1]];
         const errAddedTopLogs = [comparer.added[1]];
         const errRemovedTopLogs = [comparer.removed[1]];
+        const errUnchangedTopLogs = [comparer.unchanged[0]];
 
         expect(vm.filters.errorsOnly, "errorsOnly").toEqual(checked);
         expect(vm.addedLogs(), "addedLogs").toEqual(errAddedTopLogs);
         expect(vm.removedLogs(), "removedLogs").toEqual(errRemovedTopLogs);
+        expect(vm.unchangedLogs(), "unchangedLogs").toEqual(errUnchangedTopLogs);
         expect(vm.msgs(), "msgs").toEqual(errMsgs);
         expect(vm.httpCodes(), "httpCodes").toEqual(errHTTPCodes);
         expect(vm.jobs(), "jobs").toEqual(errJobs);
@@ -310,6 +325,7 @@ describe("useViewModel", () => {
         expect(vm.filters.errorsOnly, "errorsOnly").toEqual(checked);
         expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
         expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);
+        expect(vm.unchangedLogs(), "unchangedLogs").toEqual(comparer.unchanged);
         expect(vm.msgs(), "msgs").toEqual(summary.msgs);
         expect(vm.httpCodes(), "httpCodes").toEqual(summary.httpCodes);
         expect(vm.jobs(), "jobs").toEqual(summary.jobs);
