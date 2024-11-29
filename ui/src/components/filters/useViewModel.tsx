@@ -56,7 +56,34 @@ function defaultFilters(): FiltersData {
   };
 }
 
+const savedFiltersKeyPrefix = "saved_filters";
+
+function savedFilterKeyName(filterName: string): string {
+  return `${savedFiltersKeyPrefix}|${filterName}`;
+}
+
+function savedFilterKeys(): string[] {
+  const savedKeys = Object.keys(localStorage).filter((key) =>
+    key.startsWith(savedFiltersKeyPrefix)
+  );
+
+  if (!savedKeys || savedKeys.length === 0) {
+    return [];
+  }
+
+  return savedKeys.map((key) => key.split("|")[1]);
+}
+
+function deleteAllSavedFilters(): void {
+  savedFilterKeys().forEach((key) => localStorage.removeItem(key));
+}
+
+function deleteSavedFilter(filterName: string) {
+  localStorage.removeItem(savedFilterKeyName(filterName));
+}
+
 function useViewModel(props: FiltersProps) {
+  const [savedFilterName, setSavedFilterName] = createSignal("");
   const [filters, setFilters] = createStore(defaultFilters());
   const [msgs, setMsgs] = createSignal(comparer.last().summary.msgs);
   const [httpCodes, setHTTPCodes] = createSignal(
@@ -67,6 +94,19 @@ function useViewModel(props: FiltersProps) {
   const [unchangedLogs, setUnchangedLogs] = createSignal(comparer.unchanged);
   const [addedLogs, setAddedLogs] = createSignal(comparer.added);
   const [removedLogs, setRemovedLogs] = createSignal(comparer.removed);
+
+  function handleSaveFilter() {
+    // save filters except the logs key
+    const filterStr = JSON.stringify({ ...filters, logs: [] });
+    localStorage.setItem(savedFilterKeyName(savedFilterName()), filterStr);
+  }
+
+  function handleLoadFilter(filterName: string) {
+    const filtersStr = localStorage.getItem(savedFilterKeyName(filterName));
+    setSavedFilterName(filterName);
+    setFilters(filtersStr ? JSON.parse(filtersStr) : defaultFilters());
+    handleFiltersChange();
+  }
 
   function handleFiltersChange() {
     props.onFiltersChange(filters);
@@ -173,6 +213,7 @@ function useViewModel(props: FiltersProps) {
   }
 
   return {
+    savedFilterName,
     filters,
     msgs,
     httpCodes,
@@ -182,14 +223,17 @@ function useViewModel(props: FiltersProps) {
     addedLogs,
     removedLogs,
     setFilters,
+    setSavedFilterName,
     handleFiltersChange,
     handleLogsSelectionChanged,
     handleErrorsOnlyChange,
     handleResetClick,
     handleNewSearchTerm,
+    handleSaveFilter,
+    handleLoadFilter,
   };
 }
 
 export default useViewModel;
-export { defaultFilters };
+export { defaultFilters, savedFilterKeys };
 export type { SearchTerm, FiltersData, FiltersProps, GridsRefs };
