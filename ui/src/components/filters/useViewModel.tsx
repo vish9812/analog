@@ -13,6 +13,7 @@ interface GridsRefs {
   httpCodes: AgGridSolidRef;
   jobs: AgGridSolidRef;
   plugins: AgGridSolidRef;
+  unchanged: AgGridSolidRef;
   added: AgGridSolidRef;
   removed: AgGridSolidRef;
 }
@@ -63,6 +64,7 @@ function useViewModel(props: FiltersProps) {
   );
   const [jobs, setJobs] = createSignal(comparer.last().summary.jobs);
   const [plugins, setPlugins] = createSignal(comparer.last().summary.plugins);
+  const [unchangedLogs, setUnchangedLogs] = createSignal(comparer.unchanged);
   const [addedLogs, setAddedLogs] = createSignal(comparer.added);
   const [removedLogs, setRemovedLogs] = createSignal(comparer.removed);
 
@@ -90,6 +92,11 @@ function useViewModel(props: FiltersProps) {
       gridsRefs.added.api.setFilterModel(null);
       gridsRefs.added.api.deselectAll();
     }
+
+    if (unchangedLogs().length > 0) {
+      gridsRefs.unchanged.api.setFilterModel(null);
+      gridsRefs.unchanged.api.deselectAll();
+    }
   }
 
   function handleLogsSelectionChanged(gridsRefs: GridsRefs) {
@@ -101,6 +108,10 @@ function useViewModel(props: FiltersProps) {
 
     if (addedLogs().length > 0) {
       populateMap(gridsRefs.added);
+    }
+
+    if (unchangedLogs().length > 0) {
+      populateMap(gridsRefs.unchanged);
     }
 
     setFilters("logs", [...map.values()]);
@@ -131,6 +142,7 @@ function useViewModel(props: FiltersProps) {
       setHTTPCodes(LogData.errorFilterFn);
       setJobs(LogData.errorFilterFn);
       setPlugins(LogData.errorFilterFn);
+      setUnchangedLogs(LogData.errorFilterFn);
       setAddedLogs(LogData.errorFilterFn);
       setRemovedLogs(LogData.errorFilterFn);
     } else {
@@ -138,6 +150,7 @@ function useViewModel(props: FiltersProps) {
       setHTTPCodes(comparer.last().summary.httpCodes);
       setJobs(comparer.last().summary.jobs);
       setPlugins(comparer.last().summary.plugins);
+      setUnchangedLogs(comparer.added);
       setAddedLogs(comparer.added);
       setRemovedLogs(comparer.removed);
     }
@@ -165,6 +178,7 @@ function useViewModel(props: FiltersProps) {
     httpCodes,
     jobs,
     plugins,
+    unchangedLogs,
     addedLogs,
     removedLogs,
     setFilters,

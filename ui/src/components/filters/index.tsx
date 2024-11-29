@@ -38,6 +38,7 @@ interface GridsOptions {
   httpCodes: GridOptions<GroupedMsg>;
   jobs: GridOptions<GroupedMsg>;
   plugins: GridOptions<GroupedMsg>;
+  unchanged: GridOptions<GroupedMsg>;
   added: GridOptions<GroupedMsg>;
   removed: GridOptions<GroupedMsg>;
 }
@@ -48,6 +49,7 @@ function Filters(props: FiltersProps) {
     httpCodes: {} as AgGridSolidRef,
     jobs: {} as AgGridSolidRef,
     plugins: {} as AgGridSolidRef,
+    unchanged: {} as AgGridSolidRef,
     added: {} as AgGridSolidRef,
     removed: {} as AgGridSolidRef,
   };
@@ -58,6 +60,7 @@ function Filters(props: FiltersProps) {
     httpCodes,
     jobs,
     plugins,
+    unchangedLogs,
     addedLogs,
     removedLogs,
     setFilters,
@@ -96,6 +99,7 @@ function Filters(props: FiltersProps) {
     msgs: { ...commonGridOptions, rowData: msgs() },
     jobs: { ...commonGridOptions, rowData: jobs() },
     plugins: { ...commonGridOptions, rowData: plugins() },
+    unchanged: { ...commonGridOptions, rowData: unchangedLogs() },
     added: { ...commonGridOptions, rowData: addedLogs() },
     httpCodes: {
       ...commonGridOptions,
@@ -281,18 +285,25 @@ function Filters(props: FiltersProps) {
       </Grid>
       <Show when={comparer.isOn()}>
         <Grid item xs={12} container spacing={2}>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <GroupedMsgGrid
               ref={gridsRefs.added}
               name="Added Logs"
               options={gridsOptions.added}
             ></GroupedMsgGrid>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={4}>
             <GroupedMsgGrid
               ref={gridsRefs.removed}
               name="Removed Logs"
               options={gridsOptions.removed}
+            ></GroupedMsgGrid>
+          </Grid>
+          <Grid item xs={4}>
+            <GroupedMsgGrid
+              ref={gridsRefs.unchanged}
+              name="Unchanged Logs"
+              options={gridsOptions.unchanged}
             ></GroupedMsgGrid>
           </Grid>
         </Grid>
