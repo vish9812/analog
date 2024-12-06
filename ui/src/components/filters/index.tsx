@@ -12,6 +12,7 @@ import useViewModel, {
   SearchTerm,
   FiltersProps,
   GridsRefs,
+  savedFiltersNames,
 } from "./useViewModel";
 import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
@@ -55,6 +56,7 @@ function Filters(props: FiltersProps) {
   };
 
   const {
+    savedFilterName,
     filters,
     msgs,
     httpCodes,
@@ -64,11 +66,15 @@ function Filters(props: FiltersProps) {
     addedLogs,
     removedLogs,
     setFilters,
+    setSavedFilterName,
     handleFiltersChange,
     handleLogsSelectionChanged,
     handleErrorsOnlyChange,
     handleResetClick,
     handleNewSearchTerm,
+    handleSaveFilter,
+    handleLoadFilter,
+    handleDeleteFilters,
   } = useViewModel(props);
 
   const commonGridOptions: GridOptions<GroupedMsg> = {
@@ -251,6 +257,28 @@ function Filters(props: FiltersProps) {
           <Alert severity="info">
             N-Logs works only with the below "selection" filters.
           </Alert>
+          <TextField
+            label="Filter Name"
+            value={savedFilterName()}
+            onChange={(_, val) => setSavedFilterName(val)}
+          />
+          <Button variant="contained" onClick={handleSaveFilter}>
+            Save Filters
+          </Button>
+          <FormControlLabel
+            control={
+              <Select
+                class="app-select"
+                options={savedFiltersNames()}
+                onChange={(val) => handleLoadFilter(val)}
+              />
+            }
+            label="Load Filter"
+            labelPlacement="start"
+          />
+          <Button variant="contained" onClick={handleDeleteFilters}>
+            Delete Filters
+          </Button>
         </Stack>
       </Grid>
       <Grid item xs={12} container spacing={2}>

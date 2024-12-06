@@ -90,9 +90,6 @@ function useViewModel() {
           updateCurrCondition(term);
         }
 
-        if (!currCondition) {
-        }
-
         keep = currCondition;
       }
 
