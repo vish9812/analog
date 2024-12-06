@@ -3,7 +3,8 @@ import useViewModel, {
   FiltersData,
   GridsRefs,
   defaultFilters,
-  savedFilterKeyName,
+  deleteAllSavedFilters,
+  savedFilterKey,
 } from "./useViewModel";
 import { FiltersProps } from "./useViewModel";
 import comparer from "@al/services/comparer";
@@ -159,12 +160,32 @@ describe("useViewModel", () => {
         expect(vm.savedFilterName(), "savedFilterName").toEqual(filterName);
         expect(localStorage.length, "localStorage.length").toEqual(1);
         const loadedFilterStr = localStorage.getItem(
-          savedFilterKeyName(filterName)
+          savedFilterKey(filterName)
         );
         expect(loadedFilterStr, "loadedFilterStr").toBeTruthy();
         const loadedFilterJSON = JSON.parse(loadedFilterStr!);
         expect(loadedFilterJSON, "loadedFilterJSON").toEqual(
           expectedSavedFilter
+        );
+
+        dispose();
+      });
+    });
+
+    test("deleteAllSavedFilters", () => {
+      createRoot((dispose) => {
+        const vm = useViewModel(props);
+
+        vm.setFilters(filterToSave);
+        vm.setSavedFilterName(filterName);
+
+        expect(localStorage.length, "localStorage.length-pre-save").toEqual(0);
+        vm.handleSaveFilter();
+
+        expect(localStorage.length, "localStorage.length-pre-clear").toEqual(1);
+        deleteAllSavedFilters();
+        expect(localStorage.length, "localStorage.length-post-clear").toEqual(
+          0
         );
 
         dispose();
@@ -193,7 +214,7 @@ describe("useViewModel", () => {
           const vm = useViewModel(props);
 
           localStorage.setItem(
-            savedFilterKeyName(filterName),
+            savedFilterKey(filterName),
             JSON.stringify(expectedSavedFilter)
           );
           vm.handleLoadFilter(filterName);

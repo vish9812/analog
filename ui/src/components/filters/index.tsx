@@ -12,7 +12,8 @@ import useViewModel, {
   SearchTerm,
   FiltersProps,
   GridsRefs,
-  savedFilterKeys,
+  savedFiltersNames,
+  deleteAllSavedFilters,
 } from "./useViewModel";
 import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
@@ -268,13 +269,16 @@ function Filters(props: FiltersProps) {
             control={
               <Select
                 class="app-select"
-                options={savedFilterKeys()}
+                options={savedFiltersNames()}
                 onChange={(val) => handleLoadFilter(val)}
               />
             }
             label="Load Filter"
             labelPlacement="start"
           />
+          <Button variant="contained" onClick={deleteAllSavedFilters}>
+            Delete Filters
+          </Button>
         </Stack>
       </Grid>
       <Grid item xs={12} container spacing={2}>

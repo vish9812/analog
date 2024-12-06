@@ -56,26 +56,24 @@ function defaultFilters(): FiltersData {
   };
 }
 
-const savedFiltersKeyPrefix = "saved_filters";
+const savedFiltersKeyPrefix = "saved_filters|";
 
-function savedFilterKeyName(filterName: string): string {
-  return `${savedFiltersKeyPrefix}|${filterName}`;
+function savedFilterKey(filterName: string): string {
+  return savedFiltersKeyPrefix + filterName;
 }
 
-function savedFilterKeys(): string[] {
-  const savedKeys = Object.keys(localStorage).filter((key) =>
+function savedFiltersKeys(): string[] {
+  return Object.keys(localStorage).filter((key) =>
     key.startsWith(savedFiltersKeyPrefix)
   );
+}
 
-  if (!savedKeys || savedKeys.length === 0) {
-    return [];
-  }
-
-  return savedKeys.map((key) => key.split("|")[1]);
+function savedFiltersNames(): string[] {
+  return savedFiltersKeys().map((key) => key.split("|")[1]);
 }
 
 function deleteAllSavedFilters(): void {
-  savedFilterKeys().forEach((key) => localStorage.removeItem(key));
+  savedFiltersKeys().forEach((key) => localStorage.removeItem(key));
 }
 
 function useViewModel(props: FiltersProps) {
@@ -94,11 +92,11 @@ function useViewModel(props: FiltersProps) {
   function handleSaveFilter() {
     // save filters except the logs key
     const filterStr = JSON.stringify({ ...filters, logs: [] });
-    localStorage.setItem(savedFilterKeyName(savedFilterName()), filterStr);
+    localStorage.setItem(savedFilterKey(savedFilterName()), filterStr);
   }
 
   function handleLoadFilter(filterName: string) {
-    const filtersStr = localStorage.getItem(savedFilterKeyName(filterName));
+    const filtersStr = localStorage.getItem(savedFilterKey(filterName));
     setSavedFilterName(filterName);
     setFilters(filtersStr ? JSON.parse(filtersStr) : defaultFilters());
     handleFiltersChange();
@@ -231,5 +229,10 @@ function useViewModel(props: FiltersProps) {
 }
 
 export default useViewModel;
-export { defaultFilters, savedFilterKeys, savedFilterKeyName };
+export {
+  defaultFilters,
+  savedFiltersNames,
+  savedFilterKey,
+  deleteAllSavedFilters,
+};
 export type { SearchTerm, FiltersData, FiltersProps, GridsRefs };
