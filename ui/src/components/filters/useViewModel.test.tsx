@@ -3,7 +3,6 @@ import useViewModel, {
   FiltersData,
   GridsRefs,
   defaultFilters,
-  deleteAllSavedFilters,
   savedFilterKey,
 } from "./useViewModel";
 import { FiltersProps } from "./useViewModel";
@@ -172,7 +171,7 @@ describe("useViewModel", () => {
       });
     });
 
-    test("deleteAllSavedFilters", () => {
+    test("handleDeleteFilters", () => {
       createRoot((dispose) => {
         const vm = useViewModel(props);
 
@@ -183,10 +182,11 @@ describe("useViewModel", () => {
         vm.handleSaveFilter();
 
         expect(localStorage.length, "localStorage.length-pre-clear").toEqual(1);
-        deleteAllSavedFilters();
+        vm.handleDeleteFilters();
         expect(localStorage.length, "localStorage.length-post-clear").toEqual(
           0
         );
+        expect(vm.savedFilterName(), "savedFilterName").toEqual("");
 
         dispose();
       });
@@ -199,11 +199,9 @@ describe("useViewModel", () => {
 
           vm.handleLoadFilter(filterName);
 
-          expect(vm.savedFilterName(), "savedFilterName").toEqual(filterName);
+          expect(vm.savedFilterName(), "savedFilterName").toEqual("");
           expect(vm.filters, "filters").toEqual(defaultFilters());
-          expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
-            vm.filters
-          );
+          expect(props.onFiltersChange, "onFiltersChange").toBeCalledTimes(0);
 
           dispose();
         });
@@ -272,8 +270,11 @@ describe("useViewModel", () => {
       }));
       expect(vm.filters.regex, "regex").toEqual("some regex");
 
+      vm.setSavedFilterName("test_filter")
+
       vm.handleResetClick(gridsRefs);
 
+      expect(vm.savedFilterName(), "savedFilterName").toEqual("");
       expect(vm.filters, "filters").toEqual(defaultFilters());
       expect(vm.addedLogs(), "addedLogs").toEqual(comparer.added);
       expect(vm.removedLogs(), "removedLogs").toEqual(comparer.removed);

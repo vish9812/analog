@@ -13,7 +13,6 @@ import useViewModel, {
   FiltersProps,
   GridsRefs,
   savedFiltersNames,
-  deleteAllSavedFilters,
 } from "./useViewModel";
 import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
@@ -75,6 +74,7 @@ function Filters(props: FiltersProps) {
     handleNewSearchTerm,
     handleSaveFilter,
     handleLoadFilter,
+    handleDeleteFilters,
   } = useViewModel(props);
 
   const commonGridOptions: GridOptions<GroupedMsg> = {
@@ -276,7 +276,7 @@ function Filters(props: FiltersProps) {
             label="Load Filter"
             labelPlacement="start"
           />
-          <Button variant="contained" onClick={deleteAllSavedFilters}>
+          <Button variant="contained" onClick={handleDeleteFilters}>
             Delete Filters
           </Button>
         </Stack>

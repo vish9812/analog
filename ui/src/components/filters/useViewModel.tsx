@@ -72,10 +72,6 @@ function savedFiltersNames(): string[] {
   return savedFiltersKeys().map((key) => key.split("|")[1]);
 }
 
-function deleteAllSavedFilters(): void {
-  savedFiltersKeys().forEach((key) => localStorage.removeItem(key));
-}
-
 function useViewModel(props: FiltersProps) {
   const [savedFilterName, setSavedFilterName] = createSignal("");
   const [filters, setFilters] = createStore(defaultFilters());
@@ -97,16 +93,24 @@ function useViewModel(props: FiltersProps) {
 
   function handleLoadFilter(filterName: string) {
     const filtersStr = localStorage.getItem(savedFilterKey(filterName));
+    if (!filtersStr) return;
+
     setSavedFilterName(filterName);
-    setFilters(filtersStr ? JSON.parse(filtersStr) : defaultFilters());
+    setFilters(JSON.parse(filtersStr));
     handleFiltersChange();
+  }
+
+  function handleDeleteFilters() {
+    savedFiltersKeys().forEach((key) => localStorage.removeItem(key));
+    setSavedFilterName("");
   }
 
   function handleFiltersChange() {
     props.onFiltersChange(filters);
   }
-
+  
   function handleResetClick(gridsRefs: GridsRefs) {
+    setSavedFilterName("");
     setFilters(defaultFilters());
     handleErrorsOnlyChange(false);
 
@@ -225,6 +229,7 @@ function useViewModel(props: FiltersProps) {
     handleNewSearchTerm,
     handleSaveFilter,
     handleLoadFilter,
+    handleDeleteFilters,
   };
 }
 
@@ -233,6 +238,5 @@ export {
   defaultFilters,
   savedFiltersNames,
   savedFilterKey,
-  deleteAllSavedFilters,
 };
 export type { SearchTerm, FiltersData, FiltersProps, GridsRefs };
