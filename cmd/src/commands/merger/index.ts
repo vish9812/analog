@@ -15,11 +15,11 @@ const flags = {
   outFileName: "",
 };
 
-const filteredLogs: JSONLog[] = [];
+let filteredLogs: JSONLog[] = [];
 
 function help(): void {
   console.log(`
-Filters all files from a given folder within a time range and generates a single time-sorted log file.
+Merges all files from a given folder within a time range and generates a single time-sorted log file with unique log entries.
 The timestamps format must match the format available in the log files.
 
 Caution:  Passing a big time range could lead to keeping millions of log lines in RAM which may lead to slowness.
@@ -28,7 +28,7 @@ Caution:  Passing a big time range could lead to keeping millions of log lines i
 
 Usage:
 
-  bun run ./cli/main.js --filter [arguments]
+  bun run ./cli/main.js --merger [arguments]
 
 The arguments are:
   
@@ -50,7 +50,7 @@ The arguments are:
 
 Example: 
   
-  bun run ./cli/main.js -f -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log"
+  bun run ./cli/main.js -m -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log"
     `);
 }
 
@@ -58,7 +58,7 @@ async function run(): Promise<void> {
   const workerFile = Bun.file(workerURL);
   if (!(await workerFile.exists())) {
     // Path for the bundled code
-    workerURL = new URL("commands/filterer/worker.js", import.meta.url);
+    workerURL = new URL("commands/merger/worker.js", import.meta.url);
   }
 
   parseFlags();
@@ -72,7 +72,7 @@ function parseFlags() {
     options: {
       filter: {
         type: "boolean",
-        short: "f",
+        short: "m",
       },
       minTime: {
         type: "string",
@@ -99,11 +99,6 @@ function parseFlags() {
 
   if (!values.inFolderPath) throw new Error("Pass input logs folder path.");
   if (!values.outFileName) throw new Error("Pass output logs file name.");
-  if (!values.minTime && !values.maxTime) {
-    throw new Error(
-      "Pass at least one flag for filtering by time: minTime or maxTime."
-    );
-  }
 
   flags.inFolderPath = values.inFolderPath;
   flags.outFileName = values.outFileName;
@@ -119,6 +114,7 @@ async function processLogs() {
   console.log("=========End Read Files=========");
 
   sortLogs();
+  deDuplicateLogs();
 
   await writeContent();
 }
@@ -176,6 +172,31 @@ function sortLogs() {
   );
 }
 
+/**
+ * deDuplicateLogs removes the duplicate logs
+ */
+function deDuplicateLogs() {
+  console.log("De-Duplicating Logs");
+
+  const uniqueLogs: JSONLog[] = [];
+  let prevLog: JSONLog | undefined;
+  for (const log of filteredLogs) {
+    if (!prevLog || prevLog.timestamp !== log.timestamp) {
+      uniqueLogs.push(log);
+    } else if (prevLog.timestamp === log.timestamp) {
+      const prevLogStr = JSON.stringify(prevLog);
+      const logStr = JSON.stringify(log);
+      if (prevLogStr !== logStr) {
+        uniqueLogs.push(log);
+      }
+    }
+    prevLog = log;
+  }
+
+  console.log("Removed Duplicates: ", filteredLogs.length - uniqueLogs.length);
+  filteredLogs = uniqueLogs;
+}
+
 async function writeContent() {
   console.log("Total Logs matched: ", filteredLogs.length);
   console.log("Joining Logs");
@@ -184,9 +205,9 @@ async function writeContent() {
   await Bun.write(flags.outFileName, allContent);
 }
 
-const filterer: ICmd = {
+const merger: ICmd = {
   help,
   run,
 };
 
-export default filterer;
+export default merger;

@@ -1,7 +1,7 @@
 import { parseArgs } from "util";
 // @ts-ignore
 import figlet from "figlet";
-import filterer from "./commands/filterer";
+import merger from "./commands/merger";
 import summary from "./commands/summary";
 import type { ICmd } from "./utils/cmd-runner";
 
@@ -15,9 +15,9 @@ const { values: flags } = parseArgs({
       type: "boolean",
       short: "h",
     },
-    filter: {
+    merger: {
       type: "boolean",
-      short: "f",
+      short: "m",
     },
     summary: {
       type: "boolean",
@@ -32,8 +32,8 @@ if (typeof flags.help === "boolean" && flags.help) {
   isHelp = true;
 }
 
-if (typeof flags.filter === "boolean" && flags.filter) {
-  cmd = filterer;
+if (typeof flags.merger === "boolean" && flags.merger) {
+  cmd = merger;
 } else if (typeof flags.summary === "boolean" && flags.summary) {
   cmd = summary;
 } else {
@@ -78,14 +78,14 @@ The commands are:
   -s, --summary             
         provides a summary view of all the log files.
   
-  -f, --filter              
-        filters all files from a given folder within a time range and generate a single time-sorted log file.
+  -m, --merger              
+        merges all files from a given folder within a time range and generate a single time-sorted log file with unique log entries.
 
 Use "bun run ./cli/main.js --help <command>" for more information about a command.
 
 Example: 
   
-  bun run ./cli/main.js --help --filter
+  bun run ./cli/main.js --help --merger
 
 Caution:  Processing multiple files will need at least twice the space as the logs files size.
           For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.

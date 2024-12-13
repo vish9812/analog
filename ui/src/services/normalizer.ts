@@ -4,7 +4,9 @@ import objectsUtils from "@al/utils/objects";
 // Sample Log Line Format:
 // info [2023-10-16 02:24:52.930 +11:00] Received HTTP request caller="jobs/base_workers.go:97" worker=PostPersistentNotifications job_id=a6kay9tcptdymeezjng9i965mh dynamic1=value1 dynamic2=value2
 
-// LineFilterFn validates the line filter. Remove the line, if it returns true.
+/**
+ * LineFilterFn validates the line filter. Remove the line, if it returns true.
+ */
 type LineFilterFn = (jsonLine: JSONLog) => boolean;
 type ParserFn = (logLine: string, lineFilterFn: LineFilterFn) => JSONLog | null;
 
