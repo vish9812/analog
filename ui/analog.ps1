@@ -9,5 +9,5 @@ if (Get-Command python -ErrorAction SilentlyContinue) {
 }
 
 # Start Python HTTP server
-Write-Output "Starting Analog on port 20002..."
-python -m http.server 20002
+Write-Output "Starting Analog on http://localhost:20002"
+python -m http.server --bind 127.0.0.1 20002

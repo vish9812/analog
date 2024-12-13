@@ -12,5 +12,5 @@ else
 fi
 
 # Start Python HTTP server
-echo "Starting Analog on port 20002..."
-python3 -m http.server 20002
+echo "Starting Analog on http://localhost:20002"
+python3 -m http.server --bind 127.0.0.1 20002
