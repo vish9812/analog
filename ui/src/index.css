@@ -1,23 +1,48 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@import "tailwindcss";
+@plugin "daisyui";
+
+@layer base {
+  :root {
+    /* Custom colors can be defined here if needed to extend DaisyUI's theme */
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Custom utility classes */
+@layer components {
+  .card-collapsible {
+    @apply card bg-base-100 shadow-lg;
+  }
+
+  .card-title-secondary {
+    @apply text-sm font-medium text-base-content mb-2;
+  }
+
+  .code-block {
+    @apply bg-base-200 p-3 rounded-lg text-sm overflow-x-auto font-mono;
+  }
+
+  .file-item {
+    @apply flex items-center gap-4 p-4 bg-base-200 rounded-lg;
+  }
+
+  .file-info {
+    @apply flex items-center gap-2 min-w-[200px];
+  }
+
+  .file-name {
+    @apply font-medium text-base-content;
+  }
+
+  .file-size {
+    @apply text-sm text-base-content/70;
+  }
 }
 
-.app-select.solid-select-container{
-  z-index: 10;
-  background-color: white;
-  border: 2px solid lightgray;
-    border-radius: 4px;
+/* Legacy app-select styles */
+.app-select.solid-select-container {
+  @apply z-10 bg-base-100 border-2 border-base-300 rounded;
 }
+
 .app-select.solid-select-container:focus-within {
-  border-color: #1976d2;
+  @apply border-primary;
 }

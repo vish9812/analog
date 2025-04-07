@@ -1,40 +1,12 @@
-import {
-  Button,
-  CircularProgress,
-  Grid,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Stack,
-  TextField,
-  styled,
-} from "@suid/material";
-import useViewModel from "./useViewModel";
-import FileUploadIcon from "@suid/icons-material/FileUpload";
-import MemoryIcon from "@suid/icons-material/Memory";
-import InsertDriveFileIcon from "@suid/icons-material/InsertDriveFile";
 import { For, Show } from "solid-js";
 import prettyBytes from "pretty-bytes";
 import LogData from "@al/models/logData";
 import usePage from "../usePage";
-
-const HiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
+import useViewModel from "./useViewModel";
+import Layout from "../layout";
 
 function Normalize() {
   const { setPage } = usePage();
-
   const {
     logDatas,
     newFileDisabled,
@@ -49,114 +21,198 @@ function Normalize() {
     logDatas().length === 1 ? "Compare With" : "New File";
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <p>Following are the 3 must have keys in the logs:</p>
-        <pre>{`
-- level
-- timestamp
-- msg
-      `}</pre>
-        <p>Expected Format for JSON logs:</p>
-        <pre>{`
-{"timestamp":"2023-10-16 10:13:16.710 +11:00","level":"debug","msg":"Received HTTP request","dynamicKey1":"value 1","dynamicKey2":"value 2"}
-        `}</pre>
-
-        <p>Expected Format for plain-text logs:</p>
-        <pre>{`
-debug [2023-10-16 10:13:16.710 +11:00] Received HTTP request dynamicKey1="value 1" dynamicKey2=value 2
-        `}</pre>
-      </Grid>
-      <Grid item xs={12}>
-        <Stack
-          direction="row"
-          spacing={2}
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Button
-            disabled={newFileDisabled()}
-            sx={{ margin: 2 }}
-            component="label"
-            variant="contained"
-            startIcon={<FileUploadIcon />}
+    <Layout>
+      {/* Main Actions */}
+      <div class="flex flex-col items-center gap-6 py-8">
+        <div class="flex items-center gap-4">
+          <label
+            class={`btn btn-lg gap-2 ${
+              newFileDisabled() ? "btn-disabled" : "btn-primary"
+            }`}
           >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
             {newFileText()}
-            <HiddenInput
+            <input
               type="file"
-              multiple={false}
+              class="hidden"
               onChange={(e) => {
                 handleFileUpload(e.target.files, new LogData());
-                // To allow uploading the same file again and triggering the "onChange" event for the same file
                 e.target.value = "";
               }}
+              disabled={newFileDisabled()}
             />
-          </Button>
+          </label>
+
           <Show when={processingFile()}>
-            <CircularProgress color="success" />
+            <span class="loading loading-spinner loading-lg text-primary"></span>
           </Show>
-          <Button
-            sx={{ margin: 2 }}
-            component="label"
-            startIcon={<MemoryIcon />}
-            variant="contained"
+
+          <button
+            class={`btn btn-lg gap-2 ${
+              analyzeDisabled() ? "btn-disabled" : "btn-success"
+            }`}
             onClick={() => handleAnalyzeClick(setPage)}
-            color="success"
             disabled={analyzeDisabled()}
           >
+            <svg
+              class="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              />
+            </svg>
             Analyze
-          </Button>
-        </Stack>
-      </Grid>
+          </button>
+        </div>
+
+        {/* Format Instructions Card */}
+        <div class="card bg-base-100 shadow-lg w-full">
+          <div class="card-body p-6">
+            <div class="flex items-center justify-between">
+              <h2 class="card-title text-xl">Log Format Requirements</h2>
+              <button
+                data-collapse-toggle="format-instructions"
+                type="button"
+                class="btn btn-circle btn-ghost btn-sm"
+              >
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
+              </button>
+            </div>
+
+            <div id="format-instructions" class="space-y-6">
+              <div>
+                <h3 class="font-medium mb-2">Required Keys</h3>
+                <ul class="list-disc list-inside opacity-75 space-y-1 ml-2">
+                  <li>level</li>
+                  <li>timestamp</li>
+                  <li>msg</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 class="font-medium mb-2">JSON Format</h3>
+                <div class="mockup-code">
+                  <pre>
+                    <code>{`{"timestamp":"2023-10-16 10:13:16.710 +11:00","level":"debug","msg":"Received HTTP request","dynamicKey1":"value 1","dynamicKey2":"value 2"}`}</code>
+                  </pre>
+                </div>
+              </div>
+
+              <div>
+                <h3 class="font-medium mb-2">Plain-text Format</h3>
+                <div class="mockup-code">
+                  <pre>
+                    <code>
+                      debug [2023-10-16 10:13:16.710 +11:00] Received HTTP
+                      request dynamicKey1="value 1" dynamicKey2=value 2
+                    </code>
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Files List */}
       <Show when={!!logDatas().length}>
-        <Grid item xs={12} textAlign="center">
-          You can <em>optionally</em> filter the files by time
-          <br />- In case of big files( &gt; 100MB) for faster processing of
-          data
-          <br />- To compare different time slices of the same or different
-          files
-        </Grid>
-        <Grid item xs={12}>
-          <List subheader="Files">
-            <For each={logDatas()}>
-              {(logData, idx) => {
-                return (
-                  <ListItem disablePadding>
-                    <Grid container spacing={2}>
-                      <Grid item xs={3}>
-                        <ListItemButton>
-                          <ListItemIcon>
-                            <InsertDriveFileIcon />
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={logData.fileInfo.name}
-                            secondary={prettyBytes(logData.fileInfo.size)}
-                          />
-                        </ListItemButton>
-                      </Grid>
-                      <Grid item xs={3}>
-                        <TextField
-                          fullWidth={true}
-                          label="Start Time(Inclusive)"
-                          onChange={(_, val) => setTimeRange(idx(), "min", val)}
+        <div class="card bg-base-100 shadow-lg">
+          <div class="card-body p-6">
+            <div class="mb-6">
+              <h3 class="card-title text-xl">Optional Time Range Filter</h3>
+              <p class="opacity-75 mt-1">
+                Filter large files (&gt;100MB) or compare specific time slices
+              </p>
+            </div>
+
+            <div class="space-y-6">
+              <For each={logDatas()}>
+                {(logData, idx) => (
+                  <div class="bg-base-200 rounded-box p-6">
+                    <div class="flex items-center gap-4 mb-4">
+                      <div class="flex items-center gap-3">
+                        <div class="bg-base-100 p-2 rounded-lg">
+                          <svg
+                            class="w-6 h-6 opacity-75"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="font-medium">{logData.fileInfo.name}</p>
+                          <p class="text-sm opacity-75">
+                            {prettyBytes(logData.fileInfo.size)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div class="form-control">
+                        <label class="label" for={`start-time-${idx()}`}>
+                          <span class="label-text">Start Time (Inclusive)</span>
+                        </label>
+                        <input
+                          id={`start-time-${idx()}`}
+                          type="text"
+                          placeholder="YYYY-MM-DD HH:mm:ss.SSS Z"
+                          class="input input-bordered"
+                          onChange={(e) =>
+                            setTimeRange(idx(), "min", e.target.value)
+                          }
                         />
-                      </Grid>
-                      <Grid item xs={3}>
-                        <TextField
-                          fullWidth={true}
-                          label="End Time(Exclusive)"
-                          onChange={(_, val) => setTimeRange(idx(), "max", val)}
+                      </div>
+                      <div class="form-control">
+                        <label class="label" for={`end-time-${idx()}`}>
+                          <span class="label-text">End Time (Exclusive)</span>
+                        </label>
+                        <input
+                          id={`end-time-${idx()}`}
+                          type="text"
+                          placeholder="YYYY-MM-DD HH:mm:ss.SSS Z"
+                          class="input input-bordered"
+                          onChange={(e) =>
+                            setTimeRange(idx(), "max", e.target.value)
+                          }
                         />
-                      </Grid>
-                    </Grid>
-                  </ListItem>
-                );
-              }}
-            </For>
-          </List>
-        </Grid>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </For>
+            </div>
+          </div>
+        </div>
       </Show>
-    </Grid>
+    </Layout>
   );
 }
 
