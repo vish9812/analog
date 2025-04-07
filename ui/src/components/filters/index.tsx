@@ -155,7 +155,7 @@ function Filters(props: FiltersProps) {
         </select>
 
         <Select
-          class="select select-bordered select-sm w-32"
+          class="app-select w-100"
           initialValue={texts.allFields}
           {...createOptions([texts.allFields, ...comparer.last().keys])}
           onChange={(val) =>
@@ -208,174 +208,211 @@ function Filters(props: FiltersProps) {
   }
 
   return (
-    <div class="p-4 space-y-4">
-      <div class="flex flex-wrap gap-4">
-        <div class="form-control w-full max-w-xs">
-          <label class="label">
-            <span class="label-text">Start Time (Inclusive)</span>
-          </label>
-          <input
-            type="text"
-            placeholder="YYYY-MM-DD HH:mm:ss"
-            class="input input-bordered w-full"
-            value={filters.startTime}
-            onInput={(e) => setFilters("startTime", e.currentTarget.value)}
-            onKeyDown={handleFiltersEnterKey}
-          />
-        </div>
+    <div class="p-4 space-y-6">
+      {/* Time and Regex Search */}
+      <div class="card bg-base-200">
+        <div class="card-body p-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Start Time (Inclusive)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="YYYY-MM-DD HH:mm:ss"
+                class="input input-bordered input-sm"
+                value={filters.startTime}
+                onInput={(e) => setFilters("startTime", e.currentTarget.value)}
+                onKeyDown={handleFiltersEnterKey}
+              />
+            </div>
 
-        <div class="form-control w-full max-w-xs">
-          <label class="label">
-            <span class="label-text">End Time (Exclusive)</span>
-          </label>
-          <input
-            type="text"
-            placeholder="YYYY-MM-DD HH:mm:ss"
-            class="input input-bordered w-full"
-            value={filters.endTime}
-            onInput={(e) => setFilters("endTime", e.currentTarget.value)}
-            onKeyDown={handleFiltersEnterKey}
-          />
-        </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">End Time (Exclusive)</span>
+              </label>
+              <input
+                type="text"
+                placeholder="YYYY-MM-DD HH:mm:ss"
+                class="input input-bordered input-sm"
+                value={filters.endTime}
+                onInput={(e) => setFilters("endTime", e.currentTarget.value)}
+                onKeyDown={handleFiltersEnterKey}
+              />
+            </div>
 
-        <div class="form-control w-full max-w-xs">
-          <label class="label">
-            <span class="label-text">Regex Search</span>
-          </label>
-          <input
-            type="text"
-            placeholder="Enter regex pattern"
-            class="input input-bordered w-full"
-            value={filters.regex}
-            onInput={(e) => setFilters("regex", e.currentTarget.value)}
-            onKeyDown={handleFiltersEnterKey}
-          />
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Regex Search</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter regex pattern"
+                class="input input-bordered input-sm"
+                value={filters.regex}
+                onInput={(e) => setFilters("regex", e.currentTarget.value)}
+                onKeyDown={handleFiltersEnterKey}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="space-y-2">
-        <For each={filters.terms}>{getSimpleSearchHTML}</For>
+      {/* Search Terms */}
+      <div class="card bg-base-200">
+        <div class="card-body p-4">
+          <div class="space-y-2">
+            <For each={filters.terms}>{getSimpleSearchHTML}</For>
 
-        <button
-          class="btn btn-primary btn-sm"
-          onClick={() => handleNewSearchTerm(true)}
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-4 w-4 mr-1"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-          Add Filter
-        </button>
-      </div>
-
-      <div class="flex gap-4 items-center">
-        <div class="form-control">
-          <label class="label cursor-pointer">
-            <span class="label-text mr-2">Errors Only</span>
-            <input
-              type="checkbox"
-              class="toggle toggle-primary"
-              checked={filters.errorsOnly}
-              onChange={(e) => handleErrorsOnlyChange(e.currentTarget.checked)}
-            />
-          </label>
-        </div>
-
-        <div class="flex gap-2">
-          <button class="btn btn-primary" onClick={handleFiltersChange}>
-            Filter
-          </button>
-          <button
-            class="btn btn-ghost"
-            onClick={() => handleResetClick(gridsRefs)}
-          >
-            Reset
-          </button>
-        </div>
-
-        <div class="flex gap-4 items-center">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">First N Logs</span>
-            </label>
-            <input
-              type="number"
-              class="input input-bordered input-sm w-24"
-              value={filters.firstN}
-              onInput={(e) =>
-                setFilters(
-                  "firstN",
-                  isNaN(+e.currentTarget.value) || +e.currentTarget.value < 0
-                    ? 0
-                    : +e.currentTarget.value
-                )
-              }
-              onKeyDown={handleNLogsKeyDown}
-            />
-          </div>
-
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Last N Logs</span>
-            </label>
-            <input
-              type="number"
-              class="input input-bordered input-sm w-24"
-              value={filters.lastN}
-              onInput={(e) =>
-                setFilters(
-                  "lastN",
-                  isNaN(+e.currentTarget.value) || +e.currentTarget.value < 0
-                    ? 0
-                    : +e.currentTarget.value
-                )
-              }
-              onKeyDown={handleNLogsKeyDown}
-            />
-          </div>
-        </div>
-
-        <div class="flex gap-4 items-center">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Filter Name</span>
-            </label>
-            <input
-              type="text"
-              class="input input-bordered input-sm w-48"
-              value={savedFilterName()}
-              onInput={(e) => setSavedFilterName(e.currentTarget.value)}
-            />
-          </div>
-
-          <div class="flex gap-2">
-            <button class="btn btn-primary btn-sm" onClick={handleSaveFilter}>
-              Save Filters
-            </button>
-
-            <Select
-              class="select select-bordered select-sm w-48"
-              options={savedFiltersNames()}
-              onChange={handleLoadFilter}
-            />
-
-            <button class="btn btn-error btn-sm" onClick={handleDeleteFilters}>
-              Delete Filters
+            <button
+              class="btn btn-primary btn-sm"
+              onClick={() => handleNewSearchTerm(true)}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 mr-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Add Filter
             </button>
           </div>
         </div>
       </div>
 
+      {/* Controls */}
+      <div class="card bg-base-200">
+        <div class="card-body p-4">
+          <div class="flex flex-wrap gap-6 items-end">
+            {/* Main Controls */}
+            <div class="flex gap-4 items-center">
+              <div class="form-control">
+                <label class="label cursor-pointer">
+                  <span class="label-text mr-2">Errors Only</span>
+                  <input
+                    type="checkbox"
+                    class="toggle toggle-error"
+                    checked={filters.errorsOnly}
+                    onChange={(e) =>
+                      handleErrorsOnlyChange(e.currentTarget.checked)
+                    }
+                  />
+                </label>
+              </div>
+
+              <div class="flex gap-2">
+                <button
+                  class="btn btn-primary btn-sm"
+                  onClick={handleFiltersChange}
+                >
+                  Filter
+                </button>
+                <button
+                  class="btn btn-ghost btn-sm"
+                  onClick={() => handleResetClick(gridsRefs)}
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+
+            <div class="divider divider-horizontal"></div>
+            {/* N-Logs Controls */}
+            <div class="flex gap-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">First N Logs</span>
+                </label>
+                <input
+                  type="number"
+                  class="input input-bordered input-sm w-24"
+                  value={filters.firstN}
+                  onInput={(e) =>
+                    setFilters(
+                      "firstN",
+                      isNaN(+e.currentTarget.value) ||
+                        +e.currentTarget.value < 0
+                        ? 0
+                        : +e.currentTarget.value
+                    )
+                  }
+                  onKeyDown={handleNLogsKeyDown}
+                />
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Last N Logs</span>
+                </label>
+                <input
+                  type="number"
+                  class="input input-bordered input-sm w-24"
+                  value={filters.lastN}
+                  onInput={(e) =>
+                    setFilters(
+                      "lastN",
+                      isNaN(+e.currentTarget.value) ||
+                        +e.currentTarget.value < 0
+                        ? 0
+                        : +e.currentTarget.value
+                    )
+                  }
+                  onKeyDown={handleNLogsKeyDown}
+                />
+              </div>
+            </div>
+
+            <div class="divider divider-horizontal"></div>
+
+            {/* Filter Management */}
+            <div class="flex gap-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Filter Name</span>
+                </label>
+                <input
+                  type="text"
+                  class="input input-bordered input-sm w-48"
+                  value={savedFilterName()}
+                  onInput={(e) => setSavedFilterName(e.currentTarget.value)}
+                />
+              </div>
+
+              <div class="flex gap-2 items-end">
+                <button
+                  class="btn btn-primary btn-sm"
+                  onClick={handleSaveFilter}
+                >
+                  Save Filters
+                </button>
+
+                <Select
+                  class="app-select w-50"
+                  {...createOptions(savedFiltersNames())}
+                  onChange={handleLoadFilter}
+                />
+
+                <button
+                  class="btn btn-error btn-sm"
+                  onClick={handleDeleteFilters}
+                >
+                  Delete Filters
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Grids */}
       <Show when={comparer.isOn()}>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <GroupedMsgGrid
