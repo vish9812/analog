@@ -98,8 +98,16 @@ function Filters(props: FiltersProps) {
       ...commonGridOptions,
       rowData: httpCodes(),
       columnDefs: [
-        { ...commonGridOptions.columnDefs![0], flex: 1 },
-        { ...commonGridOptions.columnDefs![1], flex: 1 },
+        {
+          ...commonGridOptions.columnDefs![0],
+          flex: 1,
+          width: 100,
+          maxWidth: 120,
+        },
+        {
+          ...commonGridOptions.columnDefs![1],
+          flex: 1,
+        },
       ],
     },
     removed: {
@@ -433,27 +441,35 @@ function Filters(props: FiltersProps) {
         </div>
       </Show>
       <Show when={!comparer.isOn()}>
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-          <GroupedMsgGrid
-            name="Top Logs"
-            ref={gridsRefs.msgs}
-            options={gridsOptions.msgs}
-          />
-          <GroupedMsgGrid
-            name="HTTP Codes"
-            ref={gridsRefs.httpCodes}
-            options={gridsOptions.httpCodes}
-          />
-          <GroupedMsgGrid
-            name="Jobs"
-            ref={gridsRefs.jobs}
-            options={gridsOptions.jobs}
-          />
-          <GroupedMsgGrid
-            name="Plugins"
-            ref={gridsRefs.plugins}
-            options={gridsOptions.plugins}
-          />
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-4">
+          <div class="col-span-1 lg:col-span-1 xl:col-span-4">
+            <GroupedMsgGrid
+              name="Top Logs"
+              ref={gridsRefs.msgs}
+              options={gridsOptions.msgs}
+            />
+          </div>
+          <div class="col-span-1 lg:col-span-1 xl:col-span-2">
+            <GroupedMsgGrid
+              name="HTTP Codes"
+              ref={gridsRefs.httpCodes}
+              options={gridsOptions.httpCodes}
+            />
+          </div>
+          <div class="col-span-1 lg:col-span-1 xl:col-span-3">
+            <GroupedMsgGrid
+              name="Jobs"
+              ref={gridsRefs.jobs}
+              options={gridsOptions.jobs}
+            />
+          </div>
+          <div class="col-span-1 lg:col-span-1 xl:col-span-3">
+            <GroupedMsgGrid
+              name="Plugins"
+              ref={gridsRefs.plugins}
+              options={gridsOptions.plugins}
+            />
+          </div>
         </div>
       </Show>
     </div>
