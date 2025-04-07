@@ -42,12 +42,6 @@ function Analyze() {
 
   return (
     <div class="px-4 space-y-6">
-      <div class="navbar bg-base-100 rounded-box shadow-lg">
-        <div class="flex-1">
-          <h1 class="text-2xl font-bold px-4">Log Analysis</h1>
-        </div>
-      </div>
-
       <div class="space-y-6">
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body">
