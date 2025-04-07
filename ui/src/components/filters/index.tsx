@@ -433,7 +433,7 @@ function Filters(props: FiltersProps) {
         </div>
       </Show>
       <Show when={!comparer.isOn()}>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           <GroupedMsgGrid
             name="Top Logs"
             ref={gridsRefs.msgs}
