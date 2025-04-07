@@ -5,3 +5,5 @@ analog
 *.zip
 coverage
 .vscode
+.aider*
+.env
