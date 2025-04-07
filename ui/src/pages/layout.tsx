@@ -1,11 +1,7 @@
-import { Component, JSX } from "solid-js";
+import { RouteSectionProps } from "@solidjs/router";
 import { createEffect, createSignal } from "solid-js";
 
-interface LayoutProps {
-  children: JSX.Element;
-}
-
-const Layout: Component<LayoutProps> = (props) => {
+const Layout = (props: RouteSectionProps<unknown>) => {
   const [isDarkMode, setIsDarkMode] = createSignal(
     localStorage.getItem("theme") === "dark" ||
       (!localStorage.getItem("theme") &&

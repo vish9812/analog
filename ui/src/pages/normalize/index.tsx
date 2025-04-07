@@ -3,7 +3,6 @@ import prettyBytes from "pretty-bytes";
 import LogData from "@al/models/logData";
 import usePage from "../usePage";
 import useViewModel from "./useViewModel";
-import Layout from "../layout";
 
 function Normalize() {
   const { setPage } = usePage();
@@ -21,7 +20,7 @@ function Normalize() {
     logDatas().length === 1 ? "Compare With" : "New File";
 
   return (
-    <Layout>
+    <>
       {/* Main Actions */}
       <div class="flex flex-col items-center gap-6 py-8">
         <div class="flex items-center gap-4">
@@ -212,7 +211,7 @@ function Normalize() {
           </div>
         </div>
       </Show>
-    </Layout>
+    </>
   );
 }
 

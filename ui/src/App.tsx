@@ -6,17 +6,16 @@ import { type Component, onMount, Show } from "solid-js";
 import usePage, { Pages } from "./pages/usePage";
 // import Analyze from "./pages/analyze";
 import Normalize from "./pages/normalize";
+import { Route, Router } from "@solidjs/router";
+import Layout from "./pages/layout";
 
 const App: Component = () => {
   const { page } = usePage();
 
   return (
-    <div style={{ padding: "10px 50px" }}>
-      <Normalize></Normalize>
-      {/* <Show when={page() === Pages.analyze} fallback={<Normalize></Normalize>}> */}
-      {/* <Analyze></Analyze> */}
-      {/* </Show> */}
-    </div>
+    <Router root={Layout}>
+      <Route path="/" component={Normalize} />
+    </Router>
   );
 };
 
