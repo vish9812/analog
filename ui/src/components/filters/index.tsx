@@ -4,6 +4,7 @@ import useViewModel, {
   SearchTerm,
   FiltersProps,
   GridsRefs,
+  savedFiltersNames,
 } from "./useViewModel";
 import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
@@ -42,6 +43,7 @@ function Filters(props: FiltersProps) {
   };
 
   const {
+    savedFilterName,
     filters,
     msgs,
     httpCodes,
@@ -51,11 +53,15 @@ function Filters(props: FiltersProps) {
     addedLogs,
     removedLogs,
     setFilters,
+    setSavedFilterName,
     handleFiltersChange,
     handleLogsSelectionChanged,
     handleErrorsOnlyChange,
     handleResetClick,
     handleNewSearchTerm,
+    handleSaveFilter,
+    handleLoadFilter,
+    handleDeleteFilters,
   } = useViewModel(props);
 
   const commonGridOptions: GridOptions<GroupedMsg> = {
@@ -296,6 +302,78 @@ function Filters(props: FiltersProps) {
             Reset
           </button>
         </div>
+
+        <div class="flex gap-4 items-center">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">First N Logs</span>
+            </label>
+            <input
+              type="number"
+              class="input input-bordered input-sm w-24"
+              value={filters.firstN}
+              onInput={(e) =>
+                setFilters(
+                  "firstN",
+                  isNaN(+e.currentTarget.value) || +e.currentTarget.value < 0
+                    ? 0
+                    : +e.currentTarget.value
+                )
+              }
+              onKeyDown={handleNLogsKeyDown}
+            />
+          </div>
+
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Last N Logs</span>
+            </label>
+            <input
+              type="number"
+              class="input input-bordered input-sm w-24"
+              value={filters.lastN}
+              onInput={(e) =>
+                setFilters(
+                  "lastN",
+                  isNaN(+e.currentTarget.value) || +e.currentTarget.value < 0
+                    ? 0
+                    : +e.currentTarget.value
+                )
+              }
+              onKeyDown={handleNLogsKeyDown}
+            />
+          </div>
+        </div>
+
+        <div class="flex gap-4 items-center">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Filter Name</span>
+            </label>
+            <input
+              type="text"
+              class="input input-bordered input-sm w-48"
+              value={savedFilterName()}
+              onInput={(e) => setSavedFilterName(e.currentTarget.value)}
+            />
+          </div>
+
+          <div class="flex gap-2">
+            <button class="btn btn-primary btn-sm" onClick={handleSaveFilter}>
+              Save Filters
+            </button>
+
+            <Select
+              class="select select-bordered select-sm w-48"
+              options={savedFiltersNames()}
+              onChange={handleLoadFilter}
+            />
+
+            <button class="btn btn-error btn-sm" onClick={handleDeleteFilters}>
+              Delete Filters
+            </button>
+          </div>
+        </div>
       </div>
 
       <Show when={comparer.isOn()}>
@@ -320,7 +398,7 @@ function Filters(props: FiltersProps) {
       <Show when={!comparer.isOn()}>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <GroupedMsgGrid
-            name="Messages"
+            name="Top Logs"
             ref={gridsRefs.msgs}
             options={gridsOptions.msgs}
           />

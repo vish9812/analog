@@ -56,8 +56,25 @@ function defaultFilters(): FiltersData {
   };
 }
 
+const savedFiltersKeyPrefix = "saved_filters|";
+
+function savedFilterKey(filterName: string): string {
+  return savedFiltersKeyPrefix + filterName;
+}
+
+function savedFiltersKeys(): string[] {
+  return Object.keys(localStorage).filter((key) =>
+    key.startsWith(savedFiltersKeyPrefix)
+  );
+}
+
+function savedFiltersNames(): string[] {
+  return savedFiltersKeys().map((key) => key.split("|")[1]);
+}
+
 function useViewModel(props: FiltersProps) {
   const [filters, setFilters] = createStore(defaultFilters());
+  const [savedFilterName, setSavedFilterName] = createSignal("");
   const [msgs, setMsgs] = createSignal(comparer.last().summary.msgs);
   const [httpCodes, setHTTPCodes] = createSignal(
     comparer.last().summary.httpCodes
@@ -73,6 +90,7 @@ function useViewModel(props: FiltersProps) {
   }
 
   function handleResetClick(gridsRefs: GridsRefs) {
+    setSavedFilterName("");
     setFilters(defaultFilters());
     handleErrorsOnlyChange(false);
 
@@ -172,7 +190,27 @@ function useViewModel(props: FiltersProps) {
     setFilters("terms", filters.terms.slice(0, -1));
   }
 
+  function handleSaveFilter() {
+    const filterStr = JSON.stringify({ ...filters, logs: [] });
+    localStorage.setItem(savedFilterKey(savedFilterName()), filterStr);
+  }
+
+  function handleLoadFilter(filterName: string) {
+    const filtersStr = localStorage.getItem(savedFilterKey(filterName));
+    if (!filtersStr) return;
+
+    setSavedFilterName(filterName);
+    setFilters(JSON.parse(filtersStr));
+    handleFiltersChange();
+  }
+
+  function handleDeleteFilters() {
+    savedFiltersKeys().forEach((key) => localStorage.removeItem(key));
+    setSavedFilterName("");
+  }
+
   return {
+    savedFilterName,
     filters,
     msgs,
     httpCodes,
@@ -182,14 +220,18 @@ function useViewModel(props: FiltersProps) {
     addedLogs,
     removedLogs,
     setFilters,
+    setSavedFilterName,
     handleFiltersChange,
     handleLogsSelectionChanged,
     handleErrorsOnlyChange,
     handleResetClick,
     handleNewSearchTerm,
+    handleSaveFilter,
+    handleLoadFilter,
+    handleDeleteFilters,
   };
 }
 
 export default useViewModel;
-export { defaultFilters };
+export { defaultFilters, savedFiltersNames, savedFilterKey };
 export type { SearchTerm, FiltersData, FiltersProps, GridsRefs };
