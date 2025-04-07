@@ -1,4 +1,4 @@
-import { RouteSectionProps } from "@solidjs/router";
+import { RouteSectionProps, useLocation } from "@solidjs/router";
 import { createEffect, createSignal } from "solid-js";
 
 const Layout = (props: RouteSectionProps<unknown>) => {
@@ -7,6 +7,9 @@ const Layout = (props: RouteSectionProps<unknown>) => {
       (!localStorage.getItem("theme") &&
         window.matchMedia("(prefers-color-scheme: dark)").matches)
   );
+
+  const location = useLocation();
+  const isAnalyzePage = () => location.pathname === "/analyze";
 
   createEffect(() => {
     const theme = isDarkMode() ? "dark" : "light";
@@ -54,8 +57,10 @@ const Layout = (props: RouteSectionProps<unknown>) => {
           </div>
         </div>
       </header>
-      <main class="container mx-auto px-6 py-8">
-        <div class="max-w-5xl mx-auto space-y-6">{props.children}</div>
+      <main class={`${isAnalyzePage() ? "" : "container mx-auto px-6"} py-8`}>
+        <div class={isAnalyzePage() ? "" : "max-w-5xl mx-auto space-y-6"}>
+          {props.children}
+        </div>
       </main>
     </div>
   );

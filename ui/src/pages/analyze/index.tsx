@@ -2,7 +2,7 @@ import AgGridSolid, { AgGridSolidRef } from "ag-grid-solid";
 import useViewModel from "./useViewModel";
 import gridService from "./gridService";
 import { Select, createOptions } from "@thisbeyond/solid-select";
-import { GridOptions, RowClassParams } from "ag-grid-community";
+import { GridOptions } from "ag-grid-community";
 import Filters from "@al/components/filters";
 import comparer from "@al/services/comparer";
 import LogData, { JSONLog } from "@al/models/logData";
@@ -24,7 +24,7 @@ function Analyze() {
     handleContextClick,
   } = useViewModel();
 
-  const gridOptions = (): GridOptions<JSONLog> => ({
+  const gridOptions = () => ({
     enableCellTextSelection: true,
     suppressMaintainUnsortedOrder: true,
     defaultColDef: gridService.defaultColDef,
@@ -34,14 +34,14 @@ function Analyze() {
     rowData: rows(),
     columnDefs: cols(),
     getRowId: (params: { data: JSONLog }) => params.data[LogData.logKeys.id],
-    getRowStyle: (params: RowClassParams<JSONLog>) =>
+    getRowStyle: (params: { data: JSONLog }) =>
       params.data && LogData.isErrorLog(params.data)
         ? { background: "hsl(var(--er) / 0.1)" }
         : undefined,
   });
 
   return (
-    <div class="container mx-auto p-4 space-y-6">
+    <div class="px-4 space-y-6">
       <div class="navbar bg-base-100 rounded-box shadow-lg">
         <div class="flex-1">
           <h1 class="text-2xl font-bold px-4">Log Analysis</h1>
