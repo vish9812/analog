@@ -1,13 +1,5 @@
-import {
-  Alert,
-  Button,
-  Divider,
-  FormControlLabel,
-  Grid,
-  Stack,
-  Switch,
-  TextField,
-} from "@suid/material";
+import { Accessor, For, Show } from "solid-js";
+import { Select, createOptions } from "@thisbeyond/solid-select";
 import useViewModel, {
   SearchTerm,
   FiltersProps,
@@ -15,11 +7,6 @@ import useViewModel, {
 } from "./useViewModel";
 import { AgGridSolidRef } from "ag-grid-solid";
 import { GridOptions } from "ag-grid-community";
-import { Accessor, For, Show } from "solid-js";
-import { Select, createOptions } from "@thisbeyond/solid-select";
-import { IconButton } from "@suid/material";
-import AddIcon from "@suid/icons-material/Add";
-import RemoveIcon from "@suid/icons-material/Remove";
 import comparer from "@al/services/comparer";
 import { GroupedMsg } from "@al/models/logData";
 import GroupedMsgGrid from "../groupedMsgGrid";
@@ -133,23 +120,36 @@ function Filters(props: FiltersProps) {
 
   function getSimpleSearchHTML(term: SearchTerm, i: Accessor<number>) {
     return (
-      <>
-        <Select
-          class="app-select"
-          options={[texts.and, texts.or]}
-          initialValue={term.and ? texts.and : texts.or}
-          onChange={(val) => setFilters("terms", i(), "and", val === texts.and)}
-        />
-        <Select
-          class="app-select"
-          options={[texts.contains, texts.notContains]}
-          initialValue={term.contains ? texts.contains : texts.notContains}
-          onChange={(val) =>
-            setFilters("terms", i(), "contains", val === texts.contains)
+      <div class="flex gap-2 items-center">
+        <select
+          class="select select-bordered select-sm w-24"
+          value={term.and ? texts.and : texts.or}
+          onChange={(e) =>
+            setFilters("terms", i(), "and", e.currentTarget.value === texts.and)
           }
-        />
+        >
+          <option>{texts.and}</option>
+          <option>{texts.or}</option>
+        </select>
+
+        <select
+          class="select select-bordered select-sm w-32"
+          value={term.contains ? texts.contains : texts.notContains}
+          onChange={(e) =>
+            setFilters(
+              "terms",
+              i(),
+              "contains",
+              e.currentTarget.value === texts.contains
+            )
+          }
+        >
+          <option>{texts.contains}</option>
+          <option>{texts.notContains}</option>
+        </select>
+
         <Select
-          class="app-select"
+          class="select select-bordered select-sm w-32"
           initialValue={texts.allFields}
           {...createOptions([texts.allFields, ...comparer.last().keys])}
           onChange={(val) =>
@@ -161,154 +161,187 @@ function Filters(props: FiltersProps) {
             )
           }
         />
-        <TextField
-          label="Search"
+
+        <input
+          type="text"
+          placeholder="Search"
+          class="input input-bordered input-sm w-full"
           value={term.value}
-          onChange={(_, val) =>
-            setFilters("terms", i(), "value", val.toLowerCase())
+          onInput={(e) =>
+            setFilters(
+              "terms",
+              i(),
+              "value",
+              e.currentTarget.value.toLowerCase()
+            )
           }
           onKeyDown={handleFiltersEnterKey}
         />
-      </>
+
+        <button
+          class="btn btn-circle btn-sm btn-error"
+          onClick={() => handleNewSearchTerm(false)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
     );
   }
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12}>
-        <Stack direction="row" spacing={2}>
-          <TextField
-            label="Start Time(Inclusive)"
+    <div class="p-4 space-y-4">
+      <div class="flex flex-wrap gap-4">
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Start Time (Inclusive)</span>
+          </label>
+          <input
+            type="text"
+            placeholder="YYYY-MM-DD HH:mm:ss"
+            class="input input-bordered w-full"
             value={filters.startTime}
-            onChange={(_, val) => setFilters("startTime", val)}
+            onInput={(e) => setFilters("startTime", e.currentTarget.value)}
             onKeyDown={handleFiltersEnterKey}
           />
-          <TextField
-            label="End Time(Exclusive)"
+        </div>
+
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">End Time (Exclusive)</span>
+          </label>
+          <input
+            type="text"
+            placeholder="YYYY-MM-DD HH:mm:ss"
+            class="input input-bordered w-full"
             value={filters.endTime}
-            onChange={(_, val) => setFilters("endTime", val)}
+            onInput={(e) => setFilters("endTime", e.currentTarget.value)}
             onKeyDown={handleFiltersEnterKey}
           />
-          <TextField
-            label="Regex Search"
+        </div>
+
+        <div class="form-control w-full max-w-xs">
+          <label class="label">
+            <span class="label-text">Regex Search</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Enter regex pattern"
+            class="input input-bordered w-full"
             value={filters.regex}
-            onChange={(_, val) => setFilters("regex", val)}
+            onInput={(e) => setFilters("regex", e.currentTarget.value)}
             onKeyDown={handleFiltersEnterKey}
           />
-          <For each={filters.terms}>{getSimpleSearchHTML}</For>
-          <IconButton color="primary" onClick={() => handleNewSearchTerm(true)}>
-            <AddIcon />
-          </IconButton>
-          <IconButton
-            color="warning"
-            onClick={() => handleNewSearchTerm(false)}
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <For each={filters.terms}>{getSimpleSearchHTML}</For>
+
+        <button
+          class="btn btn-primary btn-sm"
+          onClick={() => handleNewSearchTerm(true)}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4 mr-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
           >
-            <RemoveIcon />
-          </IconButton>
-        </Stack>
-      </Grid>
-      <Grid item xs={12}>
-        <Stack direction="row" spacing={2}>
-          <Button variant="contained" onClick={handleFiltersChange}>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+          Add Filter
+        </button>
+      </div>
+
+      <div class="flex gap-4 items-center">
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text mr-2">Errors Only</span>
+            <input
+              type="checkbox"
+              class="toggle toggle-primary"
+              checked={filters.errorsOnly}
+              onChange={(e) => handleErrorsOnlyChange(e.currentTarget.checked)}
+            />
+          </label>
+        </div>
+
+        <div class="flex gap-2">
+          <button class="btn btn-primary" onClick={handleFiltersChange}>
             Filter
-          </Button>
-          <Divider orientation="vertical" flexItem></Divider>
-          <Button
-            variant="outlined"
+          </button>
+          <button
+            class="btn btn-ghost"
             onClick={() => handleResetClick(gridsRefs)}
           >
             Reset
-          </Button>
-          <Divider orientation="vertical" flexItem></Divider>
-          <FormControlLabel
-            value="errors"
-            control={
-              <Switch
-                checked={filters.errorsOnly}
-                onChange={(_, checked) => handleErrorsOnlyChange(checked)}
-              />
-            }
-            label="Errors Only"
-            labelPlacement="start"
-          />
-          <Divider orientation="vertical" flexItem></Divider>
-          <TextField
-            label="First N Logs"
-            value={filters.firstN}
-            onChange={(_, val) =>
-              setFilters("firstN", isNaN(+val) || +val < 0 ? 0 : +val)
-            }
-            onKeyDown={handleNLogsKeyDown}
-          />
-          <TextField
-            label="Last N Logs"
-            value={filters.lastN}
-            onChange={(_, val) =>
-              setFilters("lastN", isNaN(+val) || +val < 0 ? 0 : +val)
-            }
-            onKeyDown={handleNLogsKeyDown}
-          />
-          <Alert severity="info">
-            N-Logs works only with the below "selection" filters.
-          </Alert>
-        </Stack>
-      </Grid>
-      <Grid item xs={12} container spacing={2}>
-        <Grid item xs={4}>
-          <GroupedMsgGrid
-            ref={gridsRefs.msgs}
-            name="Top Logs"
-            options={gridsOptions.msgs}
-          ></GroupedMsgGrid>
-        </Grid>
-        <Grid item xs={2}>
-          <GroupedMsgGrid
-            ref={gridsRefs.httpCodes}
-            name="HTTP Codes"
-            options={gridsOptions.httpCodes}
-          ></GroupedMsgGrid>
-        </Grid>
-        <Grid item xs={3}>
-          <GroupedMsgGrid
-            ref={gridsRefs.jobs}
-            name="Jobs"
-            options={gridsOptions.jobs}
-          ></GroupedMsgGrid>
-        </Grid>
-        <Grid item xs={3}>
-          <GroupedMsgGrid
-            ref={gridsRefs.plugins}
-            name="Plugins"
-            options={gridsOptions.plugins}
-          ></GroupedMsgGrid>
-        </Grid>
-      </Grid>
+          </button>
+        </div>
+      </div>
+
       <Show when={comparer.isOn()}>
-        <Grid item xs={12} container spacing={2}>
-          <Grid item xs={4}>
-            <GroupedMsgGrid
-              ref={gridsRefs.added}
-              name="Added Logs"
-              options={gridsOptions.added}
-            ></GroupedMsgGrid>
-          </Grid>
-          <Grid item xs={4}>
-            <GroupedMsgGrid
-              ref={gridsRefs.removed}
-              name="Removed Logs"
-              options={gridsOptions.removed}
-            ></GroupedMsgGrid>
-          </Grid>
-          <Grid item xs={4}>
-            <GroupedMsgGrid
-              ref={gridsRefs.unchanged}
-              name="Unchanged Logs"
-              options={gridsOptions.unchanged}
-            ></GroupedMsgGrid>
-          </Grid>
-        </Grid>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <GroupedMsgGrid
+            name="Unchanged"
+            ref={gridsRefs.unchanged}
+            options={gridsOptions.unchanged}
+          />
+          <GroupedMsgGrid
+            name="Added"
+            ref={gridsRefs.added}
+            options={gridsOptions.added}
+          />
+          <GroupedMsgGrid
+            name="Removed"
+            ref={gridsRefs.removed}
+            options={gridsOptions.removed}
+          />
+        </div>
       </Show>
-    </Grid>
+      <Show when={!comparer.isOn()}>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <GroupedMsgGrid
+            name="Messages"
+            ref={gridsRefs.msgs}
+            options={gridsOptions.msgs}
+          />
+          <GroupedMsgGrid
+            name="HTTP Codes"
+            ref={gridsRefs.httpCodes}
+            options={gridsOptions.httpCodes}
+          />
+          <GroupedMsgGrid
+            name="Jobs"
+            ref={gridsRefs.jobs}
+            options={gridsOptions.jobs}
+          />
+          <GroupedMsgGrid
+            name="Plugins"
+            ref={gridsRefs.plugins}
+            options={gridsOptions.plugins}
+          />
+        </div>
+      </Show>
+    </div>
   );
 }
 

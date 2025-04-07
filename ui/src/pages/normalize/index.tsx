@@ -1,11 +1,9 @@
 import { For, Show } from "solid-js";
 import prettyBytes from "pretty-bytes";
 import LogData from "@al/models/logData";
-import usePage from "../usePage";
 import useViewModel from "./useViewModel";
 
 function Normalize() {
-  const { setPage } = usePage();
   const {
     logDatas,
     newFileDisabled,
@@ -62,7 +60,7 @@ function Normalize() {
             class={`btn btn-lg gap-2 ${
               analyzeDisabled() ? "btn-disabled" : "btn-success"
             }`}
-            onClick={() => handleAnalyzeClick(setPage)}
+            onClick={() => handleAnalyzeClick()}
             disabled={analyzeDisabled()}
           >
             <svg

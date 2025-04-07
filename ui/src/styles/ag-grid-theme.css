@@ -1,0 +1,130 @@
+/* AG Grid Theme Customization */
+.ag-theme-alpine {
+  --ag-background-color: transparent;
+  --ag-header-background-color: hsl(var(--b2));
+  --ag-odd-row-background-color: hsl(var(--b1));
+  --ag-header-foreground-color: hsl(var(--bc));
+  --ag-foreground-color: hsl(var(--bc));
+  --ag-border-color: hsl(var(--b3));
+  --ag-secondary-border-color: hsl(var(--b3));
+  --ag-row-border-color: hsl(var(--b3));
+  --ag-row-hover-color: hsl(var(--b2));
+  --ag-selected-row-background-color: hsl(var(--p) / 0.2);
+  --ag-font-size: 14px;
+  --ag-font-family: inherit;
+  --ag-cell-horizontal-padding: 1rem;
+  --ag-header-column-separator-display: none;
+  --ag-header-column-resize-handle-display: none;
+}
+
+.ag-theme-alpine .ag-header {
+  border-bottom: 1px solid hsl(var(--b3));
+}
+
+.ag-theme-alpine .ag-header-cell {
+  font-weight: 600;
+}
+
+.ag-theme-alpine .ag-cell {
+  line-height: 2;
+  display: flex;
+  align-items: center;
+}
+
+.ag-theme-alpine .ag-row-selected {
+  border-color: hsl(var(--p) / 0.3);
+}
+
+.ag-theme-alpine .ag-row-hover {
+  background-color: hsl(var(--b2) / 0.7);
+}
+
+/* Error row styling */
+.ag-theme-alpine .ag-row-error {
+  background-color: hsl(var(--er) / 0.1);
+  border-color: hsl(var(--er) / 0.2);
+}
+
+.ag-theme-alpine .ag-row-error:hover {
+  background-color: hsl(var(--er) / 0.2);
+}
+
+/* Checkbox styling */
+.ag-theme-alpine .ag-checkbox-input-wrapper {
+  border-radius: var(--rounded-btn, 0.5rem);
+  border-width: 1px;
+  border-color: hsl(var(--bc) / 0.2);
+}
+
+.ag-theme-alpine .ag-checkbox-input-wrapper.ag-checked {
+  background-color: hsl(var(--p));
+  border-color: hsl(var(--p));
+}
+
+/* Column header menu button */
+.ag-theme-alpine .ag-header-cell-menu-button:hover {
+  background-color: hsl(var(--b3));
+}
+
+/* JSON formatting */
+.ag-theme-alpine .json-key {
+  color: hsl(var(--p));
+}
+
+.ag-theme-alpine .json-string {
+  color: hsl(var(--su));
+}
+
+.ag-theme-alpine .json-number {
+  color: hsl(var(--wa));
+}
+
+.ag-theme-alpine .json-boolean {
+  color: hsl(var(--in));
+}
+
+.ag-theme-alpine .json-null {
+  color: hsl(var(--er));
+}
+
+/* Cell content alignment */
+.ag-theme-alpine .ag-cell-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+/* Tooltip styling */
+.ag-theme-alpine .ag-tooltip {
+  background-color: hsl(var(--b2));
+  border: 1px solid hsl(var(--b3));
+  border-radius: var(--rounded-box, 1rem);
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  box-shadow: var(--tw-shadow-lg);
+}
+
+/* Loading overlay */
+.ag-theme-alpine .ag-overlay-loading-wrapper {
+  background-color: hsl(var(--b1) / 0.8);
+}
+
+.ag-theme-alpine .ag-overlay-loading-center {
+  background-color: hsl(var(--b3));
+  border-radius: var(--rounded-box, 1rem);
+  padding: 1rem;
+  border: none;
+  color: hsl(var(--bc));
+}
+
+/* No rows overlay */
+.ag-theme-alpine .ag-overlay-no-rows-wrapper {
+  background-color: transparent;
+  padding: 2rem;
+}
+
+.ag-theme-alpine .ag-overlay-no-rows-center {
+  background-color: transparent;
+  color: hsl(var(--bc) / 0.5);
+  font-size: 0.875rem;
+  border: none;
+}

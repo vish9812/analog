@@ -1,14 +1,14 @@
 import AgGridSolid, { AgGridSolidRef } from "ag-grid-solid";
-import { Grid, Button, Divider } from "@suid/material";
 import useViewModel from "./useViewModel";
 import gridService from "./gridService";
 import { Select, createOptions } from "@thisbeyond/solid-select";
-import { GridOptions } from "ag-grid-community";
+import { GridOptions, RowClassParams } from "ag-grid-community";
 import Filters from "@al/components/filters";
 import comparer from "@al/services/comparer";
 import LogData, { JSONLog } from "@al/models/logData";
 import Download from "@al/components/download";
 import TimeJumps from "@al/components/timeJumps";
+import "@al/styles/ag-grid-theme.css";
 
 function Analyze() {
   let gridRef = {} as AgGridSolidRef;
@@ -33,65 +33,87 @@ function Analyze() {
     },
     rowData: rows(),
     columnDefs: cols(),
-    getRowId: (params) => params.data.id,
-    getRowStyle: (params) =>
+    getRowId: (params: { data: JSONLog }) => params.data[LogData.logKeys.id],
+    getRowStyle: (params: RowClassParams<JSONLog>) =>
       params.data && LogData.isErrorLog(params.data)
-        ? { background: "#FFBFBF" }
+        ? { background: "hsl(var(--er) / 0.1)" }
         : undefined,
   });
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} margin={2}>
-        <Filters onFiltersChange={handleFiltersChange}></Filters>
-      </Grid>
-      <Grid item xs={12}>
-        <Divider></Divider>
-      </Grid>
-      <Grid item xs={12} container spacing={2}>
-        <Grid item xs={5} container spacing={2} sx={{ alignItems: "center" }}>
-          <Grid item xs={6}>
-            <h3>
-              All Logs
-              {rows().length ? " : " + rows().length.toLocaleString() : ""}
-            </h3>
-          </Grid>
-          <Grid item xs={6}>
-            <Download logs={rows}></Download>
-          </Grid>
-        </Grid>
-        <Grid item xs={2}>
-          <TimeJumps
-            onTimeJump={(jumpID) => handleTimeJump(gridRef, jumpID)}
-          ></TimeJumps>
-        </Grid>
-        <Grid item xs={5} container spacing={2} sx={{ alignItems: "center" }}>
-          <Grid item xs={8}>
-            <Select
-              class="app-select"
-              multiple
-              initialValue={initialCols().map((c) => c.field)}
-              {...createOptions(comparer.last().keys)}
-              onChange={handleColsChange}
-            />
-          </Grid>
-          <Grid item xs={4}>
-            <Button
-              sx={{ margin: 2 }}
-              variant="outlined"
-              onClick={() => setInitialCols(gridService.defaultCols())}
-            >
-              Reset Fields
-            </Button>
-          </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <div style={{ height: "900px" }} class="ag-theme-alpine">
-            <AgGridSolid ref={gridRef} {...gridOptions()} />
+    <div class="container mx-auto p-4 space-y-6">
+      <div class="navbar bg-base-100 rounded-box shadow-lg">
+        <div class="flex-1">
+          <h1 class="text-2xl font-bold px-4">Log Analysis</h1>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <Filters onFiltersChange={handleFiltersChange} />
           </div>
-        </Grid>
-      </Grid>
-    </Grid>
+        </div>
+
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <div class="flex flex-wrap gap-4 items-center justify-between mb-4">
+              <div class="flex items-center gap-4">
+                <h2 class="text-xl font-semibold flex items-center gap-2">
+                  All Logs
+                  {rows().length ? (
+                    <span class="badge badge-primary badge-lg">
+                      {rows().length.toLocaleString()}
+                    </span>
+                  ) : null}
+                </h2>
+                <Download logs={rows} />
+              </div>
+
+              <TimeJumps
+                onTimeJump={(jumpID) => handleTimeJump(gridRef, jumpID)}
+              />
+
+              <div class="flex items-center gap-2">
+                <Select
+                  class="select select-bordered min-w-[200px]"
+                  multiple
+                  initialValue={initialCols().map((c) => c.field)}
+                  {...createOptions(comparer.last().keys)}
+                  onChange={handleColsChange}
+                />
+                <button
+                  class="btn btn-outline btn-sm gap-2"
+                  onClick={() => setInitialCols(gridService.defaultCols())}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  Reset Fields
+                </button>
+              </div>
+            </div>
+
+            <div class="rounded-lg border border-base-300 overflow-hidden shadow-inner">
+              <div style={{ height: "900px" }} class="ag-theme-alpine">
+                <AgGridSolid ref={gridRef} {...gridOptions()} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
