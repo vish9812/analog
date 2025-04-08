@@ -36,7 +36,7 @@ function Analyze() {
     getRowId: (params: { data: JSONLog }) => params.data[LogData.logKeys.id],
     getRowStyle: (params: RowClassParams<JSONLog>) =>
       params.data && LogData.isErrorLog(params.data)
-        ? { background: "#EB5971" }
+        ? { background: "#E6A5A5" }
         : undefined,
   });
 
