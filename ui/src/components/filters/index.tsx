@@ -85,7 +85,7 @@ function Filters(props: FiltersProps) {
     suppressRowClickSelection: true,
     onSelectionChanged: () => handleLogsSelectionChanged(gridsRefs),
     getRowStyle: (params) =>
-      params.data?.hasErrors ? { background: "#FFBFBF" } : undefined,
+      params.data?.hasErrors ? { background: "#EB5971" } : undefined,
   };
 
   const gridsOptions: GridsOptions = {
