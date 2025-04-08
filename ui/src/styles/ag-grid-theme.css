@@ -76,10 +76,10 @@
 }
 
 /* Cell content alignment */
-.ag-theme-alpine .ag-cell-wrapper {
+/* .ag-theme-alpine .ag-cell-wrapper {
   height: 100%;
   width: 100%;
-}
+} */
 
 /* Tooltip styling */
 .ag-theme-alpine .ag-tooltip {
