@@ -49,18 +49,6 @@
   background-color: hsl(var(--er) / 0.2);
 }
 
-/* Checkbox styling */
-.ag-theme-alpine .ag-checkbox-input-wrapper {
-  border-radius: var(--rounded-btn, 0.5rem);
-  border-width: 1px;
-  border-color: hsl(var(--bc) / 0.2);
-}
-
-.ag-theme-alpine .ag-checkbox-input-wrapper.ag-checked {
-  background-color: hsl(var(--p));
-  border-color: hsl(var(--p));
-}
-
 /* Column header menu button */
 .ag-theme-alpine .ag-header-cell-menu-button:hover {
   background-color: hsl(var(--b3));

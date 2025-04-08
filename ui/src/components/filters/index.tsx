@@ -412,7 +412,7 @@ function Filters(props: FiltersProps) {
                   class="btn btn-error btn-sm"
                   onClick={handleDeleteFilters}
                 >
-                  Delete Filters
+                  Delete All
                 </button>
               </div>
             </div>
