@@ -1,15 +1,18 @@
-import { RouteSectionProps, useLocation } from "@solidjs/router";
-import { createEffect, createSignal } from "solid-js";
+import { createEffect, createSignal, JSX } from "solid-js";
+import usePage, { Pages } from "./usePage";
 
-const Layout = (props: RouteSectionProps<unknown>) => {
+interface LayoutProps {
+  children: JSX.Element;
+}
+
+const Layout = (props: LayoutProps) => {
   const [isDarkMode, setIsDarkMode] = createSignal(
     localStorage.getItem("theme") === "dark" ||
       (!localStorage.getItem("theme") &&
         window.matchMedia("(prefers-color-scheme: dark)").matches)
   );
 
-  const location = useLocation();
-  const isAnalyzePage = () => location.pathname === "/analyze";
+  const { page } = usePage();
 
   createEffect(() => {
     const theme = isDarkMode() ? "dark" : "light";
@@ -57,8 +60,14 @@ const Layout = (props: RouteSectionProps<unknown>) => {
           </div>
         </div>
       </header>
-      <main class={`${isAnalyzePage() ? "" : "container mx-auto px-6"} py-8`}>
-        <div class={isAnalyzePage() ? "" : "max-w-5xl mx-auto space-y-6"}>
+      <main
+        class={`${
+          page() === Pages.analyze ? "" : "container mx-auto px-6"
+        } py-8`}
+      >
+        <div
+          class={page() === Pages.analyze ? "" : "max-w-5xl mx-auto space-y-6"}
+        >
           {props.children}
         </div>
       </main>

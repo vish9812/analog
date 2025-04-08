@@ -3,6 +3,7 @@ import useViewModel from "./useViewModel";
 import comparer from "@al/services/comparer";
 import LogData from "@al/models/logData";
 import normalizer from "@al/services/normalizer";
+import { Pages } from "../usePage";
 
 describe("useViewModel", () => {
   test("initial values", () => {
@@ -14,6 +15,21 @@ describe("useViewModel", () => {
       expect(vm.logDatas(), "logDatas").toBeTruthy();
       expect(vm.logDatas().length, "logDatas().length").toEqual(0);
       expect(vm.newFileDisabled(), "newFileDisabled").toEqual(false);
+
+      dispose();
+    });
+  });
+
+  test(`handleAnalyzeClick sets page to ${Pages.analyze}`, () => {
+    createRoot((dispose) => {
+      const setPage = vi.fn();
+
+      const vm = useViewModel();
+      vm.handleAnalyzeClick(setPage);
+
+      expect(vm.processingFile(), "processingFile").toEqual(false);
+      expect(vm.analyzeDisabled(), "analyzeDisabled").toEqual(false);
+      expect(setPage, "setPage").toHaveBeenCalledWith(Pages.analyze);
 
       dispose();
     });

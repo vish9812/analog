@@ -1,9 +1,9 @@
 import comparer from "@al/services/comparer";
 import LogData, { type JSONLog } from "@al/models/logData";
-import { createSignal } from "solid-js";
+import { createSignal, Setter } from "solid-js";
+import { PagesValues, Pages } from "../usePage";
 import normalizer from "@al/services/normalizer";
 import { createStore } from "solid-js/store";
-import { useNavigate } from "@solidjs/router";
 
 // Temporarily store files
 // Empty the array once processed to free the memory
@@ -15,14 +15,13 @@ interface TimeRange {
 }
 
 function useViewModel() {
-  const navigate = useNavigate();
   const [analyzeDisabled, setAnalyzeDisabled] = createSignal(true);
   const [processingFile, setProcessingFile] = createSignal(false);
   const [timeRange, setTimeRange] = createStore<TimeRange[]>([]);
   const [logDatas, setLogDatas] = createSignal<LogData[]>([]);
   const newFileDisabled = () => logDatas().length > 1;
 
-  async function handleAnalyzeClick() {
+  async function handleAnalyzeClick(setPage: Setter<PagesValues>) {
     setProcessingFile(true);
     setAnalyzeDisabled(true);
 
@@ -37,7 +36,7 @@ function useViewModel() {
 
     logFiles = [];
 
-    navigate("/analyze");
+    setPage(Pages.analyze);
   }
 
   function handleFileUpload(files: FileList | null, logData: LogData) {
