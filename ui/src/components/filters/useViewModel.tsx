@@ -37,9 +37,15 @@ interface FiltersData {
 }
 
 function defaultFilters(): FiltersData {
+  const logs = comparer.last().logs;
+  const firstLog = logs[0];
+  const lastLog = logs[logs.length - 1];
+  const startTime = firstLog[LogData.logKeys.timestamp];
+  const endTime = lastLog[LogData.logKeys.timestamp];
+
   return {
-    startTime: "",
-    endTime: "",
+    startTime: startTime,
+    endTime: endTime,
     regex: "",
     terms: [
       {
