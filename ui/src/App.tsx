@@ -1,11 +1,11 @@
 import "@thisbeyond/solid-select/style.css";
 import "ag-grid-community/styles/ag-grid.min.css";
 import "ag-grid-community/styles/ag-theme-alpine.min.css";
+import "./app.css";
 
 import { Show, type Component } from "solid-js";
 import Normalize from "./pages/normalize";
 import Analyze from "./pages/analyze";
-import { Route, Router } from "@solidjs/router";
 import Layout from "./pages/layout";
 import usePage, { Pages } from "./pages/usePage";
 

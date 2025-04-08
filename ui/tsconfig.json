@@ -18,8 +18,7 @@
       "@al/models/*": ["models/*"],
       "@al/pages/*": ["pages/*"],
       "@al/services/*": ["services/*"],
-      "@al/utils/*": ["utils/*"],
-      "@al/styles/*": ["styles/*"]
+      "@al/utils/*": ["utils/*"]
     }
   }
 }

@@ -8,7 +8,6 @@ import comparer from "@al/services/comparer";
 import LogData, { JSONLog } from "@al/models/logData";
 import Download from "@al/components/download";
 import TimeJumps from "@al/components/timeJumps";
-import "@al/styles/ag-grid-theme.css";
 
 function Analyze() {
   let gridRef = {} as AgGridSolidRef;
@@ -70,7 +69,7 @@ function Analyze() {
 
               <div class="flex items-center gap-2">
                 <Select
-                  class="select select-bordered min-w-[200px]"
+                  class="app-select min-w-[200px]"
                   multiple
                   initialValue={initialCols().map((c) => c.field)}
                   {...createOptions(comparer.last().keys)}

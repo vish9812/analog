@@ -73,6 +73,7 @@ function Filters(props: FiltersProps) {
         headerCheckboxSelection: true,
         checkboxSelection: true,
         filter: "agTextColumnFilter",
+        suppressHeaderMenuButton: false,
       },
       {
         headerName: "count",
