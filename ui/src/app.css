@@ -30,15 +30,15 @@
 /* AG Grid Theme Customization */
 .ag-theme-alpine {
   --ag-background-color: transparent;
-  --ag-header-background-color: hsl(var(--b2));
-  --ag-odd-row-background-color: hsl(var(--b1));
-  --ag-header-foreground-color: hsl(var(--bc));
-  --ag-foreground-color: hsl(var(--bc));
-  --ag-border-color: hsl(var(--b3));
-  --ag-secondary-border-color: hsl(var(--b3));
-  --ag-row-border-color: hsl(var(--b3));
-  --ag-row-hover-color: hsl(var(--b2));
-  --ag-selected-row-background-color: hsl(var(--p) / 0.2);
+  --ag-header-background-color: var(--color-base-200);
+  --ag-odd-row-background-color: var(--color-base-200);
+  --ag-header-foreground-color: var(--color-base-content);
+  --ag-foreground-color: var(--color-base-content);
+  --ag-border-color: var(--color-base-300);
+  --ag-secondary-border-color: var(--color-base-300);
+  --ag-row-border-color: var(--color-base-300);
+  --ag-row-hover-color: var(--color-base-200);
+  --ag-selected-row-background-color: var(--color-primary) / 0.2;
   --ag-font-size: 14px;
   --ag-font-family: inherit;
   --ag-cell-horizontal-padding: 1rem;
