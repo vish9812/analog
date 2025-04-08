@@ -1,9 +1,44 @@
-import { createEffect, createSignal, JSX } from "solid-js";
+import { createEffect, createSignal, JSX, Show } from "solid-js";
 import usePage, { Pages } from "./usePage";
+import comparer from "@al/services/comparer";
 
 interface LayoutProps {
   children: JSX.Element;
 }
+
+// Component to display file name(s)
+const FileNameDisplay = () => {
+  const isComparison = comparer.isOn();
+  const firstFile = comparer.first()?.fileInfo?.name || "";
+  const lastFile = comparer.last()?.fileInfo?.name || "";
+
+  return (
+    <div class="text-center flex-1 px-4">
+      {isComparison ? (
+        <div class="flex items-center justify-center gap-3">
+          <span class="font-medium text-base-content/80">{firstFile}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+          <span class="font-medium text-base-content/80">{lastFile}</span>
+        </div>
+      ) : (
+        <span class="font-medium text-base-content/80">{lastFile}</span>
+      )}
+    </div>
+  );
+};
 
 const Layout = (props: LayoutProps) => {
   const [isDarkMode, setIsDarkMode] = createSignal(
@@ -13,6 +48,7 @@ const Layout = (props: LayoutProps) => {
   );
 
   const { page } = usePage();
+  const isAnalyzePage = () => page() === Pages.analyze;
 
   createEffect(() => {
     const theme = isDarkMode() ? "dark" : "light";
@@ -31,6 +67,12 @@ const Layout = (props: LayoutProps) => {
               </h1>
               <p class="text-base-content/70 mt-1">Analyze Logs with Ease</p>
             </div>
+
+            {/* Show file names only on the analyze page */}
+            <Show when={isAnalyzePage()}>
+              <FileNameDisplay />
+            </Show>
+
             <button
               type="button"
               class="btn btn-circle btn-ghost"
