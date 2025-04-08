@@ -21,6 +21,7 @@ function Analyze() {
     setInitialCols,
     handleTimeJump,
     handleContextClick,
+    filterErrorsOnly,
   } = useViewModel();
 
   const gridOptions = (): GridOptions<JSONLog> => ({
@@ -34,7 +35,7 @@ function Analyze() {
     columnDefs: cols(),
     getRowId: (params: { data: JSONLog }) => params.data[LogData.logKeys.id],
     getRowStyle: (params: RowClassParams<JSONLog>) =>
-      params.data && LogData.isErrorLog(params.data)
+      params.data && LogData.isErrorLog(params.data) && !filterErrorsOnly()
         ? { background: "#E6A5A5" }
         : undefined,
   });

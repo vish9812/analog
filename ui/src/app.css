@@ -42,8 +42,9 @@
   --ag-font-size: 14px;
   --ag-font-family: inherit;
   --ag-cell-horizontal-padding: 1rem;
-  --ag-header-column-separator-display: none;
-  --ag-header-column-resize-handle-display: none;
+  --ag-header-column-resize-handle-color: var(--color-base-300);
+  --ag-header-column-resize-handle-height: 50%;
+  --ag-header-column-resize-handle-width: 3px;
 }
 
 /* Always show header menu button */
@@ -51,6 +52,10 @@
   transition: opacity 0.2s;
   opacity: 0.6;
 }
+
+/* .ag-header-cell-resize {
+  @apply bg-base-300;
+} */
 
 .ag-select-list {
   @apply bg-base-300;
