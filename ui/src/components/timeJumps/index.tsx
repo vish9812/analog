@@ -25,9 +25,12 @@ function TimeJumps(props: Props) {
           />
         </svg>
       </button>
-      <button class="join-item btn btn-sm btn-ghost no-animation cursor-default">
-        Time Jumps
-      </button>
+      <div
+        class="tooltip"
+        data-tip="Navigate through log data in subsets whenever there is a time break of certain minutes"
+      >
+        <button class="join-item p-2">Time Jumps</button>
+      </div>
       <button
         class="join-item btn btn-sm"
         disabled={nextEmpty()}

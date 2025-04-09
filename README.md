@@ -35,7 +35,9 @@ For details, refer to its [README.md](https://github.com/vish9812/analog/blob/ma
 
 - **Logs Context**: Even when a filter is applied, you can access the context around the current log entry.
 
-- **Time Jumps**: Navigate through log data in subsets whenever there is a time break of certain minutes.
+- **Time Jumps**: Navigate through log data in subsets whenever there is a time break of certain minutes. Example: If you have downloaded a subset of a job. Then with time jumps, you can navigate to next or previous runs of that job.
+
+- **Deduplicate Logs**: Remove _similar_ log occurrences leaving only the First N and Last N occurrences to help you easily find the first and last occurrences of those events.
 
 ## Prerequisite:
 

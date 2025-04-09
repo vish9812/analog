@@ -320,7 +320,10 @@ function Filters(props: FiltersProps) {
             {/* N-Logs Controls */}
             <div class="flex gap-4">
               <div class="form-control">
-                <label class="label">
+                <label
+                  class="label tooltip"
+                  data-tip="Deduplicate logs leaving only the First N occurrences. It works with the below table filters only."
+                >
                   <span class="label-text">First N Logs</span>
                 </label>
                 <input
@@ -341,7 +344,10 @@ function Filters(props: FiltersProps) {
               </div>
 
               <div class="form-control">
-                <label class="label">
+                <label
+                  class="label tooltip"
+                  data-tip="Deduplicate logs leaving only the Last N occurrences. It works with the below table filters only."
+                >
                   <span class="label-text">Last N Logs</span>
                 </label>
                 <input
