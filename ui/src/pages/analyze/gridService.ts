@@ -27,10 +27,6 @@ function defaultCols(): ColDef[] {
       cellRenderer: FullDataCellRenderer,
       flex: 2,
     },
-    // {
-    //   field: LogData.logKeys.timestamp,
-    //   width: 270,
-    // },
   ];
 }
 

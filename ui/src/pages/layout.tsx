@@ -42,8 +42,8 @@ const FileNameDisplay = () => {
 
 const Layout = (props: LayoutProps) => {
   const [isDarkMode, setIsDarkMode] = createSignal(
-    localStorage.getItem("theme") === "dark" ||
-      (!localStorage.getItem("theme") &&
+    localStorage.getItem("analog-theme") === "dark" ||
+      (!localStorage.getItem("analog-theme") &&
         window.matchMedia("(prefers-color-scheme: dark)").matches)
   );
 
@@ -53,7 +53,7 @@ const Layout = (props: LayoutProps) => {
   createEffect(() => {
     const theme = isDarkMode() ? "dark" : "light";
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
+    localStorage.setItem("analog-theme", theme);
   });
 
   return (
