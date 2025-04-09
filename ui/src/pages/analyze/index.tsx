@@ -8,11 +8,9 @@ import comparer from "@al/services/comparer";
 import LogData, { JSONLog } from "@al/models/logData";
 import Download from "@al/components/download";
 import TimeJumps from "@al/components/timeJumps";
-import { createSignal } from "solid-js";
 
 function Analyze() {
   let gridRef = {} as AgGridSolidRef;
-  const [showFilters, setShowFilters] = createSignal(true);
 
   const {
     handleFiltersChange,
@@ -47,17 +45,9 @@ function Analyze() {
       <div class="space-y-6">
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body p-0">
-            <div
-              class={`collapse collapse-arrow ${
-                showFilters() ? "collapse-open" : ""
-              }`}
-            >
-              <div
-                class="collapse-title text-xl font-semibold"
-                onClick={() => setShowFilters(!showFilters())}
-              >
-                Filters
-              </div>
+            <div class="collapse collapse-arrow peer-checked:collapse-open">
+              <input type="checkbox" class="peer" />
+              <div class="collapse-title text-xl font-semibold">Filters</div>
               <div class="collapse-content p-4">
                 <Filters onFiltersChange={handleFiltersChange} />
               </div>
