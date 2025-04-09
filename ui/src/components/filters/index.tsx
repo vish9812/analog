@@ -149,7 +149,7 @@ function Filters(props: FiltersProps) {
 
         <Select
           class="app-select w-100"
-          initialValue={texts.allFields}
+          initialValue={term.field === "" ? texts.allFields : term.field}
           {...createOptions([texts.allFields, ...comparer.last().keys])}
           onChange={(val) =>
             setFilters(
