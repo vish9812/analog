@@ -73,7 +73,6 @@ function Filters(props: FiltersProps) {
         headerCheckboxSelection: true,
         checkboxSelection: true,
         filter: "agTextColumnFilter",
-        suppressHeaderMenuButton: false,
       },
       {
         headerName: "count",
@@ -95,22 +94,7 @@ function Filters(props: FiltersProps) {
     plugins: { ...commonGridOptions, rowData: plugins() },
     unchanged: { ...commonGridOptions, rowData: unchangedLogs() },
     added: { ...commonGridOptions, rowData: addedLogs() },
-    httpCodes: {
-      ...commonGridOptions,
-      rowData: httpCodes(),
-      columnDefs: [
-        {
-          ...commonGridOptions.columnDefs![0],
-          flex: 1,
-          width: 100,
-          maxWidth: 120,
-        },
-        {
-          ...commonGridOptions.columnDefs![1],
-          flex: 1,
-        },
-      ],
-    },
+    httpCodes: { ...commonGridOptions, rowData: httpCodes() },
     removed: {
       ...commonGridOptions,
       rowData: removedLogs(),
