@@ -191,6 +191,7 @@ function useViewModel(props: FiltersProps) {
   }
 
   function handleSaveFilter() {
+    // Remove logs from the filter to avoid saving the whole log file
     const filterStr = JSON.stringify({ ...filters, logs: [] });
     localStorage.setItem(savedFilterKey(savedFilterName()), filterStr);
   }

@@ -13,7 +13,7 @@ function useViewModel() {
   const [initialCols, setInitialCols] = createSignal(gridService.defaultCols());
   const [cols, setCols] = createSignal(gridService.defaultCols());
   const [filterErrorsOnly, setFilterErrorsOnly] = createSignal(false);
-  
+
   const {
     reset: resetJumps,
     validator: jumpValidator,
@@ -31,7 +31,7 @@ function useViewModel() {
     const { add: addJump, done: doneAddingJumps } = jumpAdder();
 
     setFilterErrorsOnly(filtersData.errorsOnly);
-    
+
     let filteredLogs: JSONLogs = filtersData.logs.length
       ? filtersData.logs
       : comparer.last().logs;
@@ -92,9 +92,6 @@ function useViewModel() {
         for (const term of ands) {
           if (!currCondition) break;
           updateCurrCondition(term);
-        }
-
-        if (!currCondition) {
         }
 
         keep = currCondition;
