@@ -73,7 +73,6 @@ function savedFiltersNames(): string[] {
 }
 
 function useViewModel(props: FiltersProps) {
-  const [savedFilterName, setSavedFilterName] = createSignal("");
   const [filters, setFilters] = createStore(defaultFilters());
   const [savedFilterName, setSavedFilterName] = createSignal("");
   const [msgs, setMsgs] = createSignal(comparer.last().summary.msgs);
@@ -86,30 +85,10 @@ function useViewModel(props: FiltersProps) {
   const [addedLogs, setAddedLogs] = createSignal(comparer.added);
   const [removedLogs, setRemovedLogs] = createSignal(comparer.removed);
 
-  function handleSaveFilter() {
-    // save filters except the logs key
-    const filterStr = JSON.stringify({ ...filters, logs: [] });
-    localStorage.setItem(savedFilterKey(savedFilterName()), filterStr);
-  }
-
-  function handleLoadFilter(filterName: string) {
-    const filtersStr = localStorage.getItem(savedFilterKey(filterName));
-    if (!filtersStr) return;
-
-    setSavedFilterName(filterName);
-    setFilters(JSON.parse(filtersStr));
-    handleFiltersChange();
-  }
-
-  function handleDeleteFilters() {
-    savedFiltersKeys().forEach((key) => localStorage.removeItem(key));
-    setSavedFilterName("");
-  }
-
   function handleFiltersChange() {
     props.onFiltersChange(filters);
   }
-  
+
   function handleResetClick(gridsRefs: GridsRefs) {
     setSavedFilterName("");
     setFilters(defaultFilters());
