@@ -275,7 +275,6 @@ function Filters(props: FiltersProps) {
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              Add Filter
             </button>
           </div>
         </div>
@@ -309,7 +308,7 @@ function Filters(props: FiltersProps) {
                   Filter
                 </button>
                 <button
-                  class="btn btn-ghost btn-sm"
+                  class="btn btn-soft btn-error btn-sm"
                   onClick={() => handleResetClick(gridsRefs)}
                 >
                   Reset
@@ -381,7 +380,7 @@ function Filters(props: FiltersProps) {
 
               <div class="flex gap-2 items-end">
                 <button
-                  class="btn btn-primary btn-sm"
+                  class="btn btn-outline btn-primary btn-sm"
                   onClick={handleSaveFilter}
                 >
                   Save Filters
@@ -394,7 +393,7 @@ function Filters(props: FiltersProps) {
                 />
 
                 <button
-                  class="btn btn-error btn-sm"
+                  class="btn btn-outline btn-error btn-sm"
                   onClick={handleDeleteFilters}
                 >
                   Delete All

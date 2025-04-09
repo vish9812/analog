@@ -45,7 +45,7 @@ function Analyze() {
       <div class="space-y-6">
         <div class="card bg-base-100 shadow-xl">
           <div class="card-body p-0">
-            <div class="collapse collapse-arrow peer-checked:collapse-open">
+            <div class="collapse collapse-arrow">
               <input type="checkbox" class="peer" />
               <div class="collapse-title text-xl font-semibold">Filters</div>
               <div class="collapse-content p-4">
