@@ -168,7 +168,7 @@ function useViewModel(props: FiltersProps) {
       setHTTPCodes(comparer.last().summary.httpCodes);
       setJobs(comparer.last().summary.jobs);
       setPlugins(comparer.last().summary.plugins);
-      setUnchangedLogs(comparer.added);
+      setUnchangedLogs(comparer.unchanged);
       setAddedLogs(comparer.added);
       setRemovedLogs(comparer.removed);
     }
