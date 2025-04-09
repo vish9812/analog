@@ -441,35 +441,27 @@ function Filters(props: FiltersProps) {
           />
         </div>
       </Show>
-      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-12 gap-4">
-        <div class="col-span-1 lg:col-span-1 xl:col-span-4">
-          <GroupedMsgGrid
-            name="Top Logs"
-            ref={gridsRefs.msgs}
-            options={gridsOptions.msgs}
-          />
-        </div>
-        <div class="col-span-1 lg:col-span-1 xl:col-span-2">
-          <GroupedMsgGrid
-            name="HTTP Codes"
-            ref={gridsRefs.httpCodes}
-            options={gridsOptions.httpCodes}
-          />
-        </div>
-        <div class="col-span-1 lg:col-span-1 xl:col-span-3">
-          <GroupedMsgGrid
-            name="Jobs"
-            ref={gridsRefs.jobs}
-            options={gridsOptions.jobs}
-          />
-        </div>
-        <div class="col-span-1 lg:col-span-1 xl:col-span-3">
-          <GroupedMsgGrid
-            name="Plugins"
-            ref={gridsRefs.plugins}
-            options={gridsOptions.plugins}
-          />
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 3xl:grid-cols-4 gap-4">
+        <GroupedMsgGrid
+          name="Top Logs"
+          ref={gridsRefs.msgs}
+          options={gridsOptions.msgs}
+        />
+        <GroupedMsgGrid
+          name="HTTP Codes"
+          ref={gridsRefs.httpCodes}
+          options={gridsOptions.httpCodes}
+        />
+        <GroupedMsgGrid
+          name="Jobs"
+          ref={gridsRefs.jobs}
+          options={gridsOptions.jobs}
+        />
+        <GroupedMsgGrid
+          name="Plugins"
+          ref={gridsRefs.plugins}
+          options={gridsOptions.plugins}
+        />
       </div>
     </div>
   );
