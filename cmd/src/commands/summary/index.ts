@@ -81,7 +81,7 @@ Example:
 async function run(): Promise<void> {
   const workerFile = Bun.file(workerURL);
   if (!(await workerFile.exists())) {
-    // Path for the bundled code
+    // Path for the compiled executable
     workerURL = new URL("commands/summary/worker.js", import.meta.url);
   }
 

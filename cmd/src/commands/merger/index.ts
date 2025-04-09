@@ -34,11 +34,11 @@ The arguments are:
   
   -x, --minTime           
         Filters out logs with timestamps earlier than the specified minimum time(inclusive).
-        Optional: if maxTime has been provided.
+        Default: minTime of all the logs in the folder.
   
   -y, --maxTime           
         Filters out logs with timestamps equal or later than the specified maximum time(exclusive).
-        Optional: if minTime has been provided.
+        Default: maxTime of all the logs in the folder.
   
   -i, --inFolderPath      
         Specifies the path to the folder containing the log files. 
@@ -57,7 +57,7 @@ Example:
 async function run(): Promise<void> {
   const workerFile = Bun.file(workerURL);
   if (!(await workerFile.exists())) {
-    // Path for the bundled code
+    // Path for the compiled executable
     workerURL = new URL("commands/merger/worker.js", import.meta.url);
   }
 

@@ -9,10 +9,10 @@ tasks:
   build:
     desc: transpile and bundle
     cmds:
-      - > 
-        bun build 
+      - >
+        bun build --compile --minify --sourcemap
+        --target=bun-linux-x64-modern
         ./src/main.ts 
         ./src/commands/summary/worker.ts 
         ./src/commands/merger/worker.ts 
-        --outdir ./cli 
-        --target bun
+        --outfile ./analog
