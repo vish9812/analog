@@ -1,22 +1,23 @@
 import "@thisbeyond/solid-select/style.css";
 import "ag-grid-community/styles/ag-grid.min.css";
 import "ag-grid-community/styles/ag-theme-alpine.min.css";
+import "./app.css";
 
-import { type Component, Show } from "solid-js";
-import usePage, { Pages } from "./pages/usePage";
-import Analyze from "./pages/analyze";
+import { Show, type Component } from "solid-js";
 import Normalize from "./pages/normalize";
+import Analyze from "./pages/analyze";
+import Layout from "./pages/layout";
+import usePage, { Pages } from "./pages/usePage";
 
 const App: Component = () => {
   const { page } = usePage();
 
   return (
-    <div style={{ padding: "10px 50px" }}>
-      <h1 style={{ display: "flex", "justify-content": "center" }}>Analog</h1>
+    <Layout>
       <Show when={page() === Pages.analyze} fallback={<Normalize></Normalize>}>
         <Analyze></Analyze>
       </Show>
-    </div>
+    </Layout>
   );
 };
 

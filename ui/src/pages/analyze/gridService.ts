@@ -19,13 +19,13 @@ function defaultCols(): ColDef[] {
       sortingOrder: ["asc", "desc"],
     },
     {
+      field: LogData.logKeys.msg,
+      flex: 0.75,
+    },
+    {
       field: LogData.logKeys.fullData,
       cellRenderer: FullDataCellRenderer,
       flex: 2,
-    },
-    {
-      field: LogData.logKeys.timestamp,
-      width: 270,
     },
   ];
 }

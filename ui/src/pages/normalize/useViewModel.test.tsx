@@ -1,9 +1,7 @@
 import { createRoot } from "solid-js";
 import useViewModel from "./useViewModel";
-import comparer from "@al/services/comparer";
 import LogData from "@al/models/logData";
 import { Pages } from "../usePage";
-import normalizer from "@al/services/normalizer";
 
 describe("useViewModel", () => {
   test("initial values", () => {

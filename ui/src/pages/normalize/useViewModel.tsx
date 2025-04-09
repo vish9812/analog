@@ -1,6 +1,6 @@
 import comparer from "@al/services/comparer";
 import LogData, { type JSONLog } from "@al/models/logData";
-import { Setter, createSignal } from "solid-js";
+import { createSignal, Setter } from "solid-js";
 import { PagesValues, Pages } from "../usePage";
 import normalizer from "@al/services/normalizer";
 import { createStore } from "solid-js/store";

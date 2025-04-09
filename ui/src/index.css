@@ -1,23 +1,6 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@import "tailwindcss";
+@plugin "daisyui";
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
-}
-
-.app-select.solid-select-container{
-  z-index: 10;
-  background-color: white;
-  border: 2px solid lightgray;
-    border-radius: 4px;
-}
-.app-select.solid-select-container:focus-within {
-  border-color: #1976d2;
+@theme {
+  --breakpoint-3xl: 120rem;
 }
