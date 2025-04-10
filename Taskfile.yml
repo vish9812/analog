@@ -5,7 +5,7 @@ includes:
     taskfile: ui/Taskfile.yml
     dir: ui
     internal: true
-  
+
   cmd:
     taskfile: cmd/Taskfile.yml
     dir: cmd
@@ -34,7 +34,15 @@ tasks:
       - ui:build
       - cmd:build
     cmds:
-      - mv ui/analog .
-      - mv cmd/cli ./analog
+      # Create a directory to hold all artifacts
+      - mkdir -p analog
+      # Move UI build artifacts
+      - mv ui/dist ./analog/ui
+      # Move CLI executables
+      - mv cmd/analog-linux ./analog/
+      - mv cmd/analog-windows.exe ./analog/
+      - mv cmd/analog-macos ./analog/
+      # Zip the combined artifacts
       - zip -r analog.zip analog/*
+      # Cleanup the temporary directory
       - rm -rf analog
