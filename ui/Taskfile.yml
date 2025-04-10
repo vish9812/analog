@@ -14,9 +14,9 @@ tasks:
   build:
     desc: transpile and bundle
     cmds:
+      - rm -rf ./dist || true
       - pnpm build
-      # - cp analog.sh analog.ps1 analog
-  
+
   run:
     desc: run
     cmds:
