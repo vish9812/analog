@@ -1,4 +1,9 @@
-import path from "path";
+// --- BEGIN GENERATED IMPORTS - DO NOT EDIT MANUALLY ---
+import fileIndexHtml from "./dist/index.html" with { type: "file" };
+import fileIndexCss from "./dist/assets/index-BJIiTlu-.css" with { type: "file" };
+import fileIndexJs from "./dist/assets/index-FiIrXequ.js" with { type: "file" };
+import fileFavicon from "./dist/assets/favicon-mtvwWgEY.ico" with { type: "file" };
+// --- END GENERATED IMPORTS ---
 import { parseArgs } from "util";
 import type { ICmd } from "@al/cmd/utils/cmd-runner";
 
@@ -46,7 +51,7 @@ function parseFlags() {
         default: String(flags.port),
       },
     },
-    strict: false,
+    strict: true,
     allowPositionals: true,
   });
 
@@ -62,39 +67,28 @@ function parseFlags() {
 }
 
 async function startServer() {
-  const distPath = path.join(import.meta.dir, "./dist");
-  const indexPath = path.join(distPath, "index.html");
-  const distPathExists = await Bun.file(indexPath).exists();
-
-  if (!distPathExists) {
-    console.error(`Dist folder not found at: ${distPath}`);
-    process.exit(1);
-  }
-
-  console.log(`Serving static files from: ${distPath}`);
-
   try {
     const server = Bun.serve({
       port: flags.port,
       async fetch(req) {
         const url = new URL(req.url);
-        let filePath = path.join(distPath, url.pathname);
+        let file;
 
         // If requesting root, serve index.html
         if (url.pathname === "/" || url.pathname === "") {
-          filePath = indexPath;
-        }
-
-        const file = Bun.file(filePath);
-        const exists = await file.exists();
-
-        if (exists) {
-          return new Response(file);
+          file = fileIndexHtml;
+        } else if (url.pathname.endsWith(".css")) {
+          file = fileIndexCss;
+        } else if (url.pathname.endsWith(".js")) {
+          file = fileIndexJs;
+        } else if (url.pathname.endsWith(".ico")) {
+          file = fileFavicon;
         } else {
-          // Optional: Serve a 404 page or just return a 404 response
-          console.log(`File not found: ${filePath}`);
-          return new Response("Not Found", { status: 404 });
+          console.log(`No file available for: ${url.pathname}. Serving index.html instead.`);
+          file = fileIndexHtml;
         }
+
+        return new Response(Bun.file(file));
       },
       error(error) {
         console.error("Server error:", error);

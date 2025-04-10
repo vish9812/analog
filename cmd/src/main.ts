@@ -6,6 +6,12 @@ import summary from "./commands/summary";
 import web from "./commands/web";
 import type { ICmd } from "./utils/cmd-runner";
 
+// Handle Ctrl-C
+process.on("SIGINT", () => {
+  console.log("\nCtrl-C was pressed, exiting...\n");
+  process.exit(0);
+});
+
 let cmd: ICmd;
 let isHelp = false;
 
