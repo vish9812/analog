@@ -66,7 +66,7 @@ Usage:
 
 The arguments are:
   
-  -i, --inFolderPath             
+  -i, --inFolderPath
         Specifies the path to the folder containing the log files. 
         The folder should only contain log files or nested folders with log files.
         Default: . (current directory)

@@ -1,47 +1,88 @@
 import path from "path";
 import { parseArgs } from "util";
+import type { ICmd } from "@al/cmd/utils/cmd-runner";
 
 const DEFAULT_PORT = 20002;
-const DIST_PATH = path.join(import.meta.dir, "dist"); // Assuming dist is at the project root relative to cmd/src/commands/web
+const flags = {
+  port: DEFAULT_PORT,
+};
 
-async function run() {
-  // Parse args specifically for the web command
-  const { values: flags } = parseArgs({
-    args: Bun.argv.slice(3), // Slice off node, script path, and command name ('web' or '-w')
+function help(): void {
+  console.log(`
+Starts a web server to serve the Analog UI.
+
+Usage: 
+
+  bun run ./cmd/src/main.ts --web [arguments]
+
+The arguments are:
+
+  -p, --port 
+        Specify the port number to run the server on.
+        Default: ${flags.port}
+
+Example:
+
+  bun run ./cmd/src/main.ts --web --port 8080
+  `);
+}
+
+async function run(): Promise<void> {
+  parseFlags();
+  await startServer();
+}
+
+function parseFlags() {
+  const { values } = parseArgs({
+    args: Bun.argv,
     options: {
+      web: {
+        type: "boolean",
+        short: "w",
+      },
       port: {
-        type: "string", // Parse as string, validate later
+        type: "string",
         short: "p",
+        default: String(flags.port),
       },
     },
-    strict: false, // Allow other args potentially
+    strict: false,
     allowPositionals: true,
   });
 
-  let port = DEFAULT_PORT;
-  if (flags.port) {
-    const parsedPort = parseInt(flags.port as string, 10);
-    if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort < 65536) {
-      port = parsedPort;
-    } else {
-      console.warn(
-        `Invalid port "${flags.port}" provided. Using default ${DEFAULT_PORT}.`
-      );
-    }
+  // Parse port, with validation
+  const parsedPort = parseInt(String(values.port), 10);
+  if (!isNaN(parsedPort) && parsedPort > 0 && parsedPort < 65536) {
+    flags.port = parsedPort;
+  } else if (values.port !== String(DEFAULT_PORT)) {
+    console.warn(
+      `Invalid port "${values.port}" provided. Using default ${DEFAULT_PORT}.`
+    );
+  }
+}
+
+async function startServer() {
+  const distPath = path.join(import.meta.dir, "./dist");
+  const indexPath = path.join(distPath, "index.html");
+  const distPathExists = await Bun.file(indexPath).exists();
+
+  if (!distPathExists) {
+    console.error(`Dist folder not found at: ${distPath}`);
+    process.exit(1);
   }
 
-  console.log(`Serving static files from: ${DIST_PATH}`);
+  console.log(`Serving static files from: ${distPath}`);
 
   try {
     const server = Bun.serve({
-      port: port,
+      port: flags.port,
       async fetch(req) {
         const url = new URL(req.url);
-        let filePath = path.join(DIST_PATH, url.pathname);
+        let filePath = path.join(distPath, url.pathname);
 
         // If requesting root, serve index.html
         if (url.pathname === "/" || url.pathname === "") {
-          filePath = path.join(DIST_PATH, "index.html");
+          filePath = indexPath;
         }
 
         const file = Bun.file(filePath);
@@ -66,20 +107,14 @@ async function run() {
     console.log(`   Serving UI from dist folder at: http://localhost:${server.port}
 `);
     console.log("   Press Ctrl+C to stop the server.");
-
-    // Keep the process running
-    // Note: Bun doesn't automatically keep the process alive for Bun.serve
-    // A common pattern is to use an interval that does nothing,
-    // or handle signals if more complex shutdown logic is needed.
-    setInterval(() => {}, 1 << 30); // Keep alive indefinitely
   } catch (e) {
     console.error("Failed to start server:", e);
     if (e instanceof Error && "code" in e && e.code === "EADDRINUSE") {
       console.error(`
-Error: Port ${port} is already in use.`);
+Error: Port ${flags.port} is already in use.`);
       console.error(
         `Please try a different port using the --port flag, e.g.: bun run cmd/src/main.ts --web --port ${
-          port + 1
+          flags.port + 1
         }`
       );
     }
@@ -87,21 +122,9 @@ Error: Port ${port} is already in use.`);
   }
 }
 
-function help() {
-  console.log(`
-Usage: bun run ./cmd/src/main.ts --web [options]
+const web: ICmd = {
+  help,
+  run,
+};
 
-Starts a web server to serve the Analog UI.
-
-Options:
-
-  -p, --port <number>    Specify the port number to run the server on.
-                         (Default: ${DEFAULT_PORT})
-
-Example:
-
-  bun run ./cmd/src/main.ts --web --port 8080
-  `);
-}
-
-export default { run, help };
+export default web;
