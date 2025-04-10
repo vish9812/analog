@@ -42,17 +42,29 @@ tasks:
       - task: cmd:build
 
   artifacts:
-    desc: Create release artifacts (zip file)
+    desc: Create release artifacts (zip files for each OS/architecture)
     deps:
       - build # Ensure build is complete before creating artifacts
     cmds:
-      # Create a directory to hold all artifacts
-      - mkdir -p analog
-      # Move CLI executables
-      - mv cmd/analog-linux ./analog/
-      - mv cmd/analog-windows.exe ./analog/
-      - mv cmd/analog-macos ./analog/
-      # Zip the combined artifacts
-      - zip -r analog.zip analog
-      # Cleanup the temporary packaging directory
-      - rm -rf analog
+      # Create directories for each OS
+      - mkdir -p analog-linux
+      - mkdir -p analog-windows
+      - mkdir -p analog-macos
+
+      # Move binaries to their respective folders
+      - mv cmd/analog-linux ./analog-linux/
+      - mv cmd/analog-windows.exe ./analog-windows/
+      - mv cmd/analog-macos ./analog-macos/
+
+      # Copy README.md to each folder
+      - cp README.md ./analog-linux/
+      - cp README.md ./analog-windows/
+      - cp README.md ./analog-macos/
+
+      # Create OS-specific archive files
+      - tar -czf analog-linux.tar.gz analog-linux # .tar.gz for Linux
+      - zip -r analog-windows.zip analog-windows # .zip for Windows
+      - tar -czf analog-macos.tar.gz analog-macos # .tar.gz for macOS
+
+      # Cleanup the temporary packaging directories
+      - rm -rf analog-linux analog-windows analog-macos
