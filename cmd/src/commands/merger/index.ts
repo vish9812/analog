@@ -11,8 +11,10 @@ let workerURL = new URL("worker.ts", import.meta.url);
 const flags = {
   minTime: "0",
   maxTime: "z",
-  inFolderPath: "",
-  outFileName: "",
+  inFolderPath: ".",
+  outFileName: "./merged-logs.log",
+  prefix: "mattermost",
+  suffix: "log",
 };
 
 let filteredLogs: JSONLog[] = [];
@@ -43,14 +45,24 @@ The arguments are:
   -i, --inFolderPath      
         Specifies the path to the folder containing the log files. 
         The folder should only contain log files or nested folders with log files.
+        Default: . (current directory)
   
   -o, --outFileName
         Specifies the name of the filtered log file to generate. 
         If the file already exists, its content will be overridden.
+        Default: ./merged-logs.log
+
+  --prefix
+        Specifies the prefix for the log files to include.
+        Default: mattermost
+
+  --suffix
+        Specifies the suffix for the log files to include.
+        Default: log
 
 Example: 
   
-  bun run ./cli/main.js -m -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log"
+  bun run ./cli/main.js -m -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log" --prefix "app-" --suffix "txt"
     `);
 }
 
@@ -77,37 +89,54 @@ function parseFlags() {
       minTime: {
         type: "string",
         short: "x",
-        default: "",
+        default: flags.minTime,
       },
       maxTime: {
         type: "string",
         short: "y",
-        default: "",
+        default: flags.maxTime,
       },
       inFolderPath: {
         type: "string",
         short: "i",
+        default: flags.inFolderPath,
       },
       outFileName: {
         type: "string",
         short: "o",
+        default: flags.outFileName,
+      },
+      prefix: {
+        type: "string",
+        default: flags.prefix,
+      },
+      suffix: {
+        type: "string",
+        default: flags.suffix,
       },
     },
-    strict: true,
+    strict: false,
     allowPositionals: true,
   });
 
-  if (!values.inFolderPath) throw new Error("Pass input logs folder path.");
-  if (!values.outFileName) throw new Error("Pass output logs file name.");
-
-  flags.inFolderPath = values.inFolderPath;
-  flags.outFileName = values.outFileName;
-  if (values.minTime) flags.minTime = values.minTime;
-  if (values.maxTime) flags.maxTime = values.maxTime;
+  flags.inFolderPath = String(values.inFolderPath);
+  flags.outFileName = String(values.outFileName);
+  flags.minTime = String(values.minTime);
+  flags.maxTime = String(values.maxTime);
+  flags.prefix = String(values.prefix);
+  flags.suffix = String(values.suffix);
 }
 
 async function processLogs() {
-  const filePaths = await fileHelper.getFilesRecursively(flags.inFolderPath);
+  const filePaths = await fileHelper.getFilesRecursively(
+    flags.inFolderPath,
+    flags.prefix,
+    flags.suffix
+  );
+
+  console.log(
+    `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}"`
+  );
 
   console.log("=========Begin Read Files=========");
   await readFiles(filePaths);

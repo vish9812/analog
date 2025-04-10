@@ -1,7 +1,11 @@
 import { readdir } from "node:fs/promises";
 import * as path from "node:path";
 
-async function getFilesRecursively(folderPath: string): Promise<string[]> {
+async function getFilesRecursively(
+  folderPath: string,
+  prefix: string,
+  suffix: string
+): Promise<string[]> {
   const fileList: string[] = [];
 
   async function readDirectory(currentPath: string) {
@@ -14,8 +18,10 @@ async function getFilesRecursively(folderPath: string): Promise<string[]> {
         // If it's a directory, recursively read its contents
         await readDirectory(filePath);
       } else {
-        // If it's a file, add its path to the list
-        fileList.push(filePath);
+        // If it's a file, check prefix and suffix before adding
+        if (f.name.startsWith(prefix) && f.name.endsWith(suffix)) {
+          fileList.push(filePath);
+        }
       }
     }
   }
