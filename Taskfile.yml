@@ -34,14 +34,12 @@ tasks:
       - ui:build
     cmds:
       # Create symlink from ui/dist to cmd/src/commands/web/dist
-      # Use '|| true' to ignore error if link already exists (e.g., during dev)
+      # Use '|| true' to ignore error if link already exists
       - ln -sf ../../../../ui/dist ./cmd/src/commands/web/dist || true
       # Update the import statements in index.ts
       - ./cmd/src/commands/web/update-web-imports.sh
       # Now build the cmd
       - task: cmd:build
-      # Clean up the symlink immediately after cmd build
-      # - rm -f ./cmd/src/commands/web/dist
 
   artifacts:
     desc: Create release artifacts (zip file)
@@ -51,12 +49,12 @@ tasks:
       # Create a directory to hold all artifacts
       - mkdir -p analog
       # Copy UI build artifacts
-      - cp -r ui/dist ./analog/ui
-      # Copy CLI executables
-      - cp cmd/analog-linux ./analog/
-      - cp cmd/analog-windows.exe ./analog/
-      - cp cmd/analog-macos ./analog/
+      - cp -r ui/dist ./analog
+      # Move CLI executables
+      - mv cmd/analog-linux ./analog/
+      - mv cmd/analog-windows.exe ./analog/
+      - mv cmd/analog-macos ./analog/
       # Zip the combined artifacts
       - zip -r analog.zip analog
       # Cleanup the temporary packaging directory
-      # - rm -rf analog
+      - rm -rf analog

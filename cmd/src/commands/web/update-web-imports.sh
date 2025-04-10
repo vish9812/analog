@@ -44,10 +44,8 @@ sed -i.bak \
    2s|.*|$import_html|; \
    3s|.*|$import_css|; \
    4s|.*|$import_js|; \
-   5i\
-$import_ico; \
-   6i\
-$end_comment" \
+   5s|.*|$import_ico|; \
+   6s|.*|$end_comment|" \
   "$ts_file"
 
 # Remove the backup file created by sed -i

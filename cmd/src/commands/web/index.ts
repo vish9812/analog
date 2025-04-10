@@ -4,6 +4,7 @@ import fileIndexCss from "./dist/assets/index-BJIiTlu-.css" with { type: "file" 
 import fileIndexJs from "./dist/assets/index-FiIrXequ.js" with { type: "file" };
 import fileFavicon from "./dist/assets/favicon-mtvwWgEY.ico" with { type: "file" };
 // --- END GENERATED IMPORTS ---
+
 import { parseArgs } from "util";
 import type { ICmd } from "@al/cmd/utils/cmd-runner";
 
