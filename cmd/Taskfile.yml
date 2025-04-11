@@ -6,13 +6,42 @@ tasks:
     cmds:
       - bun i
 
-  build:
-    desc: transpile and bundle
+  build:linux:
+    desc: build for linux-x64
     cmds:
-      - > 
-        bun build 
+      - >
+        bun build --compile --minify --sourcemap
+        --target=bun-linux-x64-modern
         ./src/main.ts 
         ./src/commands/summary/worker.ts 
-        ./src/commands/filterer/worker.ts 
-        --outdir ./cli 
-        --target bun
+        ./src/commands/merger/worker.ts 
+        --outfile ./analog-linux
+
+  build:windows:
+    desc: build for windows-x64
+    cmds:
+      - >
+        bun build --compile --minify --sourcemap
+        --target=bun-windows-x64-modern
+        ./src/main.ts 
+        ./src/commands/summary/worker.ts 
+        ./src/commands/merger/worker.ts 
+        --outfile ./analog-windows.exe
+
+  build:macos:
+    desc: build for macos-arm64
+    cmds:
+      - >
+        bun build --compile --minify --sourcemap
+        --target=bun-darwin-arm64
+        ./src/main.ts 
+        ./src/commands/summary/worker.ts 
+        ./src/commands/merger/worker.ts 
+        --outfile ./analog-macos
+
+  build:
+    desc: transpile and bundle for all platforms
+    deps:
+      - build:linux
+      - build:windows
+      - build:macos

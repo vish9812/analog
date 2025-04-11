@@ -50,8 +50,10 @@ const stats: IStats = {
 };
 
 const flags = {
-  inFolderPath: "",
+  inFolderPath: ".",
   topLogsCount: 30,
+  prefix: "mattermost",
+  suffix: "log",
 };
 
 function help(): void {
@@ -64,24 +66,33 @@ Usage:
 
 The arguments are:
   
-  -i, --inFolderPath             
+  -i, --inFolderPath
         Specifies the path to the folder containing the log files. 
         The folder should only contain log files or nested folders with log files.
+        Default: . (current directory)
   
   -t, --top             
         Specifies the maximum number of top logs you see.
         Default: 30
 
+  --prefix
+        Specifies the prefix for the log files to include.
+        Default: mattermost
+
+  --suffix
+        Specifies the suffix for the log files to include.
+        Default: log
+
 Example: 
   
-  bun run ./cli/main.js -s -i "/path/to/logs/folder"
+  bun run ./cli/main.js -s -i "/path/to/logs/folder" --prefix "debug-" --suffix "txt"
     `);
 }
 
 async function run(): Promise<void> {
   const workerFile = Bun.file(workerURL);
   if (!(await workerFile.exists())) {
-    // Path for the bundled code
+    // Path for the compiled executable
     workerURL = new URL("commands/summary/worker.js", import.meta.url);
   }
 
@@ -101,24 +112,42 @@ function parseFlags() {
       inFolderPath: {
         type: "string",
         short: "i",
+        default: flags.inFolderPath,
       },
       top: {
         type: "string",
         short: "t",
+        default: String(flags.topLogsCount),
+      },
+      prefix: {
+        type: "string",
+        default: flags.prefix,
+      },
+      suffix: {
+        type: "string",
+        default: flags.suffix,
       },
     },
-    strict: true,
+    strict: false,
     allowPositionals: true,
   });
 
-  if (!values.inFolderPath) throw new Error("Pass input logs folder path.");
-
-  flags.inFolderPath = values.inFolderPath;
-  if (values.top) flags.topLogsCount = +values.top;
+  flags.inFolderPath = String(values.inFolderPath);
+  flags.topLogsCount = Number(values.top) || flags.topLogsCount;
+  flags.prefix = String(values.prefix);
+  flags.suffix = String(values.suffix);
 }
 
 async function processLogs() {
-  const filePaths = await fileHelper.getFilesRecursively(flags.inFolderPath);
+  const filePaths = await fileHelper.getFilesRecursively(
+    flags.inFolderPath,
+    flags.prefix,
+    flags.suffix
+  );
+
+  console.log(
+    `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}"`
+  );
 
   console.log("=========Begin Read Files=========");
   await readFiles(filePaths);

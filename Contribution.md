@@ -48,7 +48,6 @@ When contributing to Analog, please adhere to the following guidelines:
 - **[Solid.js](https://www.solidjs.com/)**: Solid.js is used as the frontend library for UI development.
 - **[pnpm](https://pnpm.io/)**: Version >= 8 is required for managing npm packages.
 - **[Node.js](https://nodejs.org/en)**: Version >= 20.9.0 is required. Consider using a node package manager like [nvm](https://github.com/nvm-sh/nvm) to manage node versions.
-- **[Python](https://www.python.org/)**: Version >= 3 is required to run the compiled app.
 
 ### Others:
 
@@ -57,7 +56,91 @@ When contributing to Analog, please adhere to the following guidelines:
 
 ## Running and Testing
 
-To run and test the application, you can use the commands provided in the `package.json` file or `taskfile.yml`.
+To run and test the application, you can use the commands provided in the `package.json` file or `Taskfile.yml`.
+
+### Development Mode
+
+#### Running the UI during development:
+
+From the root directory:
+
+```bash
+task run
+```
+
+Or from the `ui` directory:
+
+```bash
+pnpm start
+```
+
+This will start the UI in development mode, typically on port 3000.
+
+#### Running the CLI during development:
+
+```bash
+bun run ./cmd/src/main.ts --help
+```
+
+For specific CLI commands:
+
+```bash
+# Summary command
+bun run ./cmd/src/main.ts --summary --help
+
+# Filter command
+bun run ./cmd/src/main.ts --filter --help
+
+# Web command
+bun run ./cmd/src/main.ts --web --help
+```
+
+### Build Process
+
+- **Install Dependencies**: `task install` - Installs all npm packages for both UI and CLI
+- **Run Tests**: `task test` - Runs all tests
+- **Run UI**: `task run` - Runs the UI in development mode
+- **Build**: `task build` - Builds the UI and CLI components
+  - This builds the UI and creates a symlink to the UI's dist folder for the CLI's web command
+  - It also updates the web import references automatically
+
+### Generating Binaries
+
+To generate binaries for different platforms:
+
+```bash
+task artifacts
+```
+
+This command:
+
+1. Builds the application (if not already built)
+2. Creates platform-specific binaries for Linux, Windows, and macOS
+3. Packages them with the README.md file
+4. Creates archives (.tar.gz for Linux/macOS, .zip for Windows)
+
+### Using the Binaries
+
+Once you've built the application and generated binaries, you can run them directly:
+
+#### Running the Web UI with the binary:
+
+```bash
+./analog web
+```
+
+With custom port:
+
+```bash
+./analog web --port 8080
+```
+
+#### Running the CLI with the binary:
+
+```bash
+./analog summary --help
+./analog filter --help
+```
 
 ## Feedback and Assistance
 
