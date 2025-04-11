@@ -52,9 +52,9 @@ tasks:
       - mkdir -p analog-macos
 
       # Move binaries to their respective folders
-      - mv cmd/analog-linux ./analog-linux/
-      - mv cmd/analog-windows.exe ./analog-windows/
-      - mv cmd/analog-macos ./analog-macos/
+      - mv cmd/analog-linux ./analog-linux/analog
+      - mv cmd/analog-windows.exe ./analog-windows/analog.exe
+      - mv cmd/analog-macos ./analog-macos/analog
 
       # Copy README.md to each folder
       - cp README.md ./analog-linux/

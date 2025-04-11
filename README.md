@@ -39,31 +39,44 @@ For details, refer to its [README.md](https://github.com/vish9812/analog/blob/ma
 
 - **Deduplicate Logs**: Remove _similar_ log occurrences leaving only the First N and Last N occurrences to help you easily find the first and last occurrences of those events.
 
-## Prerequisite:
-
-- [Bun](https://bun.sh/docs/installation) is needed to run the CLI.
-- [Python 3](https://www.python.org/downloads/) is needed to run the UI.
-  - Python will be automatically installed if you run the Analog UI app with the `analog` script.
-
 ## Getting Started
 
 Follow these steps to run the app:
 
 1. Download the app from the [Releases Page](https://github.com/vish9812/analog/releases).
 
-2. Unzip the downloaded file to your desired location.
+   - For Linux: Download `analog-linux.tar.gz`
+   - For macOS: Download `analog-macos.tar.gz`
+   - For Windows: Download `analog-windows.zip`
 
-3. Open a terminal and navigate to the app's directory.
+2. Extract the downloaded file to your desired location:
 
-4. Execute the following script to start the app:
+   - For Linux/macOS:
+     ```bash
+     tar -xzf analog-linux.tar.gz    # For Linux
+     tar -xzf analog-macos.tar.gz    # For macOS
+     ```
+   - For Windows: Extract the `.zip` file using your preferred extraction tool
 
-- The script will download python 3 if not installed.
-- For Linux/Mac: `./analog.sh`
-- For Windows: `./analog.ps1`
+3. Open a terminal and navigate to the extracted directory.
 
-5. Open your web browser and visit the following URL: `localhost:20002`
+4. Execute the following command to start the web UI:
 
-You are now ready to use the Analog and take advantage of its powerful log analysis features.
+```bash
+./analog web    # For Linux/macOS
+analog.exe web  # For Windows
+```
+
+You can also specify a custom port (default is 20002):
+
+```bash
+./analog web --port 8080    # For Linux/macOS
+analog.exe web --port 8080  # For Windows
+```
+
+5. Open your web browser and visit: `http://localhost:20002` (or your custom port)
+
+You are now ready to use Analog and take advantage of its powerful log analysis features.
 
 Enjoy analyzing your log data!
 
