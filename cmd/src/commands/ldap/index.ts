@@ -336,8 +336,11 @@ async function processLogs() {
       `User "${flags.userCN}" not found in any group memberships for job ID "${flags.jobId}" in the processed files.`
     );
   } else {
-    console.log(`Found ${paths.length} paths to user ${flags.userCN}:`);
-    console.log(paths.map((path) => path.join(" -> ")).join("\n"));
+    const sortedPaths = paths
+      .map((path) => path.join(" -> "))
+      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+    console.log(`Found ${sortedPaths.length} paths to user ${flags.userCN}:`);
+    console.log(sortedPaths.join("\n"));
     console.log("\n---");
     console.log(`Found ${cycleGroups.size} cyclic groups involved in paths:`);
     console.log(Array.from(cycleGroups).join(", "));
