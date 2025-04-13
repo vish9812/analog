@@ -4,6 +4,7 @@ import figlet from "figlet";
 import merger from "./commands/merger";
 import summary from "./commands/summary";
 import web from "./commands/web";
+import ldapCmd from "./commands/ldap";
 import type { ICmd } from "./utils/cmd-runner";
 
 // Handle Ctrl-C
@@ -34,6 +35,10 @@ const { values: flags } = parseArgs({
       type: "boolean",
       short: "w",
     },
+    ldap: {
+      type: "boolean",
+      short: "l",
+    },
   },
   strict: false,
   allowPositionals: true,
@@ -49,6 +54,8 @@ if (typeof flags.merger === "boolean" && flags.merger) {
   cmd = summary;
 } else if (typeof flags.web === "boolean" && flags.web) {
   cmd = web;
+} else if (typeof flags.ldap === "boolean" && flags.ldap) {
+  cmd = ldapCmd;
 } else {
   if (isHelp) {
     help();
@@ -70,11 +77,11 @@ if (isHelp && cmd) {
 function help() {
   console.log(figlet.textSync(`ANALOG`));
   console.log(`
-                         .="=.
+                         .=".=
                       _/.-.-.\\_     _
                      ( ( o o ) )    ))
-                      |/  "  \\|    //
-      .-------.        \\'---'/    //
+                      |/  "  \||    //
+      .-------.        \\\'---'/    //
      _|~~ ~~  |_       /'"""'\\\\  ((
    =(_|_______|_)=    / /_,_\\ \\\\  \\\\
      |:::::::::|      \\_\\\\_'__/ \\  ))
@@ -93,6 +100,9 @@ Usage:
 
 The commands are:
 
+  -l, --ldap
+        Parses LDAP log files to find group membership paths for a specific user.
+
   -m, --merger
         merges all files from a given folder within a time range and generate a single time-sorted log file with unique log entries.
 
@@ -107,6 +117,7 @@ e.g. bun run ./cmd/src/main.ts --help --merger
 
 Example:
 
+  bun run ./cmd/src/main.ts --ldap --jobId <jobId> -u "User Name" -i ./ldap_logs
   bun run ./cmd/src/main.ts --web --port 8080
   bun run ./cmd/src/main.ts --merger --inFolderPath ../../logs --outFileName merged.log
 
