@@ -266,26 +266,62 @@ async function processLogs() {
     `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}"`
   );
 
-  console.log("========= Reading Files =========");
-  let allLines: string[] = [];
+  console.log("========= Reading Files & Finding Timestamps =========");
+  const fileData: {
+    filePath: string;
+    lines: string[];
+    firstTimestamp: string | null;
+  }[] = [];
   for (const filePath of filePaths) {
     console.log(`Reading: ${filePath}`);
     try {
       const content = await Bun.file(filePath).text();
-      allLines = allLines.concat(content.split(/\r?\n/));
+      const lines = content.split(/\r?\n/); // Keep escaped regex
+      const firstTimestamp = findFirstTimestamp(lines);
+      if (firstTimestamp) {
+        fileData.push({ filePath, lines, firstTimestamp });
+        console.log(`  Found start timestamp: ${firstTimestamp}`);
+      } else {
+        console.log(
+          `  Warning: No 'LDAPTrace [timestamp]' line found in ${filePath}. Skipping file.`
+        );
+      }
     } catch (err) {
-      console.error(`Error reading file ${filePath}:`, err);
+      console.error(`Error reading or processing file ${filePath}:`, err);
     }
   }
-  console.log(`Read total ${allLines.length} lines.`);
-  console.log("========= Finished Reading Files =========");
+
+  if (fileData.length === 0) {
+    console.log("No valid files with timestamps found to process. Exiting.");
+    process.exit(0);
+  }
+
+  console.log("========= Sorting Files by Timestamp =========");
+  fileData.sort((a, b) => a.firstTimestamp!.localeCompare(b.firstTimestamp!));
+
+  console.log("Sorted file order:");
+  fileData.forEach((f) =>
+    console.log(`  - ${f.filePath} (${f.firstTimestamp})`)
+  );
+
+  console.log("========= Concatenating Sorted Files =========");
+  let allLines: string[] = [];
+  for (const data of fileData) {
+    allLines = allLines.concat(data.lines);
+  }
+  console.log(
+    `Concatenated total ${allLines.length} lines from ${fileData.length} sorted files.`
+  );
+  console.log("========= Finished Reading & Sorting Files =========");
 
   console.log("========= Parsing Logs =========");
   const groupUserCNs = parseLDAPLog(allLines, flags.jobId);
   console.log("========= Finished Parsing Logs =========");
 
   if (groupUserCNs.size === 0) {
-    console.log(`No group information found for job ID "${flags.jobId}".`);
+    console.log(
+      `No group information found for job ID "${flags.jobId}" in the processed files.`
+    );
     process.exit(0);
   }
 
@@ -297,7 +333,7 @@ async function processLogs() {
 
   if (paths.length === 0) {
     console.log(
-      `User "${flags.userCN}" not found in any group memberships for job ID "${flags.jobId}".`
+      `User "${flags.userCN}" not found in any group memberships for job ID "${flags.jobId}" in the processed files.`
     );
   } else {
     console.log(`Found ${paths.length} paths to user ${flags.userCN}:`);
@@ -312,6 +348,21 @@ async function processLogs() {
     console.log(Array.from(groupsLeadingToUser).join(", "));
   }
   console.log(`========= Finished Finding Paths =========`);
+}
+
+// Helper function to find the first timestamp in the specific format
+function findFirstTimestamp(lines: string[]): string | null {
+  // Regex to match "LDAPTrace [timestamp]" and capture the timestamp part
+  // Example: LDAPTrace [2025-03-15 07:28:00.045 +11:00] some message
+  const timestampRegex =
+    /^LDAPTrace\s+\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+[+-]\d{2}:\d{2})\]/;
+  for (const line of lines) {
+    const match = line.match(timestampRegex);
+    if (match && match[1]) {
+      return match[1]; // Return the captured timestamp string
+    }
+  }
+  return null; // Return null if no matching line is found
 }
 
 const ldapCmd: ICmd = {
