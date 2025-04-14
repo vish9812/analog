@@ -30,7 +30,7 @@ Caution:  Passing a big time range could lead to keeping millions of log lines i
 
 Usage:
 
-  bun run ./cli/main.js --merger [arguments]
+  ./analog --merger [arguments]
 
 The arguments are:
   
@@ -62,7 +62,7 @@ The arguments are:
 
 Example: 
   
-  bun run ./cli/main.js -m -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log" --prefix "app-" --suffix "txt"
+  ./analog -m -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log" --prefix "app-" --suffix "txt"
     `);
 }
 

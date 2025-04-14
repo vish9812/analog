@@ -79,20 +79,20 @@ This will start the UI in development mode, typically on port 3000.
 #### Running the CLI during development:
 
 ```bash
-bun run ./cmd/src/main.ts --help
+./analog --help
 ```
 
 For specific CLI commands:
 
 ```bash
 # Summary command
-bun run ./cmd/src/main.ts --summary --help
+./analog --summary --help
 
 # Filter command
-bun run ./cmd/src/main.ts --filter --help
+./analog --filter --help
 
 # Web command
-bun run ./cmd/src/main.ts --web --help
+./analog --web --help
 ```
 
 ### Build Process

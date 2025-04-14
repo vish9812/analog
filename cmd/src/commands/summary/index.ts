@@ -62,7 +62,7 @@ Summary provides a summary view of all the log files.
 
 Usage:
 
-  bun run ./cli/main.js --summary [arguments]
+  ./analog --summary [arguments]
 
 The arguments are:
   
@@ -85,7 +85,7 @@ The arguments are:
 
 Example: 
   
-  bun run ./cli/main.js -s -i "/path/to/logs/folder" --prefix "debug-" --suffix "txt"
+  ./analog -s -i "/path/to/logs/folder" --prefix "debug-" --suffix "txt"
     `);
 }
 
@@ -128,7 +128,7 @@ function parseFlags() {
         default: flags.suffix,
       },
     },
-    strict: false,
+    strict: true,
     allowPositionals: true,
   });
 

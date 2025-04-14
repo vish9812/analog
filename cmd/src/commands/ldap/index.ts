@@ -2,7 +2,13 @@ import { parseArgs } from "util";
 import type { ICmd } from "@al/cmd/utils/cmd-runner";
 import fileHelper from "@al/cmd/utils/file-helper";
 
-// --- Logic adapted from .ai/parser2.ts ---
+const flags = {
+  jobId: "",
+  userCN: "",
+  inFolderPath: ".",
+  prefix: "ldap",
+  suffix: "log",
+};
 
 const patterns = {
   cn: /CN=([^,]+)/,
@@ -15,6 +21,210 @@ interface PathsResult {
   paths: string[][]; // All paths ending at the target user
   cycleGroups: Set<string>; // Unique groups that are part of a cycle
   groupsLeadingToUser: Set<string>; // Unique groups that eventually lead to the target user
+}
+
+function help(): void {
+  console.log(`
+Parses LDAP log files to find all group membership paths for a specific user and job ID.
+
+Usage:
+
+  ./analog --ldap [arguments]
+
+The arguments are:
+
+  -j, --jobId
+        (Required) Specifies the job ID to filter the logs by.
+
+  -u, --user        
+        (Required) Specifies the user CN (Common Name) to find paths for.
+
+  -i, --inFolderPath
+        Specifies the path to the folder containing the LDAP log files.
+        The folder should only contain log files or nested folders with log files.
+        Default: . (current directory)
+
+  --prefix
+        Specifies the prefix for the log files to include.
+        Default: ldap
+
+  --suffix
+        Specifies the suffix for the log files to include.
+        Default: log
+
+Example:
+
+  ./analog --ldap -j "wsqt9pbpa7yz8gdssw47xzn8hw" -u "John Doe" -i "/path/to/ldap/logs"
+  `);
+}
+
+async function run(): Promise<void> {
+  parseFlags();
+
+  if (!flags.jobId) {
+    console.error("Error: --jobId flag is required.");
+    help();
+    process.exit(1);
+  }
+  if (!flags.userCN) {
+    console.error("Error: --user (-u) flag is required.");
+    help();
+    process.exit(1);
+  }
+
+  await processLogs();
+}
+
+function parseFlags() {
+  const { values } = parseArgs({
+    args: Bun.argv,
+    options: {
+      ldap: {
+        type: "boolean",
+        short: "l",
+      },
+      jobId: {
+        type: "string",
+        short: "j",
+      },
+      user: {
+        type: "string",
+        short: "u",
+      },
+      inFolderPath: {
+        type: "string",
+        short: "i",
+      },
+      prefix: {
+        type: "string",
+      },
+      suffix: {
+        type: "string",
+      },
+    },
+    strict: true,
+    allowPositionals: true,
+  });
+
+  flags.jobId = String(values.jobId ?? "");
+  flags.userCN = String(values.user ?? "");
+  flags.inFolderPath = String(values.inFolderPath ?? flags.inFolderPath);
+  flags.prefix = String(values.prefix ?? flags.prefix);
+  flags.suffix = String(values.suffix ?? flags.suffix);
+}
+
+async function processLogs() {
+  const filePaths = await fileHelper.getFilesRecursively(
+    flags.inFolderPath,
+    flags.prefix,
+    flags.suffix
+  );
+
+  if (filePaths.length === 0) {
+    console.log(
+      `No files found matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}". Exiting.`
+    );
+    process.exit(0);
+  }
+
+  console.log(
+    `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}"`
+  );
+
+  let allLines: string[] = await getSortedLines(filePaths);
+
+  console.log("\n========= Parsing Logs =========");
+  const groupUserCNs = parseLDAPLog(allLines, flags.jobId);
+  console.log("========= Finished Parsing Logs =========");
+
+  if (groupUserCNs.size === 0) {
+    console.log(
+      `No group information found for job ID "${flags.jobId}" in the processed files.`
+    );
+    process.exit(0);
+  }
+
+  console.log(`\n========= Finding Paths for User: ${flags.userCN} =========`);
+  const { paths, cycleGroups, groupsLeadingToUser } = createPathsToUser(
+    groupUserCNs,
+    flags.userCN
+  );
+
+  if (paths.length === 0) {
+    console.log(
+      `User "${flags.userCN}" not found in any group memberships for job ID "${flags.jobId}" in the processed files.`
+    );
+  } else {
+    const sortedPaths = paths
+      .map((path) => path.join(" -> "))
+      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+    console.log(`Found ${sortedPaths.length} paths to user ${flags.userCN}:`);
+    console.log(sortedPaths.join("\n"));
+    console.log("\n---");
+    console.log(`Found ${cycleGroups.size} cyclic groups involved in paths:`);
+    console.log(Array.from(cycleGroups).join(", "));
+    console.log("\n---");
+    console.log(
+      `Found ${groupsLeadingToUser.size} unique groups leading to user ${flags.userCN}:`
+    );
+    console.log(Array.from(groupsLeadingToUser).join(", "));
+  }
+  console.log(`========= Finished Finding Paths =========`);
+}
+
+async function getSortedLines(filePaths: string[]): Promise<string[]> {
+  let allLines: string[] = [];
+
+  console.log("\n========= Reading Files & Finding Timestamps =========");
+
+  const fileData: {
+    filePath: string;
+    lines: string[];
+    firstTimestamp: string | null;
+  }[] = [];
+  for (const filePath of filePaths) {
+    console.log(`Reading: ${filePath}`);
+    try {
+      const content = await Bun.file(filePath).text();
+      const lines = content.split(/\r?\n/); // Keep escaped regex
+      const firstTimestamp = findFirstTimestamp(lines);
+      if (firstTimestamp) {
+        fileData.push({ filePath, lines, firstTimestamp });
+        console.log(`  Found start timestamp: ${firstTimestamp}`);
+      } else {
+        console.log(
+          `  Warning: No 'LDAPTrace [timestamp]' line found in ${filePath}. Skipping file.`
+        );
+      }
+    } catch (err) {
+      console.error(`Error reading or processing file ${filePath}:`, err);
+    }
+  }
+
+  if (fileData.length === 0) {
+    console.log("No valid files with timestamps found to process. Exiting.");
+    process.exit(0);
+  }
+
+  console.log("========= Sorting Files by Timestamp =========");
+  fileData.sort((a, b) => a.firstTimestamp!.localeCompare(b.firstTimestamp!));
+
+  console.log("Sorted file order:");
+  fileData.forEach((f) =>
+    console.log(`  - ${f.filePath} (${f.firstTimestamp})`)
+  );
+
+  console.log("========= Concatenating Sorted Files =========");
+  for (const data of fileData) {
+    allLines = allLines.concat(data.lines);
+  }
+  console.log(
+    `Concatenated total ${allLines.length} lines from ${fileData.length} sorted files.`
+  );
+  console.log("========= Finished Reading & Sorting Files =========");
+
+  return allLines;
 }
 
 /**
@@ -73,7 +283,7 @@ function createPathsToUser(
 
 // Parses LDAP log lines and extracts group membership information
 function parseLDAPLog(lines: string[], jobId: string): GroupMap {
-  const groupUserCNs = new Map<string, Set<string>>();
+  const groupUserCNs: GroupMap = new Map<string, Set<string>>();
   const responseIdentifier = `Got response worker_name=EnterpriseLdapSync job_id=${jobId}`;
 
   let currentGroupCN: string | null = null;
@@ -147,218 +357,12 @@ function parseLDAPLog(lines: string[], jobId: string): GroupMap {
   return groupUserCNs;
 }
 
-// --- CLI Command Specific Logic ---
-
-const flags = {
-  jobId: "",
-  userCN: "",
-  inFolderPath: ".",
-  prefix: "ldap",
-  suffix: "log",
-};
-
-function help(): void {
-  console.log(`
-Parses LDAP log files to find all group membership paths for a specific user and job ID.
-
-Usage:
-
-  bun run ./cli/main.js --ldap [arguments]
-
-The arguments are:
-
-  --jobId           (Required) Specifies the job ID to filter the logs by.
-
-  -u, --user        (Required) Specifies the user CN (Common Name) to find paths for.
-
-  -i, --inFolderPath
-                    Specifies the path to the folder containing the LDAP log files.
-                    The folder should only contain log files or nested folders with log files.
-                    Default: . (current directory)
-
-  --prefix
-                    Specifies the prefix for the log files to include.
-                    Default: ldap
-
-  --suffix
-                    Specifies the suffix for the log files to include.
-                    Default: log
-
-Example:
-
-  bun run ./cli/main.js --ldap --jobId "wsqt9pbpa7yz8gdssw47xzn8hw" -u "John Doe" -i "/path/to/ldap/logs"
-  `);
-}
-
-async function run(): Promise<void> {
-  parseFlags();
-
-  if (!flags.jobId) {
-    console.error("Error: --jobId flag is required.");
-    help();
-    process.exit(1);
-  }
-  if (!flags.userCN) {
-    console.error("Error: --user (-u) flag is required.");
-    help();
-    process.exit(1);
-  }
-
-  await processLogs();
-}
-
-function parseFlags() {
-  const { values } = parseArgs({
-    args: Bun.argv,
-    options: {
-      ldap: {
-        // Consumed by main.ts
-        type: "boolean",
-        short: "l",
-      },
-      jobId: {
-        type: "string",
-      },
-      user: {
-        type: "string",
-        short: "u",
-      },
-      inFolderPath: {
-        type: "string",
-        short: "i",
-        default: flags.inFolderPath,
-      },
-      prefix: {
-        type: "string",
-        default: flags.prefix,
-      },
-      suffix: {
-        type: "string",
-        default: flags.suffix,
-      },
-    },
-    strict: false,
-    allowPositionals: true,
-  });
-
-  flags.inFolderPath = String(values.inFolderPath ?? flags.inFolderPath);
-  flags.prefix = String(values.prefix ?? flags.prefix);
-  flags.suffix = String(values.suffix ?? flags.suffix);
-  flags.jobId = String(values.jobId ?? "");
-  flags.userCN = String(values.user ?? "");
-}
-
-async function processLogs() {
-  const filePaths = await fileHelper.getFilesRecursively(
-    flags.inFolderPath,
-    flags.prefix,
-    flags.suffix
-  );
-
-  if (filePaths.length === 0) {
-    console.log(
-      `No files found matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}". Exiting.`
-    );
-    process.exit(0);
-  }
-
-  console.log(
-    `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}"`
-  );
-
-  console.log("========= Reading Files & Finding Timestamps =========");
-  const fileData: {
-    filePath: string;
-    lines: string[];
-    firstTimestamp: string | null;
-  }[] = [];
-  for (const filePath of filePaths) {
-    console.log(`Reading: ${filePath}`);
-    try {
-      const content = await Bun.file(filePath).text();
-      const lines = content.split(/\r?\n/); // Keep escaped regex
-      const firstTimestamp = findFirstTimestamp(lines);
-      if (firstTimestamp) {
-        fileData.push({ filePath, lines, firstTimestamp });
-        console.log(`  Found start timestamp: ${firstTimestamp}`);
-      } else {
-        console.log(
-          `  Warning: No 'LDAPTrace [timestamp]' line found in ${filePath}. Skipping file.`
-        );
-      }
-    } catch (err) {
-      console.error(`Error reading or processing file ${filePath}:`, err);
-    }
-  }
-
-  if (fileData.length === 0) {
-    console.log("No valid files with timestamps found to process. Exiting.");
-    process.exit(0);
-  }
-
-  console.log("========= Sorting Files by Timestamp =========");
-  fileData.sort((a, b) => a.firstTimestamp!.localeCompare(b.firstTimestamp!));
-
-  console.log("Sorted file order:");
-  fileData.forEach((f) =>
-    console.log(`  - ${f.filePath} (${f.firstTimestamp})`)
-  );
-
-  console.log("========= Concatenating Sorted Files =========");
-  let allLines: string[] = [];
-  for (const data of fileData) {
-    allLines = allLines.concat(data.lines);
-  }
-  console.log(
-    `Concatenated total ${allLines.length} lines from ${fileData.length} sorted files.`
-  );
-  console.log("========= Finished Reading & Sorting Files =========");
-
-  console.log("========= Parsing Logs =========");
-  const groupUserCNs = parseLDAPLog(allLines, flags.jobId);
-  console.log("========= Finished Parsing Logs =========");
-
-  if (groupUserCNs.size === 0) {
-    console.log(
-      `No group information found for job ID "${flags.jobId}" in the processed files.`
-    );
-    process.exit(0);
-  }
-
-  console.log(`========= Finding Paths for User: ${flags.userCN} =========`);
-  const { paths, cycleGroups, groupsLeadingToUser } = createPathsToUser(
-    groupUserCNs,
-    flags.userCN
-  );
-
-  if (paths.length === 0) {
-    console.log(
-      `User "${flags.userCN}" not found in any group memberships for job ID "${flags.jobId}" in the processed files.`
-    );
-  } else {
-    const sortedPaths = paths
-      .map((path) => path.join(" -> "))
-      .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-    console.log(`Found ${sortedPaths.length} paths to user ${flags.userCN}:`);
-    console.log(sortedPaths.join("\n"));
-    console.log("\n---");
-    console.log(`Found ${cycleGroups.size} cyclic groups involved in paths:`);
-    console.log(Array.from(cycleGroups).join(", "));
-    console.log("\n---");
-    console.log(
-      `Found ${groupsLeadingToUser.size} unique groups leading to user ${flags.userCN}:`
-    );
-    console.log(Array.from(groupsLeadingToUser).join(", "));
-  }
-  console.log(`========= Finished Finding Paths =========`);
-}
-
 // Helper function to find the first timestamp in the specific format
 function findFirstTimestamp(lines: string[]): string | null {
   // Regex to match "LDAPTrace [timestamp]" and capture the timestamp part
   // Example: LDAPTrace [2025-03-15 07:28:00.045 +11:00] some message
   const timestampRegex =
-    /^LDAPTrace\s+\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+[+-]\d{2}:\d{2})\]/;
+    /^(?:LDAPTrace|LDAPDebug)\s+\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+[+-]\d{2}:\d{2})\]/;
   for (const line of lines) {
     const match = line.match(timestampRegex);
     if (match && match[1]) {

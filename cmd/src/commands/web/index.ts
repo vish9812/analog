@@ -19,7 +19,7 @@ Starts a web server to serve the Analog UI.
 
 Usage: 
 
-  bun run ./cmd/src/main.ts --web [arguments]
+  ./analog --web [arguments]
 
 The arguments are:
 
@@ -29,7 +29,7 @@ The arguments are:
 
 Example:
 
-  bun run ./cmd/src/main.ts --web --port 8080
+  ./analog --web --port 8080
   `);
 }
 

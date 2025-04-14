@@ -96,7 +96,7 @@ Run analog as cli for analyzing multiple log files or serving the UI.
 
 Usage:
 
-  bun run ./cmd/src/main.ts <command> [arguments]
+  ./analog <command> [arguments]
 
 The commands are:
 
@@ -112,14 +112,14 @@ The commands are:
   -w, --web
         starts a web server to serve the Analog UI from the 'dist' folder.
 
-Use "bun run ./cmd/src/main.ts --help --<command>" for more information about a command.
-e.g. bun run ./cmd/src/main.ts --help --merger
+Use "./analog --help --<command>" for more information about a command.
+e.g. ./analog --help --merger
 
 Example:
 
-  bun run ./cmd/src/main.ts --ldap --jobId <jobId> -u "User Name" -i ./ldap_logs
-  bun run ./cmd/src/main.ts --web --port 8080
-  bun run ./cmd/src/main.ts --merger --inFolderPath ../../logs --outFileName merged.log
+  ./analog --ldap --jobId <jobId> -u "User Name" -i ./ldap_logs
+  ./analog --web --port 8080
+  ./analog --merger --inFolderPath ../../logs --outFileName merged.log
 
 Caution (for merger/summary): Processing multiple files will need at least twice the space as the logs files size.
           For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.
