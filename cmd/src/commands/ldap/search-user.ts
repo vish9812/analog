@@ -162,12 +162,14 @@ export function parseLogs(
   let foundUser = false;
   let reachedTop = false;
   let attributeName: string | undefined;
+  let attributeForSearch: UserAttribute | undefined;
 
   const resetFlags = () => {
     gotResponse = false;
     foundUser = false;
     reachedTop = false;
     attributeName = undefined;
+    attributeForSearch = undefined;
   };
 
   const allLines = fileLines.flatMap((fileLine) => fileLine.lines);
@@ -205,26 +207,40 @@ export function parseLogs(
 
     if (!gotResponse) continue;
 
-    if (config.userCN) {
-      // Object Name: (Universal, Primitive, Octet String) Len=82 "CN=Tony Stark,OU=Avengers,DC=Marvel,DC=com"
-      if (line.startsWith("Object Name:")) {
-        const cnMatch = line.match(regexes.cn);
-        if (cnMatch && cnMatch[1]) {
-          // If the CN does not match, skip the whole response block
-          if (!(cnMatch[1] === config.userCN)) {
-            resetFlags();
-            continue;
+    if (!foundUser) {
+      // Search by user CN
+      if (config.userCN) {
+        // Object Name: (Universal, Primitive, Octet String) Len=82 "CN=Tony Stark,OU=Avengers,DC=Marvel,DC=com"
+        if (line.startsWith("Object Name:")) {
+          const cnMatch = line.match(regexes.cn);
+          if (cnMatch && cnMatch[1]) {
+            // If the CN does not match, skip the whole response block
+            if (!(cnMatch[1] === config.userCN)) {
+              resetFlags();
+              continue;
+            }
+
+            foundUser = true;
           }
-
-          foundUser = true;
-
-          result = {
-            filePath: "",
-            lineNumber: i + 1,
-            attributes: {},
-          };
+          continue;
         }
-        continue;
+      } else {
+        // Search by user attributes
+        if (line.startsWith("Attribute Name:")) {
+          const attrKey = line.match(regexes.lastDoubleQuote)?.[1];
+          attributeForSearch = config.attributes.find(
+            (attr) => attr.key === attrKey
+          );
+          continue;
+        }
+
+        if (attributeForSearch && line.startsWith("Attribute Value:")) {
+          const attrVal = line.match(regexes.lastDoubleQuote)?.[1];
+          if (attributeForSearch.value === attrVal) {
+            foundUser = true;
+          }
+          continue;
+        }
       }
     }
 
@@ -234,6 +250,12 @@ export function parseLogs(
         i--;
         line = allLines[i].trim();
       }
+
+      result = {
+        filePath: "",
+        lineNumber: i + 1,
+        attributes: {},
+      };
 
       reachedTop = true;
       continue;
