@@ -8,3 +8,4 @@ coverage
 .aider*
 .env
 .ai
+debugger.ts
