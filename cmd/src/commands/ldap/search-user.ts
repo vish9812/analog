@@ -151,94 +151,115 @@ export function parseLogs(
     attributeName = undefined;
   };
 
-  for (const fileLine of fileLines) {
-    for (let i = 0; i < fileLine.lines.length; i++) {
-      let line = fileLine.lines[i].trim();
-      if (!line) continue;
+  const allLines = fileLines.flatMap((fileLine) => fileLine.lines);
 
-      // Check if line matches response block type
-      if (
-        (config.responseType === "login" &&
-          line.includes(loginResponseIdentifier)) ||
-        (config.responseType === "job" &&
-          line.includes(jobResponseIdentifier)) ||
-        (config.responseType === "any" &&
-          (line.includes(loginResponseIdentifier) ||
-            line.includes(jobResponseIdentifier)))
-      ) {
-        resetFlags();
-        gotResponse = true;
-        continue;
-      }
+  for (let i = 0; i < allLines.length; i++) {
+    let line = allLines[i].trim();
+    if (!line) continue;
 
-      if (!gotResponse) continue;
+    // Check if line matches response block type
+    if (
+      (config.responseType === "login" &&
+        line.includes(loginResponseIdentifier)) ||
+      (config.responseType === "job" && line.includes(jobResponseIdentifier)) ||
+      (config.responseType === "any" &&
+        (line.includes(loginResponseIdentifier) ||
+          line.includes(jobResponseIdentifier)))
+    ) {
+      resetFlags();
+      gotResponse = true;
+      continue;
+    }
 
-      if (config.userCN) {
-        // Object Name: (Universal, Primitive, Octet String) Len=82 "CN=Tony Stark,OU=Avengers,DC=Marvel,DC=com"
-        if (line.startsWith("Object Name:")) {
-          const cnMatch = line.match(patterns.cn);
-          if (cnMatch && cnMatch[1]) {
-            // If the CN does not match, skip the whole response block
-            if (!(cnMatch[1] === config.userCN)) {
-              resetFlags();
-              continue;
-            }
+    if (!gotResponse) continue;
 
-            foundUser = true;
-
-            result = {
-              filePath: fileLine.filePath,
-              lineNumber: i + 1,
-              attributes: {},
-            };
-          }
-          continue;
-        }
-      }
-
-      if (foundUser && !reachedTop) {
-        // go to the top till "Object Name:"
-        while (!line.startsWith("Object Name:")) {
-          i--;
-          line = fileLine.lines[i].trim();
-        }
-
-        reachedTop = true;
-        continue;
-      }
-
-      if (reachedTop) {
-        // Attribute Name: (Universal, Primitive, Octet String) Len=4 "mail"
-        if (line.startsWith("Attribute Name:")) {
-          attributeName = line.match(patterns.lastDoubleQuote)?.[1];
-          if (attributeName) {
-            result!.attributes[attributeName] = "";
-          }
-          continue;
-        }
-
-        if (attributeName) {
-          // Attribute Value: (Universal, Primitive, Octet String) Len=23 "tony.stark@marvel.com"
-          if (line.startsWith("Attribute Value:")) {
-            const attributeValue = line.match(patterns.lastDoubleQuote)?.[1];
-            if (attributeValue) {
-              result!.attributes[attributeName] = attributeValue;
-            }
-            attributeName = undefined;
+    if (config.userCN) {
+      // Object Name: (Universal, Primitive, Octet String) Len=82 "CN=Tony Stark,OU=Avengers,DC=Marvel,DC=com"
+      if (line.startsWith("Object Name:")) {
+        const cnMatch = line.match(patterns.cn);
+        if (cnMatch && cnMatch[1]) {
+          // If the CN does not match, skip the whole response block
+          if (!(cnMatch[1] === config.userCN)) {
+            resetFlags();
             continue;
           }
-        }
 
-        // If not starting with Attribute, then we are no longer in the attributes block
-        if (!line.startsWith("Attribute")) {
-          // Found first occurrence of the user and collected all attributes
-          return result;
+          foundUser = true;
+
+          result = {
+            filePath: "",
+            lineNumber: i + 1,
+            attributes: {},
+          };
         }
+        continue;
+      }
+    }
+
+    if (foundUser && !reachedTop) {
+      // go to the top till "Object Name:"
+      while (!line.startsWith("Object Name:")) {
+        i--;
+        line = allLines[i].trim();
+      }
+
+      reachedTop = true;
+      continue;
+    }
+
+    if (reachedTop) {
+      // Attribute Name: (Universal, Primitive, Octet String) Len=4 "mail"
+      if (line.startsWith("Attribute Name:")) {
+        attributeName = line.match(patterns.lastDoubleQuote)?.[1];
+        if (attributeName) {
+          result!.attributes[attributeName] = "";
+        }
+        continue;
+      }
+
+      if (attributeName) {
+        // Attribute Value: (Universal, Primitive, Octet String) Len=23 "tony.stark@marvel.com"
+        if (line.startsWith("Attribute Value:")) {
+          const attributeValue = line.match(patterns.lastDoubleQuote)?.[1];
+          if (attributeValue) {
+            result!.attributes[attributeName] = attributeValue;
+          }
+          attributeName = undefined;
+          continue;
+        }
+      }
+
+      // If not starting with Attribute, then we are no longer in the attributes block
+      if (!line.startsWith("Attribute")) {
+        // Found first occurrence of the user and collected all attributes
+        return identifyFileAndItsLine(fileLines, result);
       }
     }
   }
 
-  return result;
+  return identifyFileAndItsLine(fileLines, result);
+}
+
+function identifyFileAndItsLine(
+  fileLines: FileLines[],
+  searchResult: SearchResult | null
+): SearchResult | null {
+  if (!searchResult) return null;
+
+  const combinedFilesLineNumber = searchResult.lineNumber;
+  let prevMax = 0;
+  for (let i = 0; i < fileLines.length; i++) {
+    let currMax = prevMax + fileLines[i].lines.length;
+    if (combinedFilesLineNumber <= currMax) {
+      return {
+        ...searchResult,
+        filePath: fileLines[i].filePath,
+        lineNumber: combinedFilesLineNumber - prevMax,
+      };
+    }
+    prevMax = currMax;
+  }
+  return searchResult;
 }
 
 export default handleUserSearch;
