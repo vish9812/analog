@@ -9,19 +9,35 @@ const flags: Flags = { ...defaultFlags };
 
 function help(): void {
   console.log(`
-Parses LDAP log files to find all group membership paths for a specific user and job ID.
+Parses LDAP log files to find all group membership paths for a specific user and job ID, or search for users based on various criteria.
 
 Usage:
 
   ./analog --ldap [arguments]
 
-The arguments are:
+The command operates in two modes:
+
+1. Interactive Mode:
+   Run without "--jobId" and "--user" arguments to enter interactive mode:
+
+   This mode allows you to:
+   - Search for user attributes in login or job response blocks
+   - Filter by specific job ID
+   - Search by user CN or multiple attributes (email, name, etc.)
+   - Specify time ranges for the search
+
+2. Non-interactive Mode:
+   Run with "--jobId" and "--user" arguments to find group membership paths:
+
+The arguments for non-interactive mode only:
 
   -j, --jobId
         (Required) Specifies the job ID to filter the logs by.
 
   -u, --user        
         (Required) Specifies the user CN (Common Name) to find paths for.
+
+Common arguments for both modes:
 
   -i, --inFolderPath
         Specifies the path to the folder containing the LDAP log files.
@@ -36,9 +52,13 @@ The arguments are:
         Specifies the suffix for the log files to include.
         Default: log
 
-Example:
+Examples:
 
-  ./analog --ldap -j "wsqt9pbpa7yz8gdssw47xzn8hw" -u "John Doe" -i "/path/to/ldap/logs"
+  1. Interactive mode:
+     ./analog --ldap -i /path/to/ldap/logs
+
+  2. Non-interactive mode (find group paths):
+     ./analog --ldap -j wsqt9pbpa7yz8gdssw47xzn8hw -u "John Doe" -i /path/to/ldap/logs
   `);
 }
 
