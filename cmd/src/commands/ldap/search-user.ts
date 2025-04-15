@@ -1,11 +1,6 @@
 import { select, confirm, input } from "@inquirer/prompts";
 import type { Flags, FileLines } from "./types";
-import { getSortedLines } from "./helper";
-
-const patterns = {
-  cn: /CN=([^,]+)/,
-  lastDoubleQuote: /"([^"]+)"/,
-};
+import { getSortedLines, regexes } from "./helper";
 
 interface UserAttribute {
   key: string;
@@ -15,6 +10,10 @@ interface UserAttribute {
 export interface SearchConfig {
   responseType?: "login" | "job" | "any";
   jobId?: string;
+  timeRange?: {
+    start: string;
+    end: string;
+  };
   userCN?: string;
   attributes: UserAttribute[];
 }
@@ -84,6 +83,26 @@ async function gatherSearchConfig(): Promise<SearchConfig> {
       config.jobId = await input({
         message: "Enter the job ID:",
       });
+    }
+  }
+
+  if (!config.jobId) {
+    const byTimeRange = await confirm({
+      message:
+        "Do you want to search by time range? Time format example: 2025-03-15 06:40:06.310 +11:00",
+    });
+
+    if (byTimeRange) {
+      config.timeRange = {
+        start: await input({
+          message: "Enter the start time (inclusive):",
+          required: true,
+        }),
+        end: await input({
+          message: "Enter the end time (exclusive):",
+          required: true,
+        }),
+      };
     }
   }
 
@@ -166,6 +185,19 @@ export function parseLogs(
         (line.includes(loginResponseIdentifier) ||
           line.includes(jobResponseIdentifier)))
     ) {
+      if (config.timeRange && !gotResponse) {
+        const timeMatch = line.match(regexes.time);
+        if (timeMatch && timeMatch[1]) {
+          const responseTime = timeMatch[1];
+          if (
+            responseTime < config.timeRange.start ||
+            responseTime >= config.timeRange.end
+          ) {
+            continue;
+          }
+        }
+      }
+
       resetFlags();
       gotResponse = true;
       continue;
@@ -176,7 +208,7 @@ export function parseLogs(
     if (config.userCN) {
       // Object Name: (Universal, Primitive, Octet String) Len=82 "CN=Tony Stark,OU=Avengers,DC=Marvel,DC=com"
       if (line.startsWith("Object Name:")) {
-        const cnMatch = line.match(patterns.cn);
+        const cnMatch = line.match(regexes.cn);
         if (cnMatch && cnMatch[1]) {
           // If the CN does not match, skip the whole response block
           if (!(cnMatch[1] === config.userCN)) {
@@ -210,7 +242,7 @@ export function parseLogs(
     if (reachedTop) {
       // Attribute Name: (Universal, Primitive, Octet String) Len=4 "mail"
       if (line.startsWith("Attribute Name:")) {
-        attributeName = line.match(patterns.lastDoubleQuote)?.[1];
+        attributeName = line.match(regexes.lastDoubleQuote)?.[1];
         if (attributeName) {
           result!.attributes[attributeName] = "";
         }
@@ -220,7 +252,7 @@ export function parseLogs(
       if (attributeName) {
         // Attribute Value: (Universal, Primitive, Octet String) Len=23 "tony.stark@marvel.com"
         if (line.startsWith("Attribute Value:")) {
-          const attributeValue = line.match(patterns.lastDoubleQuote)?.[1];
+          const attributeValue = line.match(regexes.lastDoubleQuote)?.[1];
           if (attributeValue) {
             result!.attributes[attributeName] = attributeValue;
           }

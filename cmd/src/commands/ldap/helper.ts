@@ -1,13 +1,17 @@
 import fileHelper from "@al/cmd/utils/file-helper";
 import type { FileLines, Flags } from "./types";
 
+export const regexes = {
+  cn: /CN=([^,]+)/,
+  member: /member/,
+  lastDoubleQuote: /"([^"]+)"/,
+  // example log line with time: LDAPTrace [2025-03-15 06:40:06.319 +11:00] Got response
+  time: /\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3} [+-]\d{2}:\d{2})\]/,
+};
+
 function findFirstTimestamp(lines: string[]): string | null {
-  // Regex to match "LDAPTrace [timestamp]" and capture the timestamp part
-  // Example: LDAPTrace [2025-03-15 07:28:00.045 +11:00] some message
-  const timestampRegex =
-    /^(?:LDAPTrace|LDAPDebug)\s+\[(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\.\d{3}\s+[+-]\d{2}:\d{2})\]/;
   for (const line of lines) {
-    const match = line.match(timestampRegex);
+    const match = line.match(regexes.time);
     if (match && match[1]) {
       return match[1]; // Return the captured timestamp string
     }

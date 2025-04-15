@@ -1,4 +1,4 @@
-import { getSortedLines } from "./helper";
+import { getSortedLines, regexes } from "./helper";
 import type { FileLines, Flags } from "./types";
 
 interface PathsResult {
@@ -8,11 +8,6 @@ interface PathsResult {
 }
 
 type GroupMap = Map<string, Set<string>>;
-
-const patterns = {
-  cn: /CN=([^,]+)/,
-  member: /member/,
-};
 
 async function handleGroupPaths(flags: Flags): Promise<void> {
   console.log("\n========= Parsing Logs =========");
@@ -138,7 +133,7 @@ function parseLogs(fileLines: FileLines[], jobId: string): GroupMap {
 
     // Look for Object Name line to get the group CN
     if (line.startsWith("Object Name:")) {
-      const cnMatch = line.match(patterns.cn);
+      const cnMatch = line.match(regexes.cn);
       if (cnMatch && cnMatch[1]) {
         currentGroupCN = cnMatch[1];
         if (!groupUserCNs.has(currentGroupCN)) {
@@ -151,7 +146,7 @@ function parseLogs(fileLines: FileLines[], jobId: string): GroupMap {
     }
 
     // Look for the member attribute within the current group context
-    if (line.startsWith("Attribute Name:") && line.match(patterns.member)) {
+    if (line.startsWith("Attribute Name:") && line.match(regexes.member)) {
       foundMemberAttribute = true;
       continue;
     }
@@ -163,7 +158,7 @@ function parseLogs(fileLines: FileLines[], jobId: string): GroupMap {
     }
 
     if (isProcessingMembers && line.startsWith("Attribute Value:")) {
-      const cnMatch = line.match(patterns.cn);
+      const cnMatch = line.match(regexes.cn);
       if (cnMatch && currentGroupCN) {
         const memberCN = cnMatch[1];
         groupUserCNs.get(currentGroupCN)?.add(memberCN);
