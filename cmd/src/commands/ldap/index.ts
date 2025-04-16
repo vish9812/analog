@@ -19,13 +19,15 @@ Usage:
 The command operates in three modes:
 
 1. Interactive Mode:
-   Run without "--jobId" and "--user" arguments to enter interactive mode:
+   Run with "-i" or "--interactive" flag to enter interactive mode:
+   ./analog --ldap -i
 
    This mode allows you to:
    - Search for user attributes in login or job response blocks
    - Filter by specific job ID
    - Search by user CN or multiple attributes (email, name, etc.)
    - Specify time ranges for the search
+   Note: Interactive flag takes precedence over all other mode flags.
 
 2. Non-interactive Mode:
    Run with "--jobId" and "--user" arguments to find group membership paths:
@@ -33,17 +35,20 @@ The command operates in three modes:
 3. Comparison Mode:
    Run with "--jobId", "--compareJobId", and "--user" arguments to compare LDAP data between two jobs:
 
-The arguments for non-interactive and comparison modes:
+Mode-specific arguments:
+
+  -i, --interactive
+        Enter interactive mode. Takes precedence over other mode flags.
 
   -j, --jobId
-        (Required) Specifies the job ID to filter the logs by.
+        (Required for non-interactive/comparison mode) Specifies the job ID to filter the logs by.
 
   -u, --user        
-        (Required) Specifies the user CN (Common Name) to find paths for.
+        (Required for non-interactive/comparison mode) Specifies the user CN (Common Name) to find paths for.
 
   -c, --compareJobId
         Specifies a second job ID to compare against the first job.
-        When provided, runs in comparison mode.
+        When provided without -i flag, runs in comparison mode.
 
 Common arguments for all modes:
 
@@ -64,7 +69,7 @@ Common arguments for all modes:
 Examples:
 
   1. Interactive mode:
-     ./analog --ldap -p /path/to/ldap/logs
+     ./analog --ldap -i -p /path/to/ldap/logs
 
   2. Non-interactive mode (find groups to user paths):
      ./analog --ldap -j wsqt9pbpa7yz8gdssw47xzn8hw -u "John Doe" -p /path/to/ldap/logs/specific.log
@@ -82,6 +87,10 @@ function parseFlags(): boolean {
       ldap: {
         type: "boolean",
         short: "l",
+      },
+      interactive: {
+        type: "boolean",
+        short: "i",
       },
       jobId: {
         type: "string",
@@ -117,21 +126,21 @@ function parseFlags(): boolean {
   flags.prefix = String(values.prefix ?? flags.prefix);
   flags.suffix = String(values.suffix ?? flags.suffix);
 
-  const interactive = !flags.jobId && !flags.userCN;
-
-  if (interactive) {
-    console.log("No flags provided, running in interactive mode...\n");
+  // Check for interactive flag first - it takes precedence
+  if (values.interactive) {
     return true;
   }
 
   // non-interactive or comparison mode
   if (!flags.jobId) {
-    console.error("Error: --jobId flag is required.");
+    console.error("Error: --jobId flag is required for non-interactive mode.");
     help();
     process.exit(1);
   }
   if (!flags.userCN) {
-    console.error("Error: --user (-u) flag is required.");
+    console.error(
+      "Error: --user (-u) flag is required for non-interactive mode."
+    );
     help();
     process.exit(1);
   }
@@ -142,9 +151,7 @@ function parseFlags(): boolean {
 async function run(): Promise<void> {
   const interactive = parseFlags();
   if (interactive) {
-    console.log(
-      "--user and --jobId not provided, running in interactive mode...\n"
-    );
+    console.log("Running in interactive mode...\n");
     await handleUserSearch(flags);
     return;
   }
