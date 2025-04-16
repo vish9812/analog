@@ -20,21 +20,21 @@ function findFirstTimestamp(lines: string[]): string | null {
 }
 
 export async function getSortedLines(flags: Flags): Promise<FileLines[]> {
-  const filePaths = await fileHelper.getFilesRecursively(
-    flags.inFolderPath,
+  const filePaths = await fileHelper.getFiles(
+    flags.path,
     flags.prefix,
     flags.suffix
   );
 
   if (filePaths.length === 0) {
     console.log(
-      `No files found matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}". Exiting.`
+      `No files found matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.path}". Exiting.`
     );
     process.exit(0);
   }
 
   console.log(
-    `\nFound ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}"`
+    `\nFound ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.path}"`
   );
 
   console.log("\n========= Reading Files & Finding Timestamps =========");

@@ -117,9 +117,10 @@ e.g. ./analog --help --merger
 
 Example:
 
-  ./analog --ldap --jobId <jobId> -u "User Name" -i ./ldap_logs
+  ./analog --ldap --jobId <jobId> -u "User Name" -p ./ldap_logs
+  ./analog --merger -p /path/to/logs/folder --outFileName merged.log
+  ./analog --summary -p /path/to/specific.log -t 50
   ./analog --web --port 8080
-  ./analog --merger --inFolderPath ../../logs --outFileName merged.log
 
 Caution: Processing multiple files will need at least twice the space as the logs files size.
           For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.

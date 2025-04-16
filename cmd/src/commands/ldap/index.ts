@@ -47,9 +47,10 @@ The arguments for non-interactive and comparison modes:
 
 Common arguments for all modes:
 
-  -i, --inFolderPath
-        Specifies the path to the folder containing the LDAP log files.
-        The folder should only contain log files or nested folders with log files.
+  -p, --path
+        Specifies the path to either a single log file or a folder containing log files.
+        If a folder is provided, it traverses all the files in the folder and its subfolders.
+        If a file is provided, then prefix and suffix flags are ignored.
         Default: . (current directory)
 
   --prefix
@@ -63,13 +64,13 @@ Common arguments for all modes:
 Examples:
 
   1. Interactive mode:
-     ./analog --ldap -i /path/to/ldap/logs
+     ./analog --ldap -p /path/to/ldap/logs
 
-  2. Non-interactive mode (find group paths):
-     ./analog --ldap -j wsqt9pbpa7yz8gdssw47xzn8hw -u "John Doe" -i /path/to/ldap/logs
+  2. Non-interactive mode (find groups to user paths):
+     ./analog --ldap -j wsqt9pbpa7yz8gdssw47xzn8hw -u "John Doe" -p /path/to/ldap/logs/specific.log
 
   3. Comparison mode:
-     ./analog --ldap -j wsqt9pbpa7yz8gdssw47xzn8hw -c e6frspwx9fgs7y7mmo3o5s5cmh -u "John Doe" -i /path/to/ldap/logs
+     ./analog --ldap -j wsqt9pbpa7yz8gdssw47xzn8hw -c e6frspwx9fgs7y7mmo3o5s5cmh -u "John Doe" -p /path/to/ldap/logs
   `);
 }
 
@@ -94,9 +95,9 @@ function parseFlags(): boolean {
         type: "string",
         short: "u",
       },
-      inFolderPath: {
+      path: {
         type: "string",
-        short: "i",
+        short: "p",
       },
       prefix: {
         type: "string",
@@ -112,7 +113,7 @@ function parseFlags(): boolean {
   flags.jobId = String(values.jobId ?? "");
   flags.compareJobId = String(values.compareJobId ?? "");
   flags.userCN = String(values.user ?? "");
-  flags.inFolderPath = String(values.inFolderPath ?? flags.inFolderPath);
+  flags.path = String(values.path ?? flags.path);
   flags.prefix = String(values.prefix ?? flags.prefix);
   flags.suffix = String(values.suffix ?? flags.suffix);
 

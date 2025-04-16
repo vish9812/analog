@@ -7,7 +7,7 @@ export interface Flags {
   jobId: string;
   compareJobId: string;
   userCN: string;
-  inFolderPath: string;
+  path: string;
   prefix: string;
   suffix: string;
 }
@@ -16,7 +16,7 @@ export const defaultFlags: Flags = {
   jobId: "",
   compareJobId: "",
   userCN: "",
-  inFolderPath: ".",
+  path: ".",
   prefix: "ldap",
   suffix: "log",
 };

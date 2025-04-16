@@ -1,11 +1,19 @@
-import { readdir } from "node:fs/promises";
+import { readdir, stat } from "node:fs/promises";
 import * as path from "node:path";
 
-async function getFilesRecursively(
-  folderPath: string,
+async function getFiles(
+  targetPath: string,
   prefix: string,
   suffix: string
 ): Promise<string[]> {
+  const stats = await stat(targetPath);
+
+  // If it's a file, return it directly
+  if (stats.isFile()) {
+    return [targetPath];
+  }
+
+  // If it's a directory, search recursively with prefix/suffix filtering
   const fileList: string[] = [];
 
   async function readDirectory(currentPath: string) {
@@ -26,13 +34,12 @@ async function getFilesRecursively(
     }
   }
 
-  await readDirectory(folderPath);
-
+  await readDirectory(targetPath);
   return fileList;
 }
 
 const fileHelper = {
-  getFilesRecursively,
+  getFiles,
 };
 
 export default fileHelper;
