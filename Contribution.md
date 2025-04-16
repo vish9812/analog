@@ -86,7 +86,7 @@ For specific CLI commands:
 
 ```bash
 # Summary command
-bun run ./cmd/src/main.ts --summary --help
+bun run ./cmd/src/main.ts --help --summary
 ```
 
 ### Build Process
@@ -132,7 +132,7 @@ With custom port:
 #### Running the CLI with the binary:
 
 ```bash
-./analog --summary --help
+./analog --help --summary
 ```
 
 ## Feedback and Assistance

@@ -8,8 +8,9 @@ The CLI comes with the Analog app downloaded from the [Releases Page](https://gi
 
 ## Commands:
 
+- **LDAP**: Parses LDAP log files to find all group membership paths for a specific user and job ID, or search for users based on various criteria.
+- **Merger**: Merges all files from a given folder within a time range and generate a single time-sorted log file with unique log entries.
 - **Summary**: Provides a summary view of all the log files.
-- **Filter**: Filters all files from a given folder within a time range and generate a single time-sorted log file.
 - **Web**: Starts a web server to serve the Analog UI.
 
 ## Usage:
@@ -18,6 +19,7 @@ Execute `./analog --help` to see all available commands.
 
 For specific commands:
 
-- `./analog summary --help` - For summary command help
-- `./analog filter --help` - For filter command help
-- `./analog web --help` - For web UI command help
+- `./analog --help --ldap` - For LDAP command help
+- `./analog --help --merger` - For merger command help
+- `./analog --help --summary` - For summary command help
+- `./analog --help --web` - For web UI command help

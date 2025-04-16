@@ -63,15 +63,15 @@ Follow these steps to run the app:
 4. Execute the following command to start the web UI:
 
 ```bash
-./analog web    # For Linux/macOS
-analog.exe web  # For Windows
+./analog --web    # For Linux/macOS
+.\analog.exe --web  # For Windows
 ```
 
 You can also specify a custom port (default is 20002):
 
 ```bash
-./analog web --port 8080    # For Linux/macOS
-analog.exe web --port 8080  # For Windows
+./analog --web --port 8080    # For Linux/macOS
+.\analog.exe --web --port 8080  # For Windows
 ```
 
 5. Open your web browser and visit: `http://localhost:20002` (or your custom port)
