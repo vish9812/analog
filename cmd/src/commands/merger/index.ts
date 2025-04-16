@@ -11,7 +11,7 @@ let workerURL = new URL("worker.ts", import.meta.url);
 const flags = {
   minTime: "0",
   maxTime: "z",
-  inFolderPath: ".",
+  path: ".",
   outFileName: "./merged-logs.log",
   prefix: "mattermost",
   suffix: "log",
@@ -30,7 +30,7 @@ Caution:  Passing a big time range could lead to keeping millions of log lines i
 
 Usage:
 
-  bun run ./cli/main.js --merger [arguments]
+  ./analog --merger [arguments]
 
 The arguments are:
   
@@ -42,9 +42,10 @@ The arguments are:
         Filters out logs with timestamps equal or later than the specified maximum time(exclusive).
         Default: maxTime of all the logs in the folder.
   
-  -i, --inFolderPath      
-        Specifies the path to the folder containing the log files. 
-        The folder should only contain log files or nested folders with log files.
+  -p, --path      
+        Specifies the path to either a single log file or a folder containing log files.
+        If a folder is provided, it traverses all the files in the folder and its subfolders.
+        If a file is provided, then prefix and suffix flags are ignored.
         Default: . (current directory)
   
   -o, --outFileName
@@ -62,7 +63,7 @@ The arguments are:
 
 Example: 
   
-  bun run ./cli/main.js -m -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -i "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log" --prefix "app-" --suffix "txt"
+  ./analog -m -x "2024-01-25 19:00:00.000 +00:00" -y "2024-01-25 19:05:00.000 +00:00" -p "/path/to/logs/folder" -o "/path/to/filtered/log/filename.log" --prefix "app-" --suffix "txt"
     `);
 }
 
@@ -96,10 +97,10 @@ function parseFlags() {
         short: "y",
         default: flags.maxTime,
       },
-      inFolderPath: {
+      path: {
         type: "string",
-        short: "i",
-        default: flags.inFolderPath,
+        short: "p",
+        default: flags.path,
       },
       outFileName: {
         type: "string",
@@ -119,7 +120,7 @@ function parseFlags() {
     allowPositionals: true,
   });
 
-  flags.inFolderPath = String(values.inFolderPath);
+  flags.path = String(values.path);
   flags.outFileName = String(values.outFileName);
   flags.minTime = String(values.minTime);
   flags.maxTime = String(values.maxTime);
@@ -128,14 +129,14 @@ function parseFlags() {
 }
 
 async function processLogs() {
-  const filePaths = await fileHelper.getFilesRecursively(
-    flags.inFolderPath,
+  const filePaths = await fileHelper.getFiles(
+    flags.path,
     flags.prefix,
     flags.suffix
   );
 
   console.log(
-    `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}"`
+    `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.path}"`
   );
 
   console.log("=========Begin Read Files=========");

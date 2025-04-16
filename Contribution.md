@@ -87,12 +87,6 @@ For specific CLI commands:
 ```bash
 # Summary command
 bun run ./cmd/src/main.ts --summary --help
-
-# Filter command
-bun run ./cmd/src/main.ts --filter --help
-
-# Web command
-bun run ./cmd/src/main.ts --web --help
 ```
 
 ### Build Process
@@ -126,20 +120,19 @@ Once you've built the application and generated binaries, you can run them direc
 #### Running the Web UI with the binary:
 
 ```bash
-./analog web
+./analog --web
 ```
 
 With custom port:
 
 ```bash
-./analog web --port 8080
+./analog --web --port 8080
 ```
 
 #### Running the CLI with the binary:
 
 ```bash
-./analog summary --help
-./analog filter --help
+./analog --summary --help
 ```
 
 ## Feedback and Assistance

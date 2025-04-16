@@ -50,7 +50,7 @@ const stats: IStats = {
 };
 
 const flags = {
-  inFolderPath: ".",
+  path: ".",
   topLogsCount: 30,
   prefix: "mattermost",
   suffix: "log",
@@ -62,13 +62,14 @@ Summary provides a summary view of all the log files.
 
 Usage:
 
-  bun run ./cli/main.js --summary [arguments]
+  ./analog --summary [arguments]
 
 The arguments are:
   
-  -i, --inFolderPath
-        Specifies the path to the folder containing the log files. 
-        The folder should only contain log files or nested folders with log files.
+  -p, --path
+        Specifies the path to either a single log file or a folder containing log files.
+        If a folder is provided, it traverses all the files in the folder and its subfolders.
+        If a file is provided, then prefix and suffix flags are ignored.
         Default: . (current directory)
   
   -t, --top             
@@ -85,7 +86,7 @@ The arguments are:
 
 Example: 
   
-  bun run ./cli/main.js -s -i "/path/to/logs/folder" --prefix "debug-" --suffix "txt"
+  ./analog -s -p "/path/to/logs/folder" --prefix "debug-" --suffix "txt"
     `);
 }
 
@@ -109,10 +110,10 @@ function parseFlags() {
         type: "boolean",
         short: "s",
       },
-      inFolderPath: {
+      path: {
         type: "string",
-        short: "i",
-        default: flags.inFolderPath,
+        short: "p",
+        default: flags.path,
       },
       top: {
         type: "string",
@@ -128,25 +129,25 @@ function parseFlags() {
         default: flags.suffix,
       },
     },
-    strict: false,
+    strict: true,
     allowPositionals: true,
   });
 
-  flags.inFolderPath = String(values.inFolderPath);
+  flags.path = String(values.path);
   flags.topLogsCount = Number(values.top) || flags.topLogsCount;
   flags.prefix = String(values.prefix);
   flags.suffix = String(values.suffix);
 }
 
 async function processLogs() {
-  const filePaths = await fileHelper.getFilesRecursively(
-    flags.inFolderPath,
+  const filePaths = await fileHelper.getFiles(
+    flags.path,
     flags.prefix,
     flags.suffix
   );
 
   console.log(
-    `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.inFolderPath}"`
+    `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.path}"`
   );
 
   console.log("=========Begin Read Files=========");
