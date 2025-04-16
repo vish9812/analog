@@ -79,20 +79,14 @@ This will start the UI in development mode, typically on port 3000.
 #### Running the CLI during development:
 
 ```bash
-./analog --help
+bun run ./cmd/src/main.ts --help
 ```
 
 For specific CLI commands:
 
 ```bash
 # Summary command
-./analog --summary --help
-
-# Filter command
-./analog --filter --help
-
-# Web command
-./analog --web --help
+bun run ./cmd/src/main.ts --summary --help
 ```
 
 ### Build Process
@@ -126,20 +120,19 @@ Once you've built the application and generated binaries, you can run them direc
 #### Running the Web UI with the binary:
 
 ```bash
-./analog web
+./analog --web
 ```
 
 With custom port:
 
 ```bash
-./analog web --port 8080
+./analog --web --port 8080
 ```
 
 #### Running the CLI with the binary:
 
 ```bash
-./analog summary --help
-./analog filter --help
+./analog --summary --help
 ```
 
 ## Feedback and Assistance

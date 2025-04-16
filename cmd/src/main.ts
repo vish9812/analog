@@ -101,7 +101,7 @@ Usage:
 The commands are:
 
   -l, --ldap
-        Parses LDAP log files to find group membership paths for a specific user.
+        Parses LDAP log files to find all group membership paths for a specific user and job ID, or search for users based on various criteria.
 
   -m, --merger
         merges all files from a given folder within a time range and generate a single time-sorted log file with unique log entries.
@@ -121,7 +121,7 @@ Example:
   ./analog --web --port 8080
   ./analog --merger --inFolderPath ../../logs --outFileName merged.log
 
-Caution (for merger/summary): Processing multiple files will need at least twice the space as the logs files size.
+Caution: Processing multiple files will need at least twice the space as the logs files size.
           For example, if you are analyzing 4GB of logs make sure you have 8GB of *free* RAM left for smoother processing.
 
 A few utility commands can also be found here - https://github.com/vish9812/analog?tab=readme-ov-file#utility-commands.
