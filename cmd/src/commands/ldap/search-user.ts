@@ -145,7 +145,7 @@ async function gatherSearchConfig(): Promise<SearchConfig> {
 }
 
 export function parseLogs(
-  config: SearchConfig,
+  config: SearchConfig | { jobId: string; userCN: string },
   fileLines: FileLines[]
 ): SearchResult | null {
   let result: SearchResult | null = null;
@@ -180,14 +180,17 @@ export function parseLogs(
 
     // Check if line matches response block type
     if (
-      (config.responseType === "login" &&
-        line.includes(loginResponseIdentifier)) ||
-      (config.responseType === "job" && line.includes(jobResponseIdentifier)) ||
-      (config.responseType === "any" &&
-        (line.includes(loginResponseIdentifier) ||
-          line.includes(jobResponseIdentifier)))
+      ("responseType" in config &&
+        ((config.responseType === "login" &&
+          line.includes(loginResponseIdentifier)) ||
+          (config.responseType === "job" &&
+            line.includes(jobResponseIdentifier)) ||
+          (config.responseType === "any" &&
+            (line.includes(loginResponseIdentifier) ||
+              line.includes(jobResponseIdentifier))))) ||
+      (!("responseType" in config) && line.includes(jobResponseIdentifier))
     ) {
-      if (config.timeRange && !gotResponse) {
+      if ("timeRange" in config && config.timeRange && !gotResponse) {
         const timeMatch = line.match(regexes.time);
         if (timeMatch && timeMatch[1]) {
           const responseTime = timeMatch[1];
@@ -224,7 +227,7 @@ export function parseLogs(
           }
           continue;
         }
-      } else {
+      } else if ("attributes" in config) {
         // Search by user attributes
         if (line.startsWith("Attribute Name:")) {
           const attrKey = line.match(regexes.lastDoubleQuote)?.[1];

@@ -4,8 +4,9 @@ import { defaultFlags } from "./types";
 import type { Flags } from "./types";
 import handleUserSearch from "./search-user";
 import handleGroupPaths from "./group-paths";
+import handleComparison from "./compare";
 
-const flags: Flags = { ...defaultFlags };
+const flags: Flags & { compareJobId?: string } = { ...defaultFlags };
 
 function help(): void {
   console.log(`
@@ -15,7 +16,7 @@ Usage:
 
   ./analog --ldap [arguments]
 
-The command operates in two modes:
+The command operates in three modes:
 
 1. Interactive Mode:
    Run without "--jobId" and "--user" arguments to enter interactive mode:
@@ -29,7 +30,10 @@ The command operates in two modes:
 2. Non-interactive Mode:
    Run with "--jobId" and "--user" arguments to find group membership paths:
 
-The arguments for non-interactive mode only:
+3. Comparison Mode:
+   Run with "--jobId", "--compareJobId", and "--user" arguments to compare LDAP data between two jobs:
+
+The arguments for non-interactive and comparison modes:
 
   -j, --jobId
         (Required) Specifies the job ID to filter the logs by.
@@ -37,7 +41,11 @@ The arguments for non-interactive mode only:
   -u, --user        
         (Required) Specifies the user CN (Common Name) to find paths for.
 
-Common arguments for both modes:
+  -c, --compareJobId
+        Specifies a second job ID to compare against the first job.
+        When provided, runs in comparison mode.
+
+Common arguments for all modes:
 
   -i, --inFolderPath
         Specifies the path to the folder containing the LDAP log files.
@@ -59,10 +67,13 @@ Examples:
 
   2. Non-interactive mode (find group paths):
      ./analog --ldap -j wsqt9pbpa7yz8gdssw47xzn8hw -u "John Doe" -i /path/to/ldap/logs
+
+  3. Comparison mode:
+     ./analog --ldap -j wsqt9pbpa7yz8gdssw47xzn8hw -c e6frspwx9fgs7y7mmo3o5s5cmh -u "John Doe" -i /path/to/ldap/logs
   `);
 }
 
-// returns true if interactive mode, false if non-interactive mode
+// returns true if interactive mode, false if non-interactive or comparison mode
 function parseFlags(): boolean {
   const { values } = parseArgs({
     args: Bun.argv,
@@ -74,6 +85,10 @@ function parseFlags(): boolean {
       jobId: {
         type: "string",
         short: "j",
+      },
+      compareJobId: {
+        type: "string",
+        short: "c",
       },
       user: {
         type: "string",
@@ -95,6 +110,7 @@ function parseFlags(): boolean {
   });
 
   flags.jobId = String(values.jobId ?? "");
+  flags.compareJobId = String(values.compareJobId ?? "");
   flags.userCN = String(values.user ?? "");
   flags.inFolderPath = String(values.inFolderPath ?? flags.inFolderPath);
   flags.prefix = String(values.prefix ?? flags.prefix);
@@ -107,7 +123,7 @@ function parseFlags(): boolean {
     return true;
   }
 
-  // non-interactive mode
+  // non-interactive or comparison mode
   if (!flags.jobId) {
     console.error("Error: --jobId flag is required.");
     help();
@@ -127,6 +143,12 @@ async function run(): Promise<void> {
   if (interactive) {
     console.log("No flags provided, running in interactive mode...\n");
     await handleUserSearch(flags);
+    return;
+  }
+
+  // Check if comparison mode
+  if (flags.compareJobId) {
+    await handleComparison({ ...flags, compareJobId: flags.compareJobId });
     return;
   }
 

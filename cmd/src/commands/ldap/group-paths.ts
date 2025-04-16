@@ -1,7 +1,7 @@
 import { getSortedLines, regexes } from "./helper";
 import type { FileLines, Flags } from "./types";
 
-interface PathsResult {
+export interface PathsResult {
   paths: string[][]; // All paths ending at the target user
   cycleGroups: Set<string>; // Unique groups that are part of a cycle
   groupsLeadingToUser: Set<string>; // Unique groups that eventually lead to the target user
@@ -56,7 +56,7 @@ function printResults(pathsResults: PathsResult, flags: Flags) {
   console.log(Array.from(groupsLeadingToUser).join(", "));
 }
 
-function createPathsToUser(
+export function createPathsToUser(
   groupUserCNs: GroupMap,
   userCN: string
 ): PathsResult {
@@ -105,7 +105,7 @@ function createPathsToUser(
   return { paths, cycleGroups, groupsLeadingToUser };
 }
 
-function parseLogs(fileLines: FileLines[], jobId: string): GroupMap {
+export function parseLogs(fileLines: FileLines[], jobId: string): GroupMap {
   const groupUserCNs: GroupMap = new Map<string, Set<string>>();
   const responseIdentifier = `Got response worker_name=EnterpriseLdapSync job_id=${jobId}`;
 
