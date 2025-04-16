@@ -6,7 +6,7 @@ import handleUserSearch from "./search-user";
 import handleGroupPaths from "./group-paths";
 import handleComparison from "./compare";
 
-const flags: Flags & { compareJobId?: string } = { ...defaultFlags };
+const flags: Flags = { ...defaultFlags };
 
 function help(): void {
   console.log(`
@@ -141,14 +141,16 @@ function parseFlags(): boolean {
 async function run(): Promise<void> {
   const interactive = parseFlags();
   if (interactive) {
-    console.log("No flags provided, running in interactive mode...\n");
+    console.log(
+      "--user and --jobId not provided, running in interactive mode...\n"
+    );
     await handleUserSearch(flags);
     return;
   }
 
   // Check if comparison mode
   if (flags.compareJobId) {
-    await handleComparison({ ...flags, compareJobId: flags.compareJobId });
+    await handleComparison(flags);
     return;
   }
 

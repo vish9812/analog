@@ -96,11 +96,11 @@ async function gatherSearchConfig(): Promise<SearchConfig> {
       config.timeRange = {
         start: await input({
           message: "Enter the start time (inclusive):",
-          required: true,
+          default: "0",
         }),
         end: await input({
           message: "Enter the end time (exclusive):",
-          required: true,
+          default: "z",
         }),
       };
     }

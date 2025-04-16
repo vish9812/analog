@@ -181,9 +181,7 @@ function printComparisonResults(
   }
 }
 
-async function handleComparison(
-  flags: Flags & { compareJobId: string }
-): Promise<void> {
+async function handleComparison(flags: Flags): Promise<void> {
   console.log("\n========= Comparing LDAP Data =========");
   const fileLines = await getSortedLines(flags);
 

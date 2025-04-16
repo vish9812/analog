@@ -5,6 +5,7 @@ export interface FileLines {
 
 export interface Flags {
   jobId: string;
+  compareJobId: string;
   userCN: string;
   inFolderPath: string;
   prefix: string;
@@ -13,6 +14,7 @@ export interface Flags {
 
 export const defaultFlags: Flags = {
   jobId: "",
+  compareJobId: "",
   userCN: "",
   inFolderPath: ".",
   prefix: "ldap",
