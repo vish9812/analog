@@ -4,9 +4,9 @@ function TimeJumps(props: Props) {
   const { handleJump, nextEmpty, prevEmpty } = useViewModel(props);
 
   return (
-    <div class="join">
+    <div class="inline-flex rounded-md">
       <button
-        class="join-item btn btn-sm"
+        class="btn-outline-primary rounded-r-none border-r-0"
         disabled={prevEmpty()}
         onClick={() => handleJump(false)}
       >
@@ -25,14 +25,17 @@ function TimeJumps(props: Props) {
           />
         </svg>
       </button>
-      <div
-        class="tooltip"
-        data-tip="Navigate through log data in subsets whenever there is a time break of certain minutes"
-      >
-        <button class="join-item p-2">Time Jumps</button>
+      <div class="relative group">
+        <button class="btn-outline-primary rounded-none border-x-0 px-3 py-1.5">
+          Time Jumps
+        </button>
+        <div class="tooltip-base">
+          Navigate through log data in subsets whenever there is a time break of
+          certain minutes
+        </div>
       </div>
       <button
-        class="join-item btn btn-sm"
+        class="btn-outline-primary rounded-l-none border-l-0"
         disabled={nextEmpty()}
         onClick={() => handleJump(true)}
       >

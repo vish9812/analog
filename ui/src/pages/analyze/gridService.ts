@@ -21,11 +21,13 @@ function defaultCols(): ColDef[] {
     {
       field: LogData.logKeys.msg,
       flex: 0.75,
+      sortable: false,
     },
     {
       field: LogData.logKeys.fullData,
       cellRenderer: FullDataCellRenderer,
       flex: 2,
+      sortable: false,
     },
   ];
 }

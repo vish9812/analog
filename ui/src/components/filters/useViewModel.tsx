@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import { AgGridSolidRef } from "ag-grid-solid";
+import { AgGridSolidRef } from "solid-ag-grid";
 import comparer from "@al/services/comparer";
 import LogData, { JSONLogs, GroupedMsg, JSONLog } from "@al/models/logData";
 

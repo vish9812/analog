@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import gridService from "./gridService";
-import { AgGridSolidRef } from "ag-grid-solid";
+import { AgGridSolidRef } from "solid-ag-grid";
 import { GridApi } from "ag-grid-community";
 import { FiltersData, SearchTerm } from "@al/components/filters/useViewModel";
 import LogData, { JSONLogs } from "@al/models/logData";
@@ -26,6 +26,7 @@ function useViewModel() {
   }
 
   function handleFiltersChange(filtersData: FiltersData) {
+    console.log("handleFiltersChange");
     resetJumps();
     const validJump = jumpValidator();
     const { add: addJump, done: doneAddingJumps } = jumpAdder();

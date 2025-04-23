@@ -26,8 +26,10 @@ function Normalize() {
       <div class="flex flex-col items-center gap-6 py-8">
         <div class="flex items-center gap-4">
           <label
-            class={`btn btn-lg gap-2 ${
-              newFileDisabled() ? "btn-disabled" : "btn-primary"
+            class={`inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg gap-2 ${
+              newFileDisabled()
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700"
             }`}
           >
             <svg
@@ -56,12 +58,16 @@ function Normalize() {
           </label>
 
           <Show when={processingFile()}>
-            <span class="loading loading-spinner loading-lg text-primary"></span>
+            <div class="flex items-center justify-center">
+              <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
           </Show>
 
           <button
-            class={`btn btn-lg gap-2 ${
-              analyzeDisabled() ? "btn-disabled" : "btn-success"
+            class={`inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg gap-2 ${
+              analyzeDisabled()
+                ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                : "bg-green-500 text-white hover:bg-green-600 active:bg-green-700"
             }`}
             onClick={() => handleAnalyzeClick(setPage)}
             disabled={analyzeDisabled()}
@@ -84,16 +90,16 @@ function Normalize() {
         </div>
 
         {/* Format Instructions Card */}
-        <div class="card bg-base-100 shadow-lg w-full">
-          <div class="card-body p-6">
+        <div class="w-full bg-white rounded-lg shadow-lg">
+          <div class="p-6">
             <div class="flex items-center justify-between">
-              <h2 class="card-title text-xl">Log Format Requirements</h2>
+              <h2 class="text-xl font-semibold">Log Format Requirements</h2>
             </div>
 
             <div id="format-instructions" class="space-y-6">
               <div>
                 <h3 class="font-medium mb-2">Required Keys</h3>
-                <ul class="list-disc list-inside opacity-75 space-y-1 ml-2">
+                <ul class="list-disc list-inside text-gray-600 space-y-1 ml-2">
                   <li>level</li>
                   <li>timestamp</li>
                   <li>msg</li>
@@ -102,7 +108,7 @@ function Normalize() {
 
               <div>
                 <h3 class="font-medium mb-2">JSON Format</h3>
-                <div class="mockup-code">
+                <div class="bg-gray-100 rounded-lg p-4 font-mono text-sm">
                   <pre>
                     <code>{`{"timestamp":"2023-10-16 10:13:16.710 +11:00","level":"debug","msg":"Received HTTP request","dynamicKey1":"value 1","dynamicKey2":"value 2"}`}</code>
                   </pre>
@@ -111,7 +117,7 @@ function Normalize() {
 
               <div>
                 <h3 class="font-medium mb-2">Plain-text Format</h3>
-                <div class="mockup-code">
+                <div class="bg-gray-100 rounded-lg p-4 font-mono text-sm">
                   <pre>
                     <code>
                       debug [2023-10-16 10:13:16.710 +11:00] Received HTTP
@@ -127,11 +133,11 @@ function Normalize() {
 
       {/* Files List */}
       <Show when={!!logDatas().length}>
-        <div class="card bg-base-100 shadow-lg">
-          <div class="card-body p-6">
+        <div class="bg-white rounded-lg shadow-lg">
+          <div class="p-6">
             <div class="mb-6">
-              <h3 class="card-title text-xl">Optional Time Range Filter</h3>
-              <p class="opacity-75 mt-1">
+              <h3 class="text-xl font-semibold">Optional Time Range Filter</h3>
+              <p class="text-gray-600 mt-1">
                 Filter large files (&gt;100MB) or compare specific time slices
               </p>
             </div>
@@ -139,12 +145,12 @@ function Normalize() {
             <div class="space-y-6">
               <For each={logDatas()}>
                 {(logData, idx) => (
-                  <div class="bg-base-200 rounded-box p-6">
+                  <div class="bg-gray-100 rounded-lg p-6">
                     <div class="flex items-center gap-4 mb-4">
                       <div class="flex items-center gap-3">
-                        <div class="bg-base-100 p-2 rounded-lg">
+                        <div class="bg-white p-2 rounded-lg">
                           <svg
-                            class="w-6 h-6 opacity-75"
+                            class="w-6 h-6 text-gray-600"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -159,7 +165,7 @@ function Normalize() {
                         </div>
                         <div>
                           <p class="font-medium">{logData.fileInfo.name}</p>
-                          <p class="text-sm opacity-75">
+                          <p class="text-sm text-gray-600">
                             {prettyBytes(logData.fileInfo.size)}
                           </p>
                         </div>
@@ -167,29 +173,35 @@ function Normalize() {
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div class="form-control">
-                        <label class="label" for={`start-time-${idx()}`}>
-                          <span class="label-text">Start Time (Inclusive)</span>
+                      <div>
+                        <label
+                          class="block text-sm font-medium text-gray-700 mb-1"
+                          for={`start-time-${idx()}`}
+                        >
+                          Start Time (Inclusive)
                         </label>
                         <input
                           id={`start-time-${idx()}`}
                           type="text"
                           placeholder="YYYY-MM-DD HH:mm:ss.SSS Z"
-                          class="input input-bordered"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           onChange={(e) =>
                             setTimeRange(idx(), "min", e.target.value)
                           }
                         />
                       </div>
-                      <div class="form-control">
-                        <label class="label" for={`end-time-${idx()}`}>
-                          <span class="label-text">End Time (Exclusive)</span>
+                      <div>
+                        <label
+                          class="block text-sm font-medium text-gray-700 mb-1"
+                          for={`end-time-${idx()}`}
+                        >
+                          End Time (Exclusive)
                         </label>
                         <input
                           id={`end-time-${idx()}`}
                           type="text"
                           placeholder="YYYY-MM-DD HH:mm:ss.SSS Z"
-                          class="input input-bordered"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                           onChange={(e) =>
                             setTimeRange(idx(), "max", e.target.value)
                           }
