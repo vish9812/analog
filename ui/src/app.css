@@ -1,5 +1,40 @@
 @import "./index.css";
 
+/* Theme Variables */
+@theme {
+  /* Colors */
+  --color-primary: var(--color-blue-600);
+  --color-primary-light: var(--color-blue-500);
+  --color-primary-dark: var(--color-blue-700);
+
+  --color-secondary: var(--color-purple-600);
+  --color-secondary-light: var(--color-purple-500);
+  --color-secondary-dark: var(--color-purple-700);
+
+  --color-success: var(--color-green-600);
+  --color-success-light: var(--color-green-500);
+  --color-success-dark: var(--color-green-700);
+
+  --color-error: var(--color-red-600);
+  --color-error-light: var(--color-red-500);
+  --color-error-dark: var(--color-red-700);
+
+  --color-warning: var(--color-yellow-600);
+  --color-warning-light: var(--color-yellow-500);
+  --color-warning-dark: var(--color-yellow-700);
+
+  --color-info: var(--color-cyan-600);
+  --color-info-light: var(--color-cyan-500);
+  --color-info-dark: var(--color-cyan-700);
+
+  /* Neutral Colors */
+  --color-background: var(--color-white);
+  --color-surface: var(--color-gray-50);
+  --color-border: var(--color-gray-200);
+  --color-text: var(--color-gray-900);
+  --color-text-light: var(--color-gray-600);
+}
+
 /* Select Component Styles */
 .app-select {
   &.solid-select-container {
@@ -31,67 +66,87 @@
 }
 
 /* Common Utility Classes */
-@utility input-base {
-  @apply w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white;
-  &:focus {
-    @apply ring-2 ring-blue-500 border-blue-500;
-  }
-}
-
-@utility btn-base {
-  @apply inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-md;
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors;
 }
 
 @utility btn-primary {
-  @apply btn-base bg-blue-500 text-white;
-  &:hover {
-    @apply bg-blue-600;
-  }
-  &:active {
-    @apply bg-blue-700;
-  }
+  @apply btn bg-primary text-white hover:bg-primary-dark active:bg-primary-dark;
+}
+
+@utility btn-secondary {
+  @apply btn bg-secondary text-white hover:bg-secondary-dark active:bg-secondary-dark;
+}
+
+@utility btn-outline {
+  @apply btn border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 active:bg-gray-100;
 }
 
 @utility btn-error {
-  @apply btn-base bg-red-100 text-red-700;
-  &:hover {
-    @apply bg-red-200;
-  }
-  &:active {
-    @apply bg-red-300;
-  }
+  @apply btn bg-error text-white hover:bg-error-dark active:bg-error-dark;
 }
 
-@utility btn-outline-primary {
-  @apply btn-base border border-blue-500 text-blue-500;
-  &:hover {
-    @apply bg-blue-50;
-  }
-  &:active {
-    @apply bg-blue-100;
-  }
+@utility btn-success {
+  @apply btn bg-success text-white hover:bg-success-dark active:bg-success-dark;
 }
 
-@utility btn-outline-error {
-  @apply btn-base border border-red-500 text-red-500;
-  &:hover {
-    @apply bg-red-50;
-  }
-  &:active {
-    @apply bg-red-100;
-  }
+@utility btn-sm {
+  @apply px-2 py-1 text-xs;
 }
 
-@utility card-base {
-  @apply bg-gray-100 rounded-lg p-4;
+@utility btn-lg {
+  @apply px-6 py-3 text-base;
 }
 
-@utility label-base {
+@utility input {
+  @apply w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary;
+  @apply disabled:bg-gray-100 disabled:cursor-not-allowed;
+}
+
+@utility input-error {
+  @apply border-error focus:ring-error focus:border-error;
+}
+
+@utility label {
   @apply block text-sm font-medium text-gray-700 mb-1;
 }
 
-@utility tooltip-base {
-  @apply absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap;
+@utility card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden;
+}
+
+@utility card-header {
+  @apply px-4 py-3 border-b border-gray-200 bg-gray-50;
+}
+
+@utility card-body {
+  @apply p-4;
+}
+
+@utility badge {
+  @apply inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full;
+}
+
+@utility badge-primary {
+  @apply badge bg-primary-light text-white;
+}
+
+@utility badge-error {
+  @apply badge bg-error-light text-white;
+}
+
+@utility badge-success {
+  @apply badge bg-success-light text-white;
+}
+
+@utility badge-outline {
+  @apply badge border border-current;
+}
+
+@utility tooltip {
+  @apply absolute invisible opacity-0 px-2 py-1 text-xs text-white bg-gray-900 rounded z-50;
+  @apply group-hover:visible group-hover:opacity-100 transition-opacity;
 }
 
 /* AG Grid Theme Customization */

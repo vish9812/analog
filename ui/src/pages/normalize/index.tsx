@@ -26,10 +26,10 @@ function Normalize() {
       <div class="flex flex-col items-center gap-6 py-8">
         <div class="flex items-center gap-4">
           <label
-            class={`inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg gap-2 ${
+            class={`btn btn-lg ${
               newFileDisabled()
                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700"
+                : "btn-primary"
             }`}
           >
             <svg
@@ -59,15 +59,15 @@ function Normalize() {
 
           <Show when={processingFile()}>
             <div class="flex items-center justify-center">
-              <div class="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
           </Show>
 
           <button
-            class={`inline-flex items-center px-6 py-3 text-lg font-medium rounded-lg gap-2 ${
+            class={`btn btn-lg ${
               analyzeDisabled()
                 ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                : "bg-green-500 text-white hover:bg-green-600 active:bg-green-700"
+                : "btn-success"
             }`}
             onClick={() => handleAnalyzeClick(setPage)}
             disabled={analyzeDisabled()}
@@ -90,8 +90,8 @@ function Normalize() {
         </div>
 
         {/* Format Instructions Card */}
-        <div class="w-full bg-white rounded-lg shadow-lg">
-          <div class="p-6">
+        <div class="card w-full">
+          <div class="card-body">
             <div class="flex items-center justify-between">
               <h2 class="text-xl font-semibold">Log Format Requirements</h2>
             </div>
@@ -99,7 +99,7 @@ function Normalize() {
             <div id="format-instructions" class="space-y-6">
               <div>
                 <h3 class="font-medium mb-2">Required Keys</h3>
-                <ul class="list-disc list-inside text-gray-600 space-y-1 ml-2">
+                <ul class="list-disc list-inside text-text-light space-y-1 ml-2">
                   <li>level</li>
                   <li>timestamp</li>
                   <li>msg</li>
@@ -108,7 +108,7 @@ function Normalize() {
 
               <div>
                 <h3 class="font-medium mb-2">JSON Format</h3>
-                <div class="bg-gray-100 rounded-lg p-4 font-mono text-sm">
+                <div class="bg-surface rounded-lg p-4 font-mono text-sm">
                   <pre>
                     <code>{`{"timestamp":"2023-10-16 10:13:16.710 +11:00","level":"debug","msg":"Received HTTP request","dynamicKey1":"value 1","dynamicKey2":"value 2"}`}</code>
                   </pre>
@@ -117,7 +117,7 @@ function Normalize() {
 
               <div>
                 <h3 class="font-medium mb-2">Plain-text Format</h3>
-                <div class="bg-gray-100 rounded-lg p-4 font-mono text-sm">
+                <div class="bg-surface rounded-lg p-4 font-mono text-sm">
                   <pre>
                     <code>
                       debug [2023-10-16 10:13:16.710 +11:00] Received HTTP
@@ -133,11 +133,11 @@ function Normalize() {
 
       {/* Files List */}
       <Show when={!!logDatas().length}>
-        <div class="bg-white rounded-lg shadow-lg">
-          <div class="p-6">
+        <div class="card">
+          <div class="card-body">
             <div class="mb-6">
               <h3 class="text-xl font-semibold">Optional Time Range Filter</h3>
-              <p class="text-gray-600 mt-1">
+              <p class="text-text-light mt-1">
                 Filter large files (&gt;100MB) or compare specific time slices
               </p>
             </div>
@@ -145,12 +145,12 @@ function Normalize() {
             <div class="space-y-6">
               <For each={logDatas()}>
                 {(logData, idx) => (
-                  <div class="bg-gray-100 rounded-lg p-6">
+                  <div class="bg-surface rounded-lg p-6">
                     <div class="flex items-center gap-4 mb-4">
                       <div class="flex items-center gap-3">
-                        <div class="bg-white p-2 rounded-lg">
+                        <div class="bg-background p-2 rounded-lg">
                           <svg
-                            class="w-6 h-6 text-gray-600"
+                            class="w-6 h-6 text-text-light"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -165,7 +165,7 @@ function Normalize() {
                         </div>
                         <div>
                           <p class="font-medium">{logData.fileInfo.name}</p>
-                          <p class="text-sm text-gray-600">
+                          <p class="text-sm text-text-light">
                             {prettyBytes(logData.fileInfo.size)}
                           </p>
                         </div>
@@ -174,34 +174,28 @@ function Normalize() {
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
-                        <label
-                          class="block text-sm font-medium text-gray-700 mb-1"
-                          for={`start-time-${idx()}`}
-                        >
+                        <label class="label" for={`start-time-${idx()}`}>
                           Start Time (Inclusive)
                         </label>
                         <input
                           id={`start-time-${idx()}`}
                           type="text"
                           placeholder="YYYY-MM-DD HH:mm:ss.SSS Z"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          class="input"
                           onChange={(e) =>
                             setTimeRange(idx(), "min", e.target.value)
                           }
                         />
                       </div>
                       <div>
-                        <label
-                          class="block text-sm font-medium text-gray-700 mb-1"
-                          for={`end-time-${idx()}`}
-                        >
+                        <label class="label" for={`end-time-${idx()}`}>
                           End Time (Exclusive)
                         </label>
                         <input
                           id={`end-time-${idx()}`}
                           type="text"
                           placeholder="YYYY-MM-DD HH:mm:ss.SSS Z"
-                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          class="input"
                           onChange={(e) =>
                             setTimeRange(idx(), "max", e.target.value)
                           }

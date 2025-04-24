@@ -44,7 +44,7 @@ function Analyze() {
   return (
     <div class="px-4 space-y-6">
       <div class="space-y-6">
-        <div class="bg-white rounded-lg shadow-xl">
+        <div class="card">
           <div class="p-0">
             <div class="relative">
               <input
@@ -79,14 +79,14 @@ function Analyze() {
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-xl">
-          <div class="p-6">
+        <div class="card">
+          <div class="card-body">
             <div class="flex flex-wrap gap-4 items-center justify-between mb-4">
               <div class="flex items-center gap-4">
                 <h2 class="text-xl font-semibold flex items-center gap-2">
                   All Logs
                   {rows().length ? (
-                    <span class="inline-flex items-center px-3 py-1 rounded-lg text-sm font-medium bg-blue-100 text-blue-800">
+                    <span class="badge badge-primary">
                       {rows().length.toLocaleString()}
                     </span>
                   ) : null}
@@ -107,7 +107,7 @@ function Analyze() {
                   onChange={handleColsChange}
                 />
                 <button
-                  class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 gap-2"
+                  class="btn-outline"
                   onClick={() => setInitialCols(gridService.defaultCols())}
                 >
                   <svg
@@ -129,7 +129,7 @@ function Analyze() {
               </div>
             </div>
 
-            <div class="rounded-lg border border-gray-200 overflow-hidden shadow-inner">
+            <div class="rounded-lg border border-border overflow-hidden shadow-inner">
               <div class="ag-theme-alpine h-[900px]">
                 <AgGridSolid ref={gridRef} {...gridOptions()} />
               </div>

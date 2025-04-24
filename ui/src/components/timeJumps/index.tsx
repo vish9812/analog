@@ -6,7 +6,7 @@ function TimeJumps(props: Props) {
   return (
     <div class="inline-flex rounded-md">
       <button
-        class="btn-outline-primary rounded-r-none border-r-0"
+        class="btn-outline rounded-r-none border-r-0"
         disabled={prevEmpty()}
         onClick={() => handleJump(false)}
       >
@@ -26,16 +26,16 @@ function TimeJumps(props: Props) {
         </svg>
       </button>
       <div class="relative group">
-        <button class="btn-outline-primary rounded-none border-x-0 px-3 py-1.5">
+        <button class="btn-outline rounded-none border-x-0 px-3 py-1.5">
           Time Jumps
         </button>
-        <div class="tooltip-base">
+        <div class="tooltip">
           Navigate through log data in subsets whenever there is a time break of
           certain minutes
         </div>
       </div>
       <button
-        class="btn-outline-primary rounded-l-none border-l-0"
+        class="btn-outline rounded-l-none border-l-0"
         disabled={nextEmpty()}
         onClick={() => handleJump(true)}
       >

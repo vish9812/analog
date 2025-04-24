@@ -203,14 +203,14 @@ function Filters(props: FiltersProps) {
   return (
     <div class="p-4 space-y-6">
       {/* Time and Regex Search */}
-      <div class="card-base">
+      <div class="card">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="label-base">Start Time (Inclusive)</label>
+            <label class="label">Start Time (Inclusive)</label>
             <input
               type="text"
               placeholder="YYYY-MM-DD HH:mm:ss"
-              class="input-base"
+              class="input"
               value={filters.startTime}
               onInput={(e) => setFilters("startTime", e.currentTarget.value)}
               onKeyDown={handleFiltersEnterKey}
@@ -218,11 +218,11 @@ function Filters(props: FiltersProps) {
           </div>
 
           <div>
-            <label class="label-base">End Time (Exclusive)</label>
+            <label class="label">End Time (Exclusive)</label>
             <input
               type="text"
               placeholder="YYYY-MM-DD HH:mm:ss"
-              class="input-base"
+              class="input"
               value={filters.endTime}
               onInput={(e) => setFilters("endTime", e.currentTarget.value)}
               onKeyDown={handleFiltersEnterKey}
@@ -230,11 +230,11 @@ function Filters(props: FiltersProps) {
           </div>
 
           <div>
-            <label class="label-base">Regex Search</label>
+            <label class="label">Regex Search</label>
             <input
               type="text"
               placeholder="Enter regex pattern"
-              class="input-base"
+              class="input"
               value={filters.regex}
               onInput={(e) => setFilters("regex", e.currentTarget.value)}
               onKeyDown={handleFiltersEnterKey}
@@ -244,7 +244,7 @@ function Filters(props: FiltersProps) {
       </div>
 
       {/* Search Terms */}
-      <div class="card-base">
+      <div class="card">
         <div class="space-y-2">
           <For each={filters.terms}>{getSimpleSearchHTML}</For>
 
@@ -268,7 +268,7 @@ function Filters(props: FiltersProps) {
       </div>
 
       {/* Controls */}
-      <div class="card-base">
+      <div class="card">
         <div class="flex flex-wrap gap-6 items-end">
           {/* Main Controls */}
           <div class="flex gap-4 items-center">

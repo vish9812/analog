@@ -4,7 +4,7 @@ function Download(props: Props) {
   const { downloadSubset } = useViewModel(props);
 
   return (
-    <button class="btn-outline-primary gap-2" onClick={downloadSubset}>
+    <button class="btn-outline gap-2" onClick={downloadSubset}>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         class="h-4 w-4"

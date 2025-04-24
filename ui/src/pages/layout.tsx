@@ -45,15 +45,15 @@ const Layout = (props: LayoutProps) => {
   const isAnalyzePage = () => page() === Pages.analyze;
 
   return (
-    <div class="min-h-screen bg-gray-100">
-      <header class="bg-white shadow-lg">
+    <div class="min-h-screen bg-surface">
+      <header class="bg-background shadow-lg">
         <div class="container mx-auto px-6 py-4">
           <div class="flex justify-between items-center">
             <div>
-              <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+              <h1 class="text-3xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 Analog
               </h1>
-              <p class="text-gray-600 mt-1">Analyze Logs with Ease</p>
+              <p class="text-text-light mt-1">Analyze Logs with Ease</p>
             </div>
 
             {/* Show file names only on the analyze page */}
@@ -65,7 +65,7 @@ const Layout = (props: LayoutProps) => {
               <div class="relative group">
                 <button
                   type="button"
-                  class="p-2 rounded-full text-gray-500 hover:bg-gray-100"
+                  class="btn-outline btn-sm rounded-full"
                   onClick={() => window.location.reload()}
                 >
                   <svg
@@ -83,7 +83,7 @@ const Layout = (props: LayoutProps) => {
                     />
                   </svg>
                 </button>
-                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-red-500 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <span class="tooltip bottom-full left-1/2 -translate-x-1/2 mb-2">
                   Reload Page
                 </span>
               </div>
