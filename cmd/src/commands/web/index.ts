@@ -1,7 +1,7 @@
 // --- BEGIN GENERATED IMPORTS - DO NOT EDIT MANUALLY ---
 import fileIndexHtml from "./dist/index.html" with { type: "file" };
-import fileIndexCss from "./dist/assets/index-BJIiTlu-.css" with { type: "file" };
-import fileIndexJs from "./dist/assets/index-FiIrXequ.js" with { type: "file" };
+import fileIndexCss from "./dist/assets/index-BYz9Op3u.css" with { type: "file" };
+import fileIndexJs from "./dist/assets/index-DwsdYal3.js" with { type: "file" };
 import fileFavicon from "./dist/assets/favicon-mtvwWgEY.ico" with { type: "file" };
 // --- END GENERATED IMPORTS ---
 
