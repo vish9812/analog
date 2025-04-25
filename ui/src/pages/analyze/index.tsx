@@ -21,7 +21,6 @@ function Analyze() {
     setInitialCols,
     handleTimeJump,
     handleContextClick,
-    filterErrorsOnly,
   } = useViewModel();
 
   const gridOptions = (): GridOptions<JSONLog> => ({
@@ -54,7 +53,7 @@ function Analyze() {
               <div class="text-xl font-semibold h-12 flex items-center px-4">
                 Filters
               </div>
-              <div class="max-h-0 peer-checked:max-h-screen transition-all duration-200 overflow-hidden">
+              <div class="max-h-0 peer-checked:max-h-[200lvh] transition-all duration-200 overflow-hidden">
                 <div class="p-4">
                   <Filters onFiltersChange={handleFiltersChange} />
                 </div>

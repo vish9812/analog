@@ -12,7 +12,6 @@ function useViewModel() {
   const [rows, setRows] = createSignal(comparer.last().logs);
   const [initialCols, setInitialCols] = createSignal(gridService.defaultCols());
   const [cols, setCols] = createSignal(gridService.defaultCols());
-  const [filterErrorsOnly, setFilterErrorsOnly] = createSignal(false);
 
   const {
     reset: resetJumps,
@@ -30,8 +29,6 @@ function useViewModel() {
     resetJumps();
     const validJump = jumpValidator();
     const { add: addJump, done: doneAddingJumps } = jumpAdder();
-
-    setFilterErrorsOnly(filtersData.errorsOnly);
 
     let filteredLogs: JSONLogs = filtersData.logs.length
       ? filtersData.logs
@@ -140,7 +137,6 @@ function useViewModel() {
     setInitialCols,
     handleTimeJump,
     handleContextClick,
-    filterErrorsOnly,
   };
 }
 

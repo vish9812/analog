@@ -83,9 +83,7 @@ const Layout = (props: LayoutProps) => {
                     />
                   </svg>
                 </button>
-                <span class="tooltip bottom-full left-1/2 -translate-x-1/2 mb-2">
-                  Reload Page
-                </span>
+                <span class="tooltip">Reload Page</span>
               </div>
             </div>
           </div>
