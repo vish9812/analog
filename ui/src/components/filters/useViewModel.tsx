@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import { createStore } from "solid-js/store";
-import { AgGridSolidRef } from "ag-grid-solid";
+import { AgGridSolidRef } from "solid-ag-grid";
 import comparer from "@al/services/comparer";
 import LogData, { JSONLogs, GroupedMsg, JSONLog } from "@al/models/logData";
 
@@ -68,13 +68,16 @@ function savedFiltersKeys(): string[] {
   );
 }
 
-function savedFiltersNames(): string[] {
+function storageFilterNames(): string[] {
   return savedFiltersKeys().map((key) => key.split("|")[1]);
 }
 
 function useViewModel(props: FiltersProps) {
   const [filters, setFilters] = createStore(defaultFilters());
-  const [savedFilterName, setSavedFilterName] = createSignal("");
+  const [activeFilterName, setActiveFilterName] = createSignal("");
+  const [savedFilterNames, setSavedFilterNames] = createSignal(
+    storageFilterNames()
+  );
   const [msgs, setMsgs] = createSignal(comparer.last().summary.msgs);
   const [httpCodes, setHTTPCodes] = createSignal(
     comparer.last().summary.httpCodes
@@ -90,7 +93,8 @@ function useViewModel(props: FiltersProps) {
   }
 
   function handleResetClick(gridsRefs: GridsRefs) {
-    setSavedFilterName("");
+    setActiveFilterName("");
+    setSavedFilterNames(storageFilterNames());
     setFilters(defaultFilters());
     handleErrorsOnlyChange(false);
 
@@ -193,25 +197,29 @@ function useViewModel(props: FiltersProps) {
   function handleSaveFilter() {
     // Remove logs from the filter to avoid saving the whole log file
     const filterStr = JSON.stringify({ ...filters, logs: [] });
-    localStorage.setItem(savedFilterKey(savedFilterName()), filterStr);
+    localStorage.setItem(savedFilterKey(activeFilterName()), filterStr);
+    setSavedFilterNames([activeFilterName(), ...savedFilterNames()]);
+    setActiveFilterName("");
   }
 
   function handleLoadFilter(filterName: string) {
     const filtersStr = localStorage.getItem(savedFilterKey(filterName));
     if (!filtersStr) return;
 
-    setSavedFilterName(filterName);
+    setActiveFilterName(filterName);
     setFilters(JSON.parse(filtersStr));
     handleFiltersChange();
   }
 
   function handleDeleteFilters() {
     savedFiltersKeys().forEach((key) => localStorage.removeItem(key));
-    setSavedFilterName("");
+    setActiveFilterName("");
+    setSavedFilterNames([]);
   }
 
   return {
-    savedFilterName,
+    savedFilterName: activeFilterName,
+    savedFilterNames,
     filters,
     msgs,
     httpCodes,
@@ -221,7 +229,7 @@ function useViewModel(props: FiltersProps) {
     addedLogs,
     removedLogs,
     setFilters,
-    setSavedFilterName,
+    setSavedFilterName: setActiveFilterName,
     handleFiltersChange,
     handleLogsSelectionChanged,
     handleErrorsOnlyChange,
@@ -234,5 +242,5 @@ function useViewModel(props: FiltersProps) {
 }
 
 export default useViewModel;
-export { defaultFilters, savedFiltersNames, savedFilterKey };
+export { defaultFilters, savedFilterKey };
 export type { SearchTerm, FiltersData, FiltersProps, GridsRefs };

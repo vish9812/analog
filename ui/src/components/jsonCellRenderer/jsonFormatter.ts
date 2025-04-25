@@ -10,12 +10,12 @@ type ColorsOptions = {
 };
 
 const DEFAULT_COLORS: ColorsOptions = {
-  keyColor: "var(--color-base-content)",
-  numberColor: "var(--color-success)",
-  stringColor: "var(--color-primary)",
-  trueColor: "var(--color-info)",
-  falseColor: "var(--color-error)",
-  nullColor: "var(--color-neutral)",
+  keyColor: "var(--color-gray-900)",
+  numberColor: "var(--color-green-600)",
+  stringColor: "var(--color-blue-600)",
+  trueColor: "var(--color-cyan-600)",
+  falseColor: "var(--color-red-600)",
+  nullColor: "var(--color-gray-500)",
 };
 
 const ENTITY_MAP = {

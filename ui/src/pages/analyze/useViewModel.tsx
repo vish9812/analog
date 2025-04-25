@@ -1,6 +1,6 @@
 import { createSignal } from "solid-js";
 import gridService from "./gridService";
-import { AgGridSolidRef } from "ag-grid-solid";
+import { AgGridSolidRef } from "solid-ag-grid";
 import { GridApi } from "ag-grid-community";
 import { FiltersData, SearchTerm } from "@al/components/filters/useViewModel";
 import LogData, { JSONLogs } from "@al/models/logData";
@@ -12,7 +12,6 @@ function useViewModel() {
   const [rows, setRows] = createSignal(comparer.last().logs);
   const [initialCols, setInitialCols] = createSignal(gridService.defaultCols());
   const [cols, setCols] = createSignal(gridService.defaultCols());
-  const [filterErrorsOnly, setFilterErrorsOnly] = createSignal(false);
 
   const {
     reset: resetJumps,
@@ -26,11 +25,10 @@ function useViewModel() {
   }
 
   function handleFiltersChange(filtersData: FiltersData) {
+    console.log("handleFiltersChange");
     resetJumps();
     const validJump = jumpValidator();
     const { add: addJump, done: doneAddingJumps } = jumpAdder();
-
-    setFilterErrorsOnly(filtersData.errorsOnly);
 
     let filteredLogs: JSONLogs = filtersData.logs.length
       ? filtersData.logs
@@ -139,7 +137,6 @@ function useViewModel() {
     setInitialCols,
     handleTimeJump,
     handleContextClick,
-    filterErrorsOnly,
   };
 }
 

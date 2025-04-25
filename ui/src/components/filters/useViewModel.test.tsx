@@ -152,11 +152,17 @@ describe("useViewModel", () => {
       createRoot((dispose) => {
         const vm = useViewModel(props);
 
+        // Initially should be empty
+        expect(vm.savedFilterNames(), "initial savedFilterNames").toEqual([]);
+
         vm.setFilters(filterToSave);
         vm.setSavedFilterName(filterName);
         vm.handleSaveFilter();
 
-        expect(vm.savedFilterName(), "savedFilterName").toEqual(filterName);
+        // Verify filter name is cleared after saving
+        expect(vm.savedFilterName(), "savedFilterName").toEqual("");
+
+        // Verify filter was saved properly
         expect(localStorage.length, "localStorage.length").toEqual(1);
         const loadedFilterStr = localStorage.getItem(
           savedFilterKey(filterName)
@@ -166,6 +172,11 @@ describe("useViewModel", () => {
         expect(loadedFilterJSON, "loadedFilterJSON").toEqual(
           expectedSavedFilter
         );
+
+        // Verify savedFilterNames is updated
+        expect(vm.savedFilterNames(), "savedFilterNames after save").toEqual([
+          filterName,
+        ]);
 
         dispose();
       });
@@ -179,14 +190,23 @@ describe("useViewModel", () => {
         vm.setSavedFilterName(filterName);
 
         expect(localStorage.length, "localStorage.length-pre-save").toEqual(0);
+        expect(vm.savedFilterNames(), "savedFilterNames pre-save").toEqual([]);
+
         vm.handleSaveFilter();
 
         expect(localStorage.length, "localStorage.length-pre-clear").toEqual(1);
+        expect(vm.savedFilterNames(), "savedFilterNames post-save").toEqual([
+          filterName,
+        ]);
+
         vm.handleDeleteFilters();
         expect(localStorage.length, "localStorage.length-post-clear").toEqual(
           0
         );
         expect(vm.savedFilterName(), "savedFilterName").toEqual("");
+        expect(vm.savedFilterNames(), "savedFilterNames post-clear").toEqual(
+          []
+        );
 
         dispose();
       });
@@ -201,6 +221,7 @@ describe("useViewModel", () => {
 
           expect(vm.savedFilterName(), "savedFilterName").toEqual("");
           expect(vm.filters, "filters").toEqual(defaultFilters());
+          expect(vm.savedFilterNames(), "savedFilterNames").toEqual([]);
           expect(props.onFiltersChange, "onFiltersChange").toBeCalledTimes(0);
 
           dispose();
@@ -209,16 +230,25 @@ describe("useViewModel", () => {
 
       test("whenAFilterIsAvailableToLoad", () => {
         createRoot((dispose) => {
-          const vm = useViewModel(props);
-
           localStorage.setItem(
             savedFilterKey(filterName),
             JSON.stringify(expectedSavedFilter)
           );
+
+          const vm = useViewModel(props);
+
+          // Should initialize with saved filter from localStorage
+          expect(vm.savedFilterNames(), "initial savedFilterNames").toEqual([
+            filterName,
+          ]);
+
           vm.handleLoadFilter(filterName);
 
           expect(vm.savedFilterName(), "savedFilterName").toEqual(filterName);
           expect(vm.filters, "filters").toEqual(expectedSavedFilter);
+          expect(vm.savedFilterNames(), "savedFilterNames after load").toEqual([
+            filterName,
+          ]);
           expect(props.onFiltersChange, "onFiltersChange").toBeCalledWith(
             vm.filters
           );

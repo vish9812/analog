@@ -1,4 +1,4 @@
-import AgGridSolid, { AgGridSolidRef } from "ag-grid-solid";
+import AgGridSolid, { AgGridSolidRef } from "solid-ag-grid";
 import useViewModel from "./useViewModel";
 import gridService from "./gridService";
 import { Select, createOptions } from "@thisbeyond/solid-select";
@@ -21,12 +21,12 @@ function Analyze() {
     setInitialCols,
     handleTimeJump,
     handleContextClick,
-    filterErrorsOnly,
   } = useViewModel();
 
   const gridOptions = (): GridOptions<JSONLog> => ({
     enableCellTextSelection: true,
     suppressMaintainUnsortedOrder: true,
+    rowBuffer: 50,
     defaultColDef: gridService.defaultColDef,
     context: {
       handleContextClick,
@@ -35,7 +35,7 @@ function Analyze() {
     columnDefs: cols(),
     getRowId: (params: { data: JSONLog }) => params.data[LogData.logKeys.id],
     getRowStyle: (params: RowClassParams<JSONLog>) =>
-      params.data && LogData.isErrorLog(params.data) && !filterErrorsOnly()
+      params.data && LogData.isErrorLog(params.data)
         ? { background: "#E6A5A5" }
         : undefined,
   });
@@ -43,26 +43,49 @@ function Analyze() {
   return (
     <div class="px-4 space-y-6">
       <div class="space-y-6">
-        <div class="card bg-base-100 shadow-xl">
-          <div class="card-body p-0">
-            <div class="collapse collapse-arrow">
-              <input type="checkbox" class="peer" />
-              <div class="collapse-title text-xl font-semibold">Filters</div>
-              <div class="collapse-content p-4">
-                <Filters onFiltersChange={handleFiltersChange} />
+        <div class="card">
+          <div class="p-0">
+            <div class="relative">
+              <input
+                type="checkbox"
+                class="peer absolute inset-x-0 top-0 z-10 h-12 w-full cursor-pointer opacity-0"
+              />
+              <div class="text-xl font-semibold h-12 flex items-center px-4">
+                Filters
+              </div>
+              <div class="max-h-0 peer-checked:max-h-[200lvh] transition-all duration-200 overflow-hidden">
+                <div class="p-4">
+                  <Filters onFiltersChange={handleFiltersChange} />
+                </div>
+              </div>
+              <div class="absolute top-3 right-3 transition-transform duration-200 rotate-0 peer-checked:rotate-180">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="card bg-base-100 shadow-xl">
+        <div class="card">
           <div class="card-body">
             <div class="flex flex-wrap gap-4 items-center justify-between mb-4">
               <div class="flex items-center gap-4">
                 <h2 class="text-xl font-semibold flex items-center gap-2">
                   All Logs
                   {rows().length ? (
-                    <span class="badge badge-primary badge-lg">
+                    <span class="badge badge-primary">
                       {rows().length.toLocaleString()}
                     </span>
                   ) : null}
@@ -83,7 +106,7 @@ function Analyze() {
                   onChange={handleColsChange}
                 />
                 <button
-                  class="btn btn-outline btn-sm gap-2"
+                  class="btn-outline"
                   onClick={() => setInitialCols(gridService.defaultCols())}
                 >
                   <svg
@@ -105,8 +128,8 @@ function Analyze() {
               </div>
             </div>
 
-            <div class="rounded-lg border border-base-300 overflow-hidden shadow-inner">
-              <div style={{ height: "900px" }} class="ag-theme-alpine">
+            <div class="rounded-lg border border-border overflow-hidden shadow-inner">
+              <div class="ag-theme-alpine h-[900px]">
                 <AgGridSolid ref={gridRef} {...gridOptions()} />
               </div>
             </div>
