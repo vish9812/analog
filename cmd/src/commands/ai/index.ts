@@ -45,7 +45,7 @@ async function run() {
     default: "log",
   });
 
-  // Set summary flags before calling getSummaryData
+  // Set summary flags before calling getSummaryResult
   const summaryFlags: SummaryFlags = {
     path,
     topLogsCount: Number(top),
@@ -68,7 +68,15 @@ async function run() {
   }
 
   const anthropic = new Anthropic({ apiKey });
-  const promptText = `You are an expert log analyst. Here is a summary of log data:\n\n${summaryForAI}\n\nPlease provide:\n- A plain-language summary of key findings\n- Any anomalies or unusual patterns\n- Suggestions for further investigation`;
+  const promptText = `You are an expert log analyst. Here is a summary of log data:
+
+${summaryForAI}
+
+Please provide:
+- A plain-language summary of key findings
+- Highlight any anomalies, spikes, or outliers in the data (such as sudden increases in errors, rare events, or unexpected patterns). If you detect anomalies, list them clearly under an 'Anomalies Detected:' section.
+- Suggestions for further investigation
+`;
 
   try {
     const completion = await anthropic.messages.create({
