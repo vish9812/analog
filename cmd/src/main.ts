@@ -5,6 +5,7 @@ import merger from "./commands/merger";
 import summary from "./commands/summary";
 import web from "./commands/web";
 import ldapCmd from "./commands/ldap";
+import aiCmd from "./commands/ai";
 import type { ICmd } from "./utils/cmd-runner";
 
 // Handle Ctrl-C
@@ -39,6 +40,9 @@ const { values: flags } = parseArgs({
       type: "boolean",
       short: "l",
     },
+    ai: {
+      type: "boolean",
+    },
   },
   strict: false,
   allowPositionals: true,
@@ -56,6 +60,8 @@ if (typeof flags.merger === "boolean" && flags.merger) {
   cmd = web;
 } else if (typeof flags.ldap === "boolean" && flags.ldap) {
   cmd = ldapCmd;
+} else if (typeof flags.ai === "boolean" && flags.ai) {
+  cmd = aiCmd;
 } else {
   if (isHelp) {
     help();
@@ -100,6 +106,9 @@ Usage:
 
 The commands are:
 
+  --ai
+        Analyze logs using AI.
+        
   -l, --ldap
         Parses LDAP log files to find all group membership paths for a specific user and job ID, or search for users based on various criteria.
 

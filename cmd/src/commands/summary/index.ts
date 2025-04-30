@@ -15,6 +15,10 @@ import fileHelper from "@al/cmd/utils/file-helper";
 
 let workerURL = new URL("worker.ts", import.meta.url);
 
+export interface ISummaryResult extends Omit<IStats, "dataMap"> {
+  summary: ISummary;
+}
+
 interface IStats extends Omit<IResult, "filePath" | "dataMap"> {
   minTimeFile: string;
   maxTimeFile: string;
@@ -28,33 +32,19 @@ interface IStatsGroupedMsg extends IGroupedMsg {
 
 type IStatsSummaryMap = ISummaryMapGeneric<IStatsGroupedMsg>;
 
-interface ISummary {
+export interface ISummary {
   msgs: IStatsGroupedMsg[];
   httpCodes: IStatsGroupedMsg[];
   jobs: IStatsGroupedMsg[];
   plugins: IStatsGroupedMsg[];
 }
 
-const stats: IStats = {
-  maxTime: "0",
-  maxTimeFile: "",
-  minTime: "z",
-  minTimeFile: "",
-  size: 0,
-  dataMap: {
-    httpCodes: new Map<string, IStatsGroupedMsg>(),
-    jobs: new Map<string, IStatsGroupedMsg>(),
-    msgs: new Map<string, IStatsGroupedMsg>(),
-    plugins: new Map<string, IStatsGroupedMsg>(),
-  },
-};
-
-const flags = {
-  path: ".",
-  topLogsCount: 30,
-  prefix: "mattermost",
-  suffix: "log",
-};
+export interface SummaryFlags {
+  path: string;
+  topLogsCount: number;
+  prefix: string;
+  suffix: string;
+}
 
 function help(): void {
   console.log(`
@@ -84,25 +74,24 @@ The arguments are:
         Specifies the suffix for the log files to include.
         Default: log
 
-Example: 
+Example:  
   
   ./analog -s -p "/path/to/logs/folder" --prefix "debug-" --suffix "txt"
     `);
 }
 
 async function run(): Promise<void> {
-  const workerFile = Bun.file(workerURL);
-  if (!(await workerFile.exists())) {
-    // Path for the compiled executable
-    workerURL = new URL("commands/summary/worker.js", import.meta.url);
-  }
-
-  parseFlags();
-
-  await processLogs();
+  const flags = parseFlags();
+  await processLogs(flags);
 }
 
-function parseFlags() {
+function parseFlags(): SummaryFlags {
+  const defaultFlags: SummaryFlags = {
+    path: ".",
+    topLogsCount: 30,
+    prefix: "mattermost",
+    suffix: "log",
+  };
   const { values } = parseArgs({
     args: Bun.argv,
     options: {
@@ -113,33 +102,42 @@ function parseFlags() {
       path: {
         type: "string",
         short: "p",
-        default: flags.path,
+        default: defaultFlags.path,
       },
       top: {
         type: "string",
         short: "t",
-        default: String(flags.topLogsCount),
+        default: String(defaultFlags.topLogsCount),
       },
       prefix: {
         type: "string",
-        default: flags.prefix,
+        default: defaultFlags.prefix,
       },
       suffix: {
         type: "string",
-        default: flags.suffix,
+        default: defaultFlags.suffix,
       },
     },
     strict: true,
     allowPositionals: true,
   });
 
-  flags.path = String(values.path);
-  flags.topLogsCount = Number(values.top) || flags.topLogsCount;
-  flags.prefix = String(values.prefix);
-  flags.suffix = String(values.suffix);
+  return {
+    path: String(values.path),
+    topLogsCount: Number(values.top) || defaultFlags.topLogsCount,
+    prefix: String(values.prefix),
+    suffix: String(values.suffix),
+  };
 }
 
-async function processLogs() {
+async function processLogs(flags: SummaryFlags) {
+  const result = await getSummaryResult(flags);
+  writeContent(result, flags);
+}
+
+export async function getSummaryResult(
+  flags: SummaryFlags
+): Promise<ISummaryResult> {
   const filePaths = await fileHelper.getFiles(
     flags.path,
     flags.prefix,
@@ -150,16 +148,35 @@ async function processLogs() {
     `Found ${filePaths.length} files matching prefix "${flags.prefix}" and suffix "${flags.suffix}" in "${flags.path}"`
   );
 
+  const stats: IStats = {
+    maxTime: "0",
+    maxTimeFile: "",
+    minTime: "z",
+    minTimeFile: "",
+    size: 0,
+    dataMap: {
+      httpCodes: new Map<string, IStatsGroupedMsg>(),
+      jobs: new Map<string, IStatsGroupedMsg>(),
+      msgs: new Map<string, IStatsGroupedMsg>(),
+      plugins: new Map<string, IStatsGroupedMsg>(),
+    },
+  };
+
   console.log("=========Begin Read Files=========");
-  await readFiles(filePaths);
+  await readFiles(filePaths, stats);
   console.log("=========End Read Files=========");
 
-  const summary = initSummary(stats.dataMap);
-
-  writeContent(summary);
+  return {
+    maxTime: stats.maxTime,
+    maxTimeFile: stats.maxTimeFile,
+    minTime: stats.minTime,
+    minTimeFile: stats.minTimeFile,
+    size: stats.size,
+    summary: initSummary(stats.dataMap, flags.topLogsCount),
+  };
 }
 
-function readFiles(filePaths: string[]) {
+function readFiles(filePaths: string[], stats: IStats) {
   return new Promise<void>((res, rej) => {
     const maxWorkers = Math.min(
       Math.max(cpus().length - 1, 1),
@@ -176,7 +193,7 @@ function readFiles(filePaths: string[]) {
           return rej(err);
         }
 
-        processFileResponse(result);
+        processFileResponse(result, stats);
 
         if (++finishedTasks === filePaths.length) {
           await pool.close();
@@ -187,7 +204,7 @@ function readFiles(filePaths: string[]) {
   });
 }
 
-function processFileResponse(fileStats: IResult) {
+function processFileResponse(fileStats: IResult, stats: IStats) {
   if (fileStats.maxTime > stats.maxTime) {
     stats.maxTime = fileStats.maxTime;
     stats.maxTimeFile = fileStats.filePath;
@@ -200,10 +217,10 @@ function processFileResponse(fileStats: IResult) {
 
   stats.size += fileStats.size;
 
-  initSummaryMap(fileStats.dataMap, fileStats.filePath);
+  initSummaryMap(fileStats.dataMap, fileStats.filePath, stats);
 }
 
-function initSummaryMap(dataMap: ISummaryMap, filePath: string) {
+function initSummaryMap(dataMap: ISummaryMap, filePath: string, stats: IStats) {
   mergeIntoOverallMap(dataMap.httpCodes, stats.dataMap.httpCodes, filePath);
   mergeIntoOverallMap(dataMap.jobs, stats.dataMap.jobs, filePath);
   mergeIntoOverallMap(dataMap.msgs, stats.dataMap.msgs, filePath);
@@ -248,19 +265,24 @@ function summarySorterFn(a: IStatsGroupedMsg, b: IStatsGroupedMsg) {
   return b.logsCount - a.logsCount;
 }
 
-function initSummary(summaryMap: IStatsSummaryMap): ISummary {
+function initSummary(
+  summaryMap: IStatsSummaryMap,
+  topLogsCount: number
+): ISummary {
   return {
-    msgs: [...summaryMap.msgs.values()].sort(summarySorterFn),
+    msgs: [...summaryMap.msgs.values()]
+      .sort(summarySorterFn)
+      .slice(0, topLogsCount),
     httpCodes: [...summaryMap.httpCodes.values()].sort(summarySorterFn),
     jobs: [...summaryMap.jobs.values()].sort(summarySorterFn),
     plugins: [...summaryMap.plugins.values()].sort(summarySorterFn),
   };
 }
 
-function writeContent(summary: ISummary) {
+function writeContent(result: ISummaryResult, flags: SummaryFlags) {
   console.log();
 
-  stats.size = prettyBytes(stats.size) as any;
+  result.size = prettyBytes(result.size) as any;
 
   let table = new Table({
     title: "Overall summary of all the logs",
@@ -272,24 +294,29 @@ function writeContent(summary: ISummary) {
       { name: "totalUniqueLogs" },
       { name: "size" },
     ],
-    disabledColumns: ["dataMap"],
+    disabledColumns: ["summary"],
   });
+
   table.addRow(
     {
-      ...stats,
-      totalUniqueLogs: summary.msgs.length,
+      ...result,
+      totalUniqueLogs: result.summary.msgs.length,
     },
     { color: "green" }
   );
   table.printTable();
 
-  writeGroupedMsgs(summary.msgs, "Top Logs");
-  writeGroupedMsgs(summary.httpCodes, "HTTP Codes");
-  writeGroupedMsgs(summary.jobs, "Jobs");
-  writeGroupedMsgs(summary.plugins, "Plugins");
+  writeGroupedMsgs(result.summary.msgs, "Top Logs", flags);
+  writeGroupedMsgs(result.summary.httpCodes, "HTTP Codes", flags);
+  writeGroupedMsgs(result.summary.jobs, "Jobs", flags);
+  writeGroupedMsgs(result.summary.plugins, "Plugins", flags);
 }
 
-function writeGroupedMsgs(grpMsgs: IStatsGroupedMsg[], title: string) {
+function writeGroupedMsgs(
+  grpMsgs: IStatsGroupedMsg[],
+  title: string,
+  flags: SummaryFlags
+) {
   console.log();
 
   const table = new Table({
