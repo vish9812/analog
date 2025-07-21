@@ -1,6 +1,7 @@
 import { select, input } from "@inquirer/prompts";
 import { getSummaryResult, type SummaryFlags } from "../summary";
 import { Anthropic } from "@anthropic-ai/sdk";
+import { analyzeLogsWithAI } from "./ai-filter";
 
 function help(): void {
   console.log(`
@@ -11,21 +12,22 @@ Usage:
   ./analog --ai
 
 This command provides AI-powered insights on your log summaries.
-Currently, only summary-insights is supported.
+Currently supported features:
+- Get summary insights
+- Ask custom questions about logs
+- Filter and analyze logs using natural language
 `);
 }
 
 async function run() {
-  // 1. Ask what to do (only summary-insights for now)
+  // 1. Ask what to do
   const aiAction = await select({
     message: "What do you want to do?",
-    choices: [{ name: "Get summary insights", value: "summary-insights" }],
+    choices: [
+      { name: "Get summary insights", value: "summary-insights" },
+      { name: "Ask questions about logs", value: "ask-questions" },
+    ],
   });
-
-  if (aiAction !== "summary-insights") {
-    console.log("Only summary-insights is supported in this version.");
-    return;
-  }
 
   // 2. Prompt for summary flags
   const path = await input({
@@ -45,7 +47,7 @@ async function run() {
     default: "log",
   });
 
-  // Set summary flags before calling getSummaryResult
+  // Set summary flags
   const summaryFlags: SummaryFlags = {
     path,
     topLogsCount: Number(top),
@@ -53,22 +55,23 @@ async function run() {
     suffix,
   };
 
-  // 3. Run summary logic and get summary result using the shared function
-  const summaryResult = await getSummaryResult(summaryFlags);
+  if (aiAction === "summary-insights") {
+    // 3. Run summary logic and get summary result
+    const summaryResult = await getSummaryResult(summaryFlags);
 
-  // 4. Format and log the data sent to LLM
-  const summaryForAI = JSON.stringify(summaryResult, null, 2);
-  console.log("\n[DEBUG] Data sent to AI:\n", summaryForAI);
+    // 4. Format and log the data sent to LLM
+    const summaryForAI = JSON.stringify(summaryResult, null, 2);
+    console.log("\n[DEBUG] Data sent to AI:\n", summaryForAI);
 
-  // 5. Call Anthropic API with claude-3-7-sonnet-20250219
-  const apiKey = Bun.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.error("Error: ANTHROPIC_API_KEY environment variable not set.");
-    return;
-  }
+    // 5. Call Anthropic API
+    const apiKey = Bun.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      console.error("Error: ANTHROPIC_API_KEY environment variable not set.");
+      return;
+    }
 
-  const anthropic = new Anthropic({ apiKey });
-  const promptText = `You are an expert log analyst. Here is a summary of log data:
+    const anthropic = new Anthropic({ apiKey });
+    const promptText = `You are an expert log analyst. Here is a summary of log data:
 
 ${summaryForAI}
 
@@ -78,16 +81,20 @@ Please provide:
 - Suggestions for further investigation
 `;
 
-  try {
-    const completion = await anthropic.messages.create({
-      model: "claude-3-7-sonnet-20250219",
-      max_tokens: 5000,
-      messages: [{ role: "user", content: promptText }],
-    });
-    console.log("\nAI Insights:\n");
-    console.log(completion.content);
-  } catch (err) {
-    console.error("Error calling Anthropic API:", err);
+    try {
+      const completion = await anthropic.messages.create({
+        model: "claude-3-7-sonnet-20250219",
+        max_tokens: 5000,
+        messages: [{ role: "user", content: promptText }],
+      });
+      console.log("\nAI Insights:\n");
+      console.log(completion.content);
+    } catch (err) {
+      console.error("Error calling Anthropic API:", err);
+    }
+  } else if (aiAction === "ask-questions") {
+    // Use the new AI filtering and analysis functionality
+    await analyzeLogsWithAI(summaryFlags);
   }
 }
 
