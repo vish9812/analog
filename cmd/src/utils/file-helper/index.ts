@@ -27,8 +27,8 @@ async function getFiles(
         await readDirectory(filePath);
       } else {
         // If it's a file, check prefix and suffix before adding
-        if (f.name.startsWith(prefix) && f.name.endsWith(suffix)) {
-          fileList.push(filePath);
+        if (f.name.startsWith(prefix)) {
+          fileList.push(filePath);``
         }
       }
     }

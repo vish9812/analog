@@ -1,10 +1,12 @@
 import { parseArgs } from "util";
 // @ts-ignore
 import figlet from "figlet";
+// @ts-ignore
+import standard from "figlet/importable-fonts/Standard";
+import ldapCmd from "./commands/ldap";
 import merger from "./commands/merger";
 import summary from "./commands/summary";
 import web from "./commands/web";
-import ldapCmd from "./commands/ldap";
 import type { ICmd } from "./utils/cmd-runner";
 
 // Handle Ctrl-C
@@ -12,6 +14,9 @@ process.on("SIGINT", () => {
   console.log("\nCtrl-C was pressed, exiting...\n");
   process.exit(0);
 });
+
+// Parse standard figlet fonts
+figlet.parseFont("Standard", standard);
 
 let cmd: ICmd;
 let isHelp = false;
